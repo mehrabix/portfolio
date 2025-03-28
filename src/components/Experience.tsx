@@ -15,11 +15,11 @@ const Experience = () => {
       period: 'December 2021 - Present',
       website: 'https://demisco.com/en/',
       achievements: [
-        'Orchestrated the transition from a monolithic architecture to micro-frontends, elevating scalability by 50% and reducing system downtime by 30%',
-        'Devised automation solutions using GitLab CI, Jenkins, Ansible, and shell scripting, boosting team productivity by 60%',
-        'Led a team of five frontend developers, expediting delivery speed by 30% and enhancing team collaboration by 25%',
-        'Optimized build processes utilizing Webpack, Rollup, and Module Federation, cutting build times by 40%',
-        'Implemented unit and end-to-end testing with Jest and Playwright, improving software quality and decreasing defects by 40%',
+        'Orchestrated the transition from a monolithic architecture to micro-frontends, significantly improving scalability and reducing system downtime',
+        'Devised automation solutions using GitLab CI, Jenkins, Ansible, and shell scripting, significantly boosting team productivity',
+        'Led the frontend development team, improving delivery speed and enhancing team collaboration',
+        'Optimized build processes utilizing Webpack, Rollup, and Module Federation, significantly reducing build times',
+        'Implemented unit and end-to-end testing with Jest and Playwright, improving software quality and reducing defects',
       ],
     },
   ]

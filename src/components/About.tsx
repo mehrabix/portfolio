@@ -59,9 +59,9 @@ const About = () => {
               <h3 className="heading-3 text-secondary mb-4">Experience Summary</h3>
               <p className="text-textSecondary">
                 Dynamic Software Engineer with over 3 years of experience in frontend development and UI design.
-                Championed 10+ projects, leading to a 40% reduction in defects and a 30% enhancement in efficiency.
-                Proficient in backend integration, DevOps, and automation, accelerating delivery rates by 25% and
-                boosting productivity by 60%.
+                Championed multiple projects, leading to significant reduction in defects and enhancement in efficiency.
+                Proficient in backend integration, DevOps, and automation, accelerating delivery rates and
+                boosting productivity.
               </p>
             </motion.div>
           </div>
