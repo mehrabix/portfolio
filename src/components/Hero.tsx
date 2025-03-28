@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 
+// Add mobile detection
+const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
 const Moon = () => {
   const moonRef = useRef<THREE.Mesh>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -11,9 +14,11 @@ const Moon = () => {
   useFrame((state) => {
     if (!moonRef.current) return
 
-    // Smooth rotation based on mouse position
-    moonRef.current.rotation.x += (mousePosition.y * 0.0001 - moonRef.current.rotation.x) * 0.1
-    moonRef.current.rotation.y += (mousePosition.x * 0.0001 - moonRef.current.rotation.y) * 0.1
+    // Only apply mouse-based rotation on desktop
+    if (!isMobile) {
+      moonRef.current.rotation.x += (mousePosition.y * 0.0001 - moonRef.current.rotation.x) * 0.1
+      moonRef.current.rotation.y += (mousePosition.x * 0.0001 - moonRef.current.rotation.y) * 0.1
+    }
 
     // Gentle floating animation
     moonRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1
@@ -24,13 +29,13 @@ const Moon = () => {
       ref={moonRef} 
       args={[0.5, 64, 64]} 
       position={[2, 1, 0]}
-      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+      onPointerMove={!isMobile ? (e: ThreeEvent<PointerEvent>) => {
         const { clientX, clientY } = e
         setMousePosition({
           x: (clientX / window.innerWidth) * 2 - 1,
           y: -(clientY / window.innerHeight) * 2 + 1
         })
-      }}
+      } : undefined}
     >
       <meshStandardMaterial
         color="#ffffff"
@@ -50,19 +55,21 @@ const InteractiveStars = () => {
   useFrame(() => {
     if (!starsRef.current) return
 
-    // Smooth rotation based on mouse position
-    starsRef.current.rotation.x += (mousePosition.y * 0.00005 - starsRef.current.rotation.x) * 0.1
-    starsRef.current.rotation.y += (mousePosition.x * 0.00005 - starsRef.current.rotation.y) * 0.1
+    // Only apply mouse-based rotation on desktop
+    if (!isMobile) {
+      starsRef.current.rotation.x += (mousePosition.y * 0.00005 - starsRef.current.rotation.x) * 0.1
+      starsRef.current.rotation.y += (mousePosition.x * 0.00005 - starsRef.current.rotation.y) * 0.1
+    }
   })
 
   return (
-    <group onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+    <group onPointerMove={!isMobile ? (e: ThreeEvent<PointerEvent>) => {
       const { clientX, clientY } = e
       setMousePosition({
         x: (clientX / window.innerWidth) * 2 - 1,
         y: -(clientY / window.innerHeight) * 2 + 1
       })
-    }}>
+    } : undefined}>
       <Stars
         ref={starsRef}
         radius={100}
@@ -177,7 +184,7 @@ const Hero = () => {
           <SkySphere />
           <Moon />
           <InteractiveStars />
-          <OrbitControls enableZoom={false} enablePan={false} />
+          {!isMobile && <OrbitControls enableZoom={false} enablePan={false} />}
         </Canvas>
       </div>
 
@@ -220,8 +227,8 @@ const Hero = () => {
         </motion.div>
       </div>
 
-      {/* Touch Hint */}
-      <TouchHint />
+      {/* Touch Hint - Only show on mobile */}
+      {isMobile && <TouchHint />}
     </section>
   )
 }
