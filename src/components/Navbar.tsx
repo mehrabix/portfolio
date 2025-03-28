@@ -25,7 +25,7 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed w-full z-50 transition-all duration-300 ${
+      className={`fixed w-full z-[9999] transition-all duration-300 ${
         scrolled 
           ? 'bg-primary/95 backdrop-blur-lg shadow-lg' 
           : 'bg-primary/90 backdrop-blur-lg'
@@ -80,7 +80,7 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 lg:hidden"
+              className="fixed inset-0 z-[9998] lg:hidden"
             >
               {/* Backdrop */}
               <motion.div
@@ -88,7 +88,7 @@ const Navbar = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9997]"
                 onClick={() => setIsOpen(false)}
               />
               
@@ -98,7 +98,7 @@ const Navbar = () => {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 20 }}
-                className="fixed right-0 top-0 h-full w-64 bg-primary/95 backdrop-blur-lg shadow-xl"
+                className="fixed right-0 top-0 h-full w-64 bg-primary/95 backdrop-blur-lg shadow-xl z-[9999]"
               >
                 <div className="flex h-full flex-col">
                   <div className="flex items-center justify-between border-b border-secondary/20 px-6 py-4">
