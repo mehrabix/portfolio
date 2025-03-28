@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
+import { Box, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Box } from '@react-three/drei'
+import { motion } from 'framer-motion'
 import { Suspense } from 'react'
+import { useInView } from 'react-intersection-observer'
 
 const ProjectCard = ({ title, description, link, technologies }: {
   title: string
