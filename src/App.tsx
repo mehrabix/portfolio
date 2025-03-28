@@ -12,11 +12,11 @@ function App() {
   return (
     <div className="relative">
       {/* 3D Background */}
-      <div className="fixed inset-0 -z-10">
+      <div className="fixed inset-0 -z-10 pointer-events-none">
         <Canvas>
           <Suspense fallback={null}>
             <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-            <OrbitControls enableZoom={false} />
+            <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
           </Suspense>
         </Canvas>
       </div>
