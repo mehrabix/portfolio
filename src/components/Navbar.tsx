@@ -27,8 +27,8 @@ const Navbar = () => {
       animate={{ y: 0 }}
       className={`fixed w-full z-50 transition-all duration-300 ${
         scrolled 
-          ? 'bg-primary/90 backdrop-blur-md shadow-lg' 
-          : 'bg-primary/80 backdrop-blur-md md:bg-primary/40'
+          ? 'bg-primary/95 backdrop-blur-lg shadow-lg' 
+          : 'bg-primary/90 backdrop-blur-lg'
       }`}
     >
       <div className="container mx-auto px-4">
@@ -88,7 +88,7 @@ const Navbar = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+                className="fixed inset-0 bg-black/30 backdrop-blur-sm"
                 onClick={() => setIsOpen(false)}
               />
               
@@ -98,14 +98,14 @@ const Navbar = () => {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 20 }}
-                className="fixed right-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md shadow-xl dark:bg-gray-900/80"
+                className="fixed right-0 top-0 h-full w-64 bg-primary/95 backdrop-blur-lg shadow-xl"
               >
                 <div className="flex h-full flex-col">
-                  <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Menu</h2>
+                  <div className="flex items-center justify-between border-b border-secondary/20 px-6 py-4">
+                    <h2 className="text-xl font-bold text-secondary">Menu</h2>
                     <button
                       onClick={() => setIsOpen(false)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                      className="rounded-lg p-2 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
                     >
                       <XMarkIcon className="h-6 w-6" />
                     </button>
@@ -117,18 +117,18 @@ const Navbar = () => {
                         key={item.href}
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="block rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                        className="block rounded-lg px-4 py-2 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
                       >
                         {item.name}
                       </a>
                     ))}
                   </nav>
                   
-                  <div className="border-t border-gray-200 p-4 dark:border-gray-800">
+                  <div className="border-t border-secondary/20 p-4">
                     <a
                       href="#contact"
                       onClick={() => setIsOpen(false)}
-                      className="block w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700"
+                      className="block w-full rounded-lg bg-secondary px-4 py-2 text-center text-primary hover:bg-secondary/90 transition-colors"
                     >
                       Contact Me
                     </a>
