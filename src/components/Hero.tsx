@@ -151,7 +151,6 @@ const FloatingText = () => {
         perspective: '1000px',
       }}
     >
-      Welcome
     </motion.div>
   )
 }
