@@ -1,5 +1,5 @@
 import { OrbitControls, Sphere, Stars } from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber'
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -24,7 +24,7 @@ const Moon = () => {
       ref={moonRef} 
       args={[0.5, 64, 64]} 
       position={[2, 1, 0]}
-      onPointerMove={(e) => {
+      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
         const { clientX, clientY } = e
         setMousePosition({
           x: (clientX / window.innerWidth) * 2 - 1,
@@ -56,7 +56,7 @@ const InteractiveStars = () => {
   })
 
   return (
-    <group onPointerMove={(e) => {
+    <group onPointerMove={(e: ThreeEvent<PointerEvent>) => {
       const { clientX, clientY } = e
       setMousePosition({
         x: (clientX / window.innerWidth) * 2 - 1,
@@ -79,15 +79,10 @@ const InteractiveStars = () => {
 
 const SkySphere = () => {
   const meshRef = useRef<THREE.Mesh>(null)
-  const [mousePosition, _] = useState({ x: 0, y: 0 })
   const [hasInteracted, setHasInteracted] = useState(false)
 
   useFrame((state) => {
     if (!meshRef.current) return
-
-    // Smooth rotation based on mouse position
-    meshRef.current.rotation.x += (mousePosition.y * 0.0001 - meshRef.current.rotation.x) * 0.1
-    meshRef.current.rotation.y += (mousePosition.x * 0.0001 - meshRef.current.rotation.y) * 0.1
 
     // Gentle floating animation
     meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1
