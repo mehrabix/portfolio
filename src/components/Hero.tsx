@@ -211,12 +211,6 @@ const Hero = () => {
           >
             Contact Me
           </a>
-          <a
-            href="#projects"
-            className="px-8 py-3 border border-white text-white rounded-lg hover:bg-white/10 transition-colors"
-          >
-            View Projects
-          </a>
         </motion.div>
       </div>
 
