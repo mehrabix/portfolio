@@ -9,7 +9,7 @@ const Experience = () => {
 
   const experiences = [
     {
-      title: 'Front End Software Engineer',
+      title: 'Full Stack Software Engineer',
       company: 'Demis Holding',
       location: 'Isfahan, Iran',
       period: 'December 2021 - Present',
