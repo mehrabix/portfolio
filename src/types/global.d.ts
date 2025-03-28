@@ -1,8 +1,12 @@
 /// <reference types="@react-three/fiber" />
 /// <reference types="three" />
+import { ThreeElements } from '@react-three/fiber'
+import { Object3D } from 'three'
 
-declare namespace JSX {
-  interface IntrinsicElements {
-    [elemName: string]: any;
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      [elemName: string]: any;
+    }
   }
 } 
