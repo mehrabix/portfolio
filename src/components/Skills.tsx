@@ -1,12 +1,42 @@
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaCode, FaServer, FaTools, FaShieldAlt, FaUsers, FaCogs } from 'react-icons/fa'
 
 const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: string[]; icon: any }) => {
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const rotateX = useTransform(y, [-100, 100], [15, -15])
+  const rotateY = useTransform(x, [-100, 100], [-15, 15])
+
+  const springConfig = { damping: 2, stiffness: 1000, mass: 0.1 }
+  const springRotateX = useSpring(rotateX, springConfig)
+  const springRotateY = useSpring(rotateY, springConfig)
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    x.set(event.clientX - centerX)
+    y.set(event.clientY - centerY)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
+  }
+
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
-      className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-300 h-full flex flex-col"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX: springRotateX,
+        rotateY: springRotateY,
+        transformStyle: "preserve-3d",
+        transform: "perspective(800px)",
+      }}
+      className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-100 h-full flex flex-col"
     >
       <div className="flex items-center gap-3 mb-6">
         <motion.div
