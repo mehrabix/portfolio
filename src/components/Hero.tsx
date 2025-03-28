@@ -10,32 +10,60 @@ const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
 const Moon = () => {
   const moonRef = useRef<THREE.Mesh>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isInteracting, setIsInteracting] = useState(false)
+  const touchTimeoutRef = useRef<NodeJS.Timeout>()
 
   useFrame((state) => {
     if (!moonRef.current) return
 
-    // Only apply mouse-based rotation on desktop
-    if (!isMobile) {
-      moonRef.current.rotation.x += (mousePosition.y * 0.0001 - moonRef.current.rotation.x) * 0.1
-      moonRef.current.rotation.y += (mousePosition.x * 0.0001 - moonRef.current.rotation.y) * 0.1
-    }
+    // Apply rotation with reduced intensity on mobile
+    const intensity = window.innerWidth <= 768 ? 0.00005 : 0.0001
+    moonRef.current.rotation.x += (mousePosition.y * intensity - moonRef.current.rotation.x) * 0.1
+    moonRef.current.rotation.y += (mousePosition.x * intensity - moonRef.current.rotation.y) * 0.1
 
     // Gentle floating animation
     moonRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1
   })
+
+  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current)
+    }
+
+    // On mobile, wait a bit before capturing touch events
+    if (window.innerWidth <= 768) {
+      touchTimeoutRef.current = setTimeout(() => {
+        setIsInteracting(true)
+        const { clientX, clientY } = e
+        setMousePosition({
+          x: (clientX / window.innerWidth) * 2 - 1,
+          y: -(clientY / window.innerHeight) * 2 + 1
+        })
+      }, 100) // 100ms delay
+    } else {
+      setIsInteracting(true)
+      const { clientX, clientY } = e
+      setMousePosition({
+        x: (clientX / window.innerWidth) * 2 - 1,
+        y: -(clientY / window.innerHeight) * 2 + 1
+      })
+    }
+  }
+
+  const handlePointerLeave = () => {
+    setIsInteracting(false)
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current)
+    }
+  }
 
   return (
     <Sphere 
       ref={moonRef} 
       args={[0.5, 64, 64]} 
       position={[2, 1, 0]}
-      onPointerMove={!isMobile ? (e: ThreeEvent<PointerEvent>) => {
-        const { clientX, clientY } = e
-        setMousePosition({
-          x: (clientX / window.innerWidth) * 2 - 1,
-          y: -(clientY / window.innerHeight) * 2 + 1
-        })
-      } : undefined}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
     >
       <meshStandardMaterial
         color="#ffffff"
@@ -51,25 +79,55 @@ const Moon = () => {
 const InteractiveStars = () => {
   const starsRef = useRef<THREE.Points>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isInteracting, setIsInteracting] = useState(false)
+  const touchTimeoutRef = useRef<NodeJS.Timeout>()
 
   useFrame(() => {
     if (!starsRef.current) return
 
-    // Only apply mouse-based rotation on desktop
-    if (!isMobile) {
-      starsRef.current.rotation.x += (mousePosition.y * 0.00005 - starsRef.current.rotation.x) * 0.1
-      starsRef.current.rotation.y += (mousePosition.x * 0.00005 - starsRef.current.rotation.y) * 0.1
-    }
+    // Apply rotation with reduced intensity on mobile
+    const intensity = window.innerWidth <= 768 ? 0.000025 : 0.00005
+    starsRef.current.rotation.x += (mousePosition.y * intensity - starsRef.current.rotation.x) * 0.1
+    starsRef.current.rotation.y += (mousePosition.x * intensity - starsRef.current.rotation.y) * 0.1
   })
 
-  return (
-    <group onPointerMove={!isMobile ? (e: ThreeEvent<PointerEvent>) => {
+  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current)
+    }
+
+    // On mobile, wait a bit before capturing touch events
+    if (window.innerWidth <= 768) {
+      touchTimeoutRef.current = setTimeout(() => {
+        setIsInteracting(true)
+        const { clientX, clientY } = e
+        setMousePosition({
+          x: (clientX / window.innerWidth) * 2 - 1,
+          y: -(clientY / window.innerHeight) * 2 + 1
+        })
+      }, 100) // 100ms delay
+    } else {
+      setIsInteracting(true)
       const { clientX, clientY } = e
       setMousePosition({
         x: (clientX / window.innerWidth) * 2 - 1,
         y: -(clientY / window.innerHeight) * 2 + 1
       })
-    } : undefined}>
+    }
+  }
+
+  const handlePointerLeave = () => {
+    setIsInteracting(false)
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current)
+    }
+  }
+
+  return (
+    <group 
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+    >
       <Stars
         ref={starsRef}
         radius={100}
@@ -184,7 +242,12 @@ const Hero = () => {
           <SkySphere />
           <Moon />
           <InteractiveStars />
-          {!isMobile && <OrbitControls enableZoom={false} enablePan={false} />}
+          <OrbitControls 
+            enableZoom={false} 
+            enablePan={false}
+            enableRotate={window.innerWidth > 768}
+            rotateSpeed={window.innerWidth <= 768 ? 0.5 : 1}
+          />
         </Canvas>
       </div>
 
@@ -227,8 +290,8 @@ const Hero = () => {
         </motion.div>
       </div>
 
-      {/* Touch Hint - Only show on mobile */}
-      {isMobile && <TouchHint />}
+      {/* Touch Hint */}
+      <TouchHint />
     </section>
   )
 }
