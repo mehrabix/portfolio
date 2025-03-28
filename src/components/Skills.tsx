@@ -6,7 +6,7 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-300"
+      className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-300 h-full flex flex-col"
     >
       <div className="flex items-center gap-3 mb-6">
         <motion.div
@@ -17,7 +17,7 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
         </motion.div>
         <h3 className="heading-3 text-secondary">{title}</h3>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 flex-1 items-start">
         {skills.map((skill, index) => (
           <motion.span
             key={index}
@@ -25,7 +25,7 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             whileHover={{ scale: 1.05 }}
-            className="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors duration-300 cursor-default"
+            className="inline-flex items-center px-3 py-1 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors duration-300 cursor-default min-w-fit"
           >
             {skill}
           </motion.span>
@@ -59,19 +59,32 @@ const Skills = () => {
         'SvelteKit',
         'Lit',
         'Stencil.js',
+        'Web Components',
+        'Module Federation',
+        'Vue.js',
+        'jQuery',
+        'Bootstrap',
+        'Material UI',
       ],
       icon: FaCode,
     },
     {
-      title: 'Frontend Orchestration',
+      title: 'Frontend Architecture',
       skills: [
-        'Micro Frontend',
+        'Micro Frontends',
         'Webpack',
         'Rollup',
         'Redux',
         'NgRx',
-        'Web Components',
         'Storybook',
+        'Build Optimization',
+        'Performance Tuning',
+        'Cross-browser Compatibility',
+        'State Management',
+        'Component Architecture',
+        'Design Systems',
+        'Responsive Design',
+        'Progressive Web Apps',
       ],
       icon: FaCogs,
     },
@@ -85,6 +98,14 @@ const Skills = () => {
         'Java',
         'Spring Boot',
         'PL/SQL',
+        'RESTful APIs',
+        'Backend Integration',
+        'API Design',
+        'GraphQL',
+        'MongoDB',
+        'PostgreSQL',
+        'Redis',
+        'Microservices',
       ],
       icon: FaServer,
     },
@@ -98,27 +119,54 @@ const Skills = () => {
         'Docker',
         'Shell Scripting',
         'YAML',
+        'Kubernetes',
+        'Ansible',
+        'Automation Scripting',
+        'AWS',
+        'Azure',
+        'Terraform',
+        'Monitoring',
+        'Logging',
       ],
       icon: FaTools,
     },
     {
-      title: 'Security & Testing',
+      title: 'Testing & Quality',
       skills: [
         'OWASP TOP 10',
         'Cypress',
         'Playwright',
-        'Automated Testing',
+        'Jest',
         'Unit Testing',
+        'E2E Testing',
+        'Test Automation',
+        'Code Review',
+        'Quality Assurance',
+        'Performance Testing',
+        'Security Testing',
+        'Testing Strategies',
+        'Test-Driven Development',
+        'Continuous Testing',
       ],
       icon: FaShieldAlt,
     },
     {
-      title: 'Methodologies & Collaboration',
+      title: 'Methodologies & Leadership',
       skills: [
-        'Agile methodologies',
-        'RESTful APIs',
-        'Cross-functional collaboration',
+        'Agile',
+        'Scrum',
+        'Team Leadership',
+        'Cross-functional Teams',
         'CI/CD',
+        'Project Management',
+        'Technical Documentation',
+        'Code Standards',
+        'Code Review',
+        'Mentoring',
+        'Technical Architecture',
+        'System Design',
+        'Problem Solving',
+        'Team Collaboration',
       ],
       icon: FaUsers,
     },
