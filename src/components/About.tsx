@@ -15,9 +15,8 @@ const About = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.8])
 
   const socialLinks = [
-    { icon: FaGithub, href: 'https://github.com/yourusername', label: 'GitHub' },
-    { icon: FaLinkedin, href: 'https://linkedin.com/in/yourusername', label: 'LinkedIn' },
-    { icon: FaTwitter, href: 'https://twitter.com/yourusername', label: 'Twitter' },
+    { icon: FaGithub, href: 'https://github.com/mehrabix', label: 'GitHub' },
+    { icon: FaLinkedin, href: 'https://linkedin.com/in/mehrabix', label: 'LinkedIn' }
   ]
 
   return (
