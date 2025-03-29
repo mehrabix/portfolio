@@ -27,17 +27,23 @@ const Navbar = () => {
       animate={{ y: 0 }}
       className={`fixed w-full z-[9999] transition-all duration-300 ${
         scrolled 
-          ? 'bg-primary/95 backdrop-blur-lg shadow-lg' 
+          ? 'bg-primary/95 backdrop-blur-xl shadow-lg' 
           : 'bg-primary/90 backdrop-blur-lg'
       }`}
+      style={{
+        perspective: '1000px',
+      }}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <motion.a
             href="#"
             className="text-2xl font-bold text-secondary"
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, rotateY: 10 }}
             whileTap={{ scale: 0.95 }}
+            style={{
+              transformStyle: 'preserve-3d',
+            }}
           >
             AM
           </motion.a>
@@ -49,8 +55,11 @@ const Navbar = () => {
                 key={item.name}
                 href={item.href}
                 className="text-textSecondary hover:text-secondary transition-colors"
-                whileHover={{ y: -2 }}
+                whileHover={{ y: -2, rotateX: 10 }}
                 whileTap={{ y: 0 }}
+                style={{
+                  transformStyle: 'preserve-3d',
+                }}
               >
                 {item.name}
               </motion.a>
@@ -59,16 +68,21 @@ const Navbar = () => {
 
           {/* Mobile Navigation Button */}
           <div className="md:hidden">
-            <button
+            <motion.button
               onClick={() => setIsOpen(!isOpen)}
               className="text-textSecondary hover:text-secondary transition-colors"
+              whileHover={{ scale: 1.1, rotateY: 10 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                transformStyle: 'preserve-3d',
+              }}
             >
               {isOpen ? (
                 <XMarkIcon className="h-6 w-6" />
               ) : (
                 <Bars3Icon className="h-6 w-6" />
               )}
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -82,56 +96,81 @@ const Navbar = () => {
               transition={{ duration: 0.2 }}
               className="fixed inset-0 z-[9998] lg:hidden"
             >
-              {/* Backdrop */}
+              {/* Backdrop with enhanced blur */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9997]"
+                className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-xl z-[9997]"
                 onClick={() => setIsOpen(false)}
               />
               
-              {/* Menu panel */}
+              {/* Menu panel with 3D effect */}
               <motion.div
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
+                initial={{ y: -100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -100, opacity: 0 }}
                 transition={{ type: 'spring', damping: 20 }}
-                className="fixed right-0 top-0 h-full w-64 bg-primary/95 backdrop-blur-lg shadow-xl z-[9999]"
+                className="fixed top-0 left-0 right-0 bg-primary/95 backdrop-blur-xl shadow-xl z-[9999]"
+                style={{
+                  transformStyle: 'preserve-3d',
+                }}
               >
-                <div className="flex h-full flex-col">
+                <div className="flex flex-col">
                   <div className="flex items-center justify-between border-b border-secondary/20 px-6 py-4">
-                    <h2 className="text-xl font-bold text-secondary">Menu</h2>
-                    <button
+                    <motion.h2 
+                      className="text-xl font-bold text-secondary"
+                      whileHover={{ rotateY: 10 }}
+                      style={{
+                        transformStyle: 'preserve-3d',
+                      }}
+                    >
+                      Menu
+                    </motion.h2>
+                    <motion.button
                       onClick={() => setIsOpen(false)}
                       className="rounded-lg p-2 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
+                      whileHover={{ scale: 1.1, rotateY: 10 }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{
+                        transformStyle: 'preserve-3d',
+                      }}
                     >
                       <XMarkIcon className="h-6 w-6" />
-                    </button>
+                    </motion.button>
                   </div>
                   
-                  <nav className="flex-1 space-y-1 px-4 py-6">
+                  <nav className="space-y-1 px-4 py-6">
                     {navItems.map((item) => (
-                      <a
+                      <motion.a
                         key={item.href}
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="block rounded-lg px-4 py-2 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
+                        className="block rounded-lg px-4 py-3 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
+                        whileHover={{ x: 10, rotateY: 5 }}
+                        style={{
+                          transformStyle: 'preserve-3d',
+                        }}
                       >
                         {item.name}
-                      </a>
+                      </motion.a>
                     ))}
                   </nav>
                   
                   <div className="border-t border-secondary/20 p-4">
-                    <a
+                    <motion.a
                       href="#contact"
                       onClick={() => setIsOpen(false)}
-                      className="block w-full rounded-lg bg-secondary px-4 py-2 text-center text-primary hover:bg-secondary/90 transition-colors"
+                      className="block w-full rounded-lg bg-secondary px-4 py-3 text-center text-primary hover:bg-secondary/90 transition-colors"
+                      whileHover={{ scale: 1.02, rotateY: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      style={{
+                        transformStyle: 'preserve-3d',
+                      }}
                     >
                       Contact Me
-                    </a>
+                    </motion.a>
                   </div>
                 </div>
               </motion.div>
