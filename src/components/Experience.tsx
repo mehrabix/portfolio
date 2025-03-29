@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaBriefcase, FaMapMarkerAlt, FaCalendarAlt, FaExternalLinkAlt } from 'react-icons/fa'
+import { useState } from 'react'
 
 const Experience = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   })
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 }) // Start centered
 
   const experiences = [
     {
@@ -24,6 +26,27 @@ const Experience = () => {
       ],
     },
   ]
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    
+    // Calculate mouse position relative to the card
+    const relativeX = event.clientX - rect.left
+    const relativeY = event.clientY - rect.top
+    
+    // Calculate percentage position (0-100)
+    const percentX = (relativeX / rect.width) * 100
+    const percentY = (relativeY / rect.height) * 100
+    
+    setMousePosition({
+      x: percentX,
+      y: percentY
+    })
+  }
+
+  const handleMouseLeave = () => {
+    setMousePosition({ x: 50, y: 50 }) // Center the effect when mouse leaves
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -87,31 +110,67 @@ const Experience = () => {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-300 relative"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-300 relative overflow-hidden"
               >
-                {/* Timeline dot */}
-                <motion.div
-                  whileHover={{ scale: 1.2 }}
-                  className="absolute left-0 top-8 w-4 h-4 bg-secondary rounded-full transform -translate-x-1/2 shadow-lg shadow-secondary/50"
+                {/* Dynamic shining gradient overlay that follows mouse */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(var(--secondary-rgb), 0.2) 0%, transparent 50%)`,
+                    filter: 'blur(20px)',
+                  }}
+                />
+                
+                {/* Animated border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary/20 via-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                     style={{
+                       backgroundSize: '200% 100%',
+                       animation: 'shine 3s linear infinite',
+                     }} 
                 />
 
-                <div className="ml-6">
+                {/* Timeline dot with dynamic glow effect */}
+                <motion.div
+                  whileHover={{ scale: 1.2 }}
+                  className="absolute left-0 top-8 w-4 h-4 bg-secondary rounded-full transform -translate-x-1/2 shadow-lg shadow-secondary/50 relative z-10"
+                >
+                  <div 
+                    className="absolute inset-0 bg-secondary/30 rounded-full animate-pulse"
+                    style={{
+                      transform: `translate(${(mousePosition.x - 50) * 0.1}%, ${(mousePosition.y - 50) * 0.1}%)`,
+                      filter: 'blur(8px)',
+                    }}
+                  />
+                </motion.div>
+
+                <div className="ml-6 relative z-10">
                   <div className="flex flex-wrap items-center gap-3 mb-4">
                     <motion.div
-                      whileHover={{ rotate: 360 }}
+                      whileHover={{ rotate: 360, scale: 1.1 }}
                       transition={{ duration: 0.5 }}
+                      className="relative"
                     >
-                      <FaBriefcase className="text-2xl text-secondary" />
+                      {/* Dynamic glow effect that follows mouse */}
+                      <div 
+                        className="absolute inset-0 bg-secondary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{
+                          transform: `translate(${(mousePosition.x - 50) * 0.2}%, ${(mousePosition.y - 50) * 0.2}%)`,
+                          filter: 'blur(15px)',
+                        }}
+                      />
+                      <FaBriefcase className="text-2xl text-secondary relative z-10" />
                     </motion.div>
                     <h3 className="heading-3 text-secondary">{exp.title}</h3>
                     <a
                       href={exp.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-textSecondary hover:text-secondary transition-colors group"
+                      className="flex items-center gap-1 text-textSecondary hover:text-secondary transition-colors group/link"
                     >
                       @{exp.company}
-                      <FaExternalLinkAlt className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <FaExternalLinkAlt className="text-xs opacity-0 group-hover/link:opacity-100 transition-opacity" />
                     </a>
                   </div>
                   
@@ -131,12 +190,15 @@ const Experience = () => {
                     {exp.achievements.map((achievement, i) => (
                       <motion.li
                         key={i}
-                        variants={itemVariants}
-                        whileHover={{ scale: 1.02 }}
-                        className="flex items-start gap-3 text-textSecondary p-3 rounded-lg bg-secondary/5 hover:bg-secondary/10 transition-colors duration-300"
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="flex items-start gap-2 text-textSecondary group/achievement"
                       >
                         <span className="text-secondary mt-1">•</span>
-                        <span>{achievement}</span>
+                        <span className="group-hover/achievement:text-secondary transition-colors duration-300">
+                          {achievement}
+                        </span>
                       </motion.li>
                     ))}
                   </ul>
