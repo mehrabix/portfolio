@@ -1,10 +1,21 @@
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaCode, FaServer, FaTools, FaShieldAlt, FaUsers, FaCogs } from 'react-icons/fa'
+import { useState, useEffect } from 'react'
 
 const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: string[]; icon: any }) => {
+  const [isMobile, setIsMobile] = useState(false)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const rotateX = useTransform(y, [-100, 100], [15, -15])
   const rotateY = useTransform(x, [-100, 100], [-15, 15])
@@ -14,6 +25,7 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
   const springRotateY = useSpring(rotateY, springConfig)
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return
     const rect = event.currentTarget.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
@@ -31,10 +43,10 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        rotateX: springRotateX,
-        rotateY: springRotateY,
-        transformStyle: "preserve-3d",
-        transform: "perspective(800px)",
+        rotateX: isMobile ? 0 : springRotateX,
+        rotateY: isMobile ? 0 : springRotateY,
+        transformStyle: isMobile ? "flat" : "preserve-3d",
+        transform: isMobile ? "none" : "perspective(800px)",
       }}
       className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-100 h-full flex flex-col"
     >

@@ -7,13 +7,24 @@ import * as THREE from 'three'
 const Moon = () => {
   const moonRef = useRef<THREE.Mesh>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useFrame((state) => {
     if (!moonRef.current) return
 
-    // Smooth rotation based on mouse position
-    moonRef.current.rotation.x += (mousePosition.y * 0.0001 - moonRef.current.rotation.x) * 0.1
-    moonRef.current.rotation.y += (mousePosition.x * 0.0001 - moonRef.current.rotation.y) * 0.1
+    // Reduced animation intensity on mobile
+    const intensity = isMobile ? 0.00005 : 0.0001
+    moonRef.current.rotation.x += (mousePosition.y * intensity - moonRef.current.rotation.x) * 0.1
+    moonRef.current.rotation.y += (mousePosition.x * intensity - moonRef.current.rotation.y) * 0.1
 
     // Gentle floating animation
     moonRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1
@@ -22,9 +33,10 @@ const Moon = () => {
   return (
     <Sphere 
       ref={moonRef} 
-      args={[0.5, 64, 64]} 
+      args={[0.5, isMobile ? 32 : 64, isMobile ? 32 : 64]} 
       position={[2, 1, 0]}
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+        if (isMobile) return
         const { clientX, clientY } = e
         setMousePosition({
           x: (clientX / window.innerWidth) * 2 - 1,
@@ -46,17 +58,29 @@ const Moon = () => {
 const InteractiveStars = () => {
   const starsRef = useRef<THREE.Points>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useFrame(() => {
     if (!starsRef.current) return
 
-    // Smooth rotation based on mouse position
-    starsRef.current.rotation.x += (mousePosition.y * 0.00005 - starsRef.current.rotation.x) * 0.1
-    starsRef.current.rotation.y += (mousePosition.x * 0.00005 - starsRef.current.rotation.y) * 0.1
+    // Reduced animation intensity on mobile
+    const intensity = isMobile ? 0.00002 : 0.00005
+    starsRef.current.rotation.x += (mousePosition.y * intensity - starsRef.current.rotation.x) * 0.1
+    starsRef.current.rotation.y += (mousePosition.x * intensity - starsRef.current.rotation.y) * 0.1
   })
 
   return (
     <group onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+      if (isMobile) return
       const { clientX, clientY } = e
       setMousePosition({
         x: (clientX / window.innerWidth) * 2 - 1,
@@ -67,7 +91,7 @@ const InteractiveStars = () => {
         ref={starsRef}
         radius={100}
         depth={50}
-        count={5000}
+        count={isMobile ? 2500 : 5000}
         factor={4}
         saturation={0}
         fade
@@ -80,6 +104,16 @@ const InteractiveStars = () => {
 const SkySphere = () => {
   const meshRef = useRef<THREE.Mesh>(null)
   const [hasInteracted, setHasInteracted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useFrame((state) => {
     if (!meshRef.current) return
@@ -89,19 +123,20 @@ const SkySphere = () => {
   })
 
   const handleInteraction = () => {
+    if (isMobile) return
     setHasInteracted(true)
   }
 
   return (
     <group onPointerMove={handleInteraction}>
-      <Sphere ref={meshRef} args={[1, 64, 64]}>
+      <Sphere ref={meshRef} args={[1, isMobile ? 32 : 64, isMobile ? 32 : 64]}>
         <meshPhongMaterial
           color="#1a365d"
           transparent
           opacity={0.8}
         />
       </Sphere>
-      {!hasInteracted && (
+      {!hasInteracted && !isMobile && (
         <Sphere args={[1.1, 32, 32]}>
           <meshPhongMaterial
             color="#ffffff"
@@ -117,8 +152,19 @@ const SkySphere = () => {
 
 const FloatingText = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
+    if (isMobile) return
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({
         x: (e.clientX / window.innerWidth) * 2 - 1,
@@ -128,7 +174,7 @@ const FloatingText = () => {
 
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+  }, [isMobile])
 
   return (
     <motion.div
@@ -136,8 +182,8 @@ const FloatingText = () => {
       animate={{
         y: [0, -20, 0],
         opacity: [0.5, 1, 0.5],
-        x: mousePosition.x * 20,
-        rotateX: mousePosition.y * 10,
+        x: isMobile ? 0 : mousePosition.x * 20,
+        rotateX: isMobile ? 0 : mousePosition.y * 10,
       }}
       transition={{
         duration: 3,
@@ -148,7 +194,7 @@ const FloatingText = () => {
       }}
       style={{
         textShadow: '0 0 10px rgba(255,255,255,0.5)',
-        perspective: '1000px',
+        perspective: isMobile ? 'none' : '1000px',
       }}
     >
     </motion.div>
@@ -157,8 +203,9 @@ const FloatingText = () => {
 
 const ParticleField = () => {
   const particlesRef = useRef<THREE.Points>(null)
+  const [isMobile, setIsMobile] = useState(false)
   const [particles] = useState(() => {
-    const count = 1000
+    const count = window.innerWidth < 768 ? 500 : 1000
     const positions = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 10
@@ -168,9 +215,18 @@ const ParticleField = () => {
     return positions
   })
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   useFrame((state) => {
     if (!particlesRef.current) return
-    particlesRef.current.rotation.y += 0.001
+    particlesRef.current.rotation.y += isMobile ? 0.0005 : 0.001
   })
 
   return (
@@ -309,12 +365,23 @@ const ParticleTrail = () => {
 }
 
 const GlowingOrb = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   return (
     <motion.div
       className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl"
       animate={{
-        scale: [1, 1.2, 1],
-        opacity: [0.3, 0.5, 0.3],
+        scale: isMobile ? 1 : [1, 1.2, 1],
+        opacity: isMobile ? 0.3 : [0.3, 0.5, 0.3],
       }}
       transition={{
         duration: 4,
@@ -332,6 +399,16 @@ const GlowingOrb = () => {
 const Hero = () => {
   const [showContent, setShowContent] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -341,6 +418,7 @@ const Hero = () => {
   }, [])
 
   useEffect(() => {
+    if (isMobile) return
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({
         x: (e.clientX / window.innerWidth) * 2 - 1,
@@ -350,7 +428,7 @@ const Hero = () => {
 
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+  }, [isMobile])
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -372,8 +450,8 @@ const Hero = () => {
       <motion.div
         className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-3xl"
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
+          scale: isMobile ? 1 : [1, 1.2, 1],
+          opacity: isMobile ? 0.3 : [0.3, 0.5, 0.3],
         }}
         transition={{
           duration: 4,
@@ -401,8 +479,8 @@ const Hero = () => {
             animate={{ 
               opacity: 1, 
               y: 0,
-              x: mousePosition.x * 10,
-              rotateX: mousePosition.y * 5,
+              x: isMobile ? 0 : mousePosition.x * 10,
+              rotateX: isMobile ? 0 : mousePosition.y * 5,
             }}
             exit={{ opacity: 0, y: 20 }}
             transition={{
@@ -412,7 +490,7 @@ const Hero = () => {
             }}
             className="relative z-10 text-center"
             style={{
-              perspective: '1000px',
+              perspective: isMobile ? 'none' : '1000px',
             }}
           >
             <motion.h1
