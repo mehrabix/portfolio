@@ -55,9 +55,10 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
+          {/* Logo */}
           <motion.a
             href="#"
-            className="text-2xl font-bold text-secondary"
+            className="text-2xl font-bold text-secondary ml-4"
             whileHover={hoverAnimation}
             whileTap={tapAnimation}
             style={{
@@ -88,10 +89,10 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Navigation Button */}
-          <div className="md:hidden">
+          <div className="md:hidden w-12 flex justify-end">
             <motion.button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-textSecondary hover:text-secondary transition-colors"
+              className="text-textSecondary hover:text-secondary transition-colors p-2"
               whileHover={hoverAnimation}
               whileTap={tapAnimation}
               style={{
@@ -147,7 +148,7 @@ const Navbar = () => {
                 }}
               >
                 <div className="flex flex-col">
-                  <div className="flex items-center justify-between border-b border-secondary/20 px-6 py-4">
+                  <div className="flex items-center justify-between border-b border-secondary/20 px-4 py-4">
                     <motion.h2 
                       className="text-xl font-bold text-secondary"
                       whileHover={hoverAnimation}
@@ -158,18 +159,20 @@ const Navbar = () => {
                     >
                       Menu
                     </motion.h2>
-                    <motion.button
-                      onClick={() => setIsOpen(false)}
-                      className="rounded-lg p-2 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
-                      whileHover={hoverAnimation}
-                      whileTap={tapAnimation}
-                      style={{
-                        transformStyle: 'flat',
-                        transform: 'translateZ(0)', // Force GPU acceleration
-                      }}
-                    >
-                      <XMarkIcon className="h-6 w-6" />
-                    </motion.button>
+                    <div className="w-12 flex justify-end">
+                      <motion.button
+                        onClick={() => setIsOpen(false)}
+                        className="p-2 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
+                        whileHover={hoverAnimation}
+                        whileTap={tapAnimation}
+                        style={{
+                          transformStyle: 'flat',
+                          transform: 'translateZ(0)', // Force GPU acceleration
+                        }}
+                      >
+                        <XMarkIcon className="h-6 w-6" />
+                      </motion.button>
+                    </div>
                   </div>
                   
                   <nav className="space-y-1 px-4 py-6">
