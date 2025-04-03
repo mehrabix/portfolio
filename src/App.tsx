@@ -7,6 +7,7 @@ import Experience from './components/Experience'
 import Skills from './components/Skills'
 import Contact from './components/Contact'
 import Navbar from './components/Navbar'
+import Projects from './components/Projects'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <About />
           <Experience />
           <Skills />
+          <Projects />
           <Contact />
         </main>
       </div>
