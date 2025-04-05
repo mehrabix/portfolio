@@ -1,59 +1,36 @@
-import { OrbitControls, Sphere, Stars, Text3D, Float } from '@react-three/drei'
-import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber'
+import { OrbitControls, Sphere, Stars, Text3D, Float, useTexture, Html } from '@react-three/drei'
+import { Canvas, useFrame, ThreeEvent, extend } from '@react-three/fiber'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import * as THREE from 'three'
 
-const Moon = () => {
-  const moonRef = useRef<THREE.Mesh>(null)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [isMobile, setIsMobile] = useState(false)
+// Import our standalone components
+import Moon from './Moon'
+import SkySphere from './SkySphere'
+import CelestialObject from './CelestialObject'
+import WormHole from './WormHole'
+import SpacePortal from './SpacePortal'
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+// Import TestTexture for debugging
+import TestTexture from './TestTexture'
 
-  useFrame((state) => {
-    if (!moonRef.current) return
+// Vite-specific import for texture
+// The path should be relative to this file
+import moonMapUrl from '../assets/textures/moon/moon_map.jpg';
 
-    // Reduced animation intensity on mobile
-    const intensity = isMobile ? 0.00005 : 0.0001
-    moonRef.current.rotation.x += (mousePosition.y * intensity - moonRef.current.rotation.x) * 0.1
-    moonRef.current.rotation.y += (mousePosition.x * intensity - moonRef.current.rotation.y) * 0.1
-
-    // Gentle floating animation
-    moonRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1
-  })
-
-  return (
-    <Sphere 
-      ref={moonRef} 
-      args={[0.5, isMobile ? 32 : 64, isMobile ? 32 : 64]} 
-      position={[2, 1, 0]}
-      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
-        if (isMobile) return
-        const { clientX, clientY } = e
-        setMousePosition({
-          x: (clientX / window.innerWidth) * 2 - 1,
-          y: -(clientY / window.innerHeight) * 2 + 1
-        })
-      }}
-    >
-      <meshStandardMaterial
-        color="#ffffff"
-        emissive="#ffffff"
-        emissiveIntensity={0.2}
-        roughness={0.8}
-        metalness={0.2}
-      />
-    </Sphere>
-  )
-}
+// Extend THREE elements to React Three Fiber
+extend({ 
+  PointLight: THREE.PointLight,
+  MeshStandardMaterial: THREE.MeshStandardMaterial,
+  MeshBasicMaterial: THREE.MeshBasicMaterial,
+  BufferGeometry: THREE.BufferGeometry,
+  BufferAttribute: THREE.BufferAttribute,
+  Points: THREE.Points,
+  PointsMaterial: THREE.PointsMaterial,
+  AmbientLight: THREE.AmbientLight,
+  Group: THREE.Group,
+  Object3D: THREE.Object3D
+})
 
 const InteractiveStars = () => {
   const starsRef = useRef<THREE.Points>(null)
@@ -97,55 +74,6 @@ const InteractiveStars = () => {
         fade
         speed={1}
       />
-    </group>
-  )
-}
-
-const SkySphere = () => {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const [hasInteracted, setHasInteracted] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  useFrame((state) => {
-    if (!meshRef.current) return
-
-    // Gentle floating animation
-    meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1
-  })
-
-  const handleInteraction = () => {
-    if (isMobile) return
-    setHasInteracted(true)
-  }
-
-  return (
-    <group onPointerMove={handleInteraction}>
-      <Sphere ref={meshRef} args={[1, isMobile ? 32 : 64, isMobile ? 32 : 64]}>
-        <meshPhongMaterial
-          color="#1a365d"
-          transparent
-          opacity={0.8}
-        />
-      </Sphere>
-      {!hasInteracted && !isMobile && (
-        <Sphere args={[1.1, 32, 32]}>
-          <meshPhongMaterial
-            color="#ffffff"
-            transparent
-            opacity={0.1}
-            side={THREE.BackSide}
-          />
-        </Sphere>
-      )}
     </group>
   )
 }
@@ -204,7 +132,9 @@ const FloatingText = () => {
 const ParticleField = () => {
   const particlesRef = useRef<THREE.Points>(null)
   const [isMobile, setIsMobile] = useState(false)
-  const [particles] = useState(() => {
+  
+  // Create particles using useMemo
+  const particleSystem = useMemo(() => {
     const count = window.innerWidth < 768 ? 500 : 1000
     const positions = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
@@ -212,8 +142,19 @@ const ParticleField = () => {
       positions[i * 3 + 1] = (Math.random() - 0.5) * 10
       positions[i * 3 + 2] = (Math.random() - 0.5) * 10
     }
-    return positions
-  })
+    
+    const geometry = new THREE.BufferGeometry()
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    
+    const material = new THREE.PointsMaterial({
+      size: 0.02,
+      color: "#ffffff",
+      transparent: true,
+      opacity: 0.6
+    })
+    
+    return new THREE.Points(geometry, material)
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -224,28 +165,27 @@ const ParticleField = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  useEffect(() => {
+    // Store reference to the particle system
+    particlesRef.current = particleSystem
+    
+    return () => {
+      // Clean up
+      particleSystem.geometry.dispose()
+      if (particleSystem.material instanceof THREE.Material) {
+        particleSystem.material.dispose()
+      }
+    }
+  }, [particleSystem])
+
   useFrame((state) => {
-    if (!particlesRef.current) return
-    particlesRef.current.rotation.y += isMobile ? 0.0005 : 0.001
+    if (particleSystem) {
+      particleSystem.rotation.y += isMobile ? 0.0005 : 0.001
+    }
   })
 
   return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particles.length / 3}
-          array={particles}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.02}
-        color="#ffffff"
-        transparent
-        opacity={0.6}
-      />
-    </points>
+    <primitive object={particleSystem} />
   )
 }
 
@@ -401,6 +341,14 @@ const Hero = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isMobile, setIsMobile] = useState(false)
 
+  // Create scene lights
+  const ambientLight = useMemo(() => new THREE.AmbientLight(0xffffff, 0.5), []);
+  const pointLight = useMemo(() => {
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(10, 10, 10);
+    return light;
+  }, []);
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -436,14 +384,27 @@ const Hero = () => {
       <div className="absolute inset-0">
         <Canvas camera={{ position: [0, 0, 5] }}>
           <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} />
+          <pointLight position={[10, 10, 10]} intensity={1} />
+          
+          {/* Background sky */}
           <SkySphere />
+          
+          {/* Celestial objects */}
+          <CelestialObject position={[0, 0, -60]} size={15} color="#8860d0" />
+          <WormHole position={[-30, 15, -50]} size={8} />
+          <SpacePortal position={[30, -12, -50]} size={6} ringCount={4} />
+          
+          {/* Main objects */}
           <Moon />
           <InteractiveStars />
           <ParticleField />
+          
           <OrbitControls enableZoom={false} enablePan={false} />
         </Canvas>
       </div>
+
+      {/* For debugging texture loading */}
+      {/* <TestTexture /> */}
 
       {/* Glowing Orbs */}
       <GlowingOrb />

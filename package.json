@@ -14,11 +14,13 @@
     "@heroicons/react": "^2.2.0",
     "@react-three/drei": "^9.88.0",
     "@react-three/fiber": "^8.15.0",
+    "@types/react-scroll": "^1.8.10",
     "framer-motion": "^11.18.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.5.3",
+    "react-scroll": "^1.9.3",
     "three": "^0.175.0"
   },
   "devDependencies": {
