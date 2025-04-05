@@ -1,95 +1,14 @@
-import { motion, useMotionValue, useTransform, useSpring, useAnimationControls, MotionValue } from 'framer-motion'
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaCode, FaServer, FaTools, FaShieldAlt, FaUsers, FaCogs } from 'react-icons/fa'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
-// Particle animation component
-const ParticleBackground = () => {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 50 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 rounded-full"
-          initial={{
-            x: `${Math.random() * 100}%`,
-            y: `${Math.random() * 100}%`,
-            scale: Math.random() * 0.5 + 0.5,
-            backgroundColor: i % 5 === 0 ? 'rgba(59,130,246,0.6)' : 
-                          i % 5 === 1 ? 'rgba(139,92,246,0.6)' : 
-                          i % 5 === 2 ? 'rgba(6,182,212,0.6)' : 
-                          i % 5 === 3 ? 'rgba(124,58,237,0.6)' : 'rgba(219,39,119,0.6)',
-          }}
-          animate={{
-            x: [
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`
-            ],
-            y: [
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`
-            ],
-            opacity: [0.2, 0.7, 0.4, 0.7, 0.2],
-          }}
-          transition={{
-            duration: Math.random() * 20 + 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          style={{
-            filter: 'blur(1px)',
-            boxShadow: '0 0 4px currentColor'
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
-// Enhanced glowing line divider
-const GlowingDivider = ({ delay = 0 }: { delay?: number }) => {
-  return (
-    <motion.div 
-      className="w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent my-4"
-      initial={{ scaleX: 0, opacity: 0 }}
-      whileInView={{ scaleX: 1, opacity: 1 }}
-      transition={{ duration: 1.2, delay: delay, ease: "easeOut" }}
-      viewport={{ once: true }}
-      style={{ filter: 'blur(0.5px)', boxShadow: '0 0 8px rgba(59,130,246,0.6)' }}
-    />
-  )
-}
-
-// Advanced 3D parallax card
-const SkillCard = ({ title, skills, icon: Icon, index }: { title: string; skills: string[]; icon: any; index: number }) => {
+const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: string[]; icon: any }) => {
   const [isMobile, setIsMobile] = useState(false)
-  const cardRef = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 })
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = useState(false)
-  const [isGlowing, setIsGlowing] = useState(false)
-  const glowControls = useAnimationControls()
-  
-  // Trigger glow effect periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsGlowing(true)
-      glowControls.start({
-        opacity: [0, 0.8, 0],
-        scale: [0.8, 1.2, 1],
-        transition: { duration: 2 }
-      }).then(() => {
-        setIsGlowing(false)
-      })
-    }, Math.random() * 8000 + 8000) // Random interval between 8-16s
-    
-    return () => clearInterval(interval)
-  }, [glowControls])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -103,13 +22,11 @@ const SkillCard = ({ title, skills, icon: Icon, index }: { title: string; skills
   const rotateX = useTransform(y, [-100, 100], [15, -15])
   const rotateY = useTransform(x, [-100, 100], [-15, 15])
   const scale = useTransform(y, [-100, 100], [1, 1.05])
-  const brightness = useTransform(y, [-100, 100], [0.9, 1.1])
 
-  const springConfig = { damping: 5, stiffness: 300, mass: 0.5 }
+  const springConfig = { damping: 2, stiffness: 1000, mass: 0.1 }
   const springRotateX = useSpring(rotateX, springConfig)
   const springRotateY = useSpring(rotateY, springConfig)
   const springScale = useSpring(scale, springConfig)
-  const springBrightness = useSpring(brightness, springConfig)
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (isMobile) return
@@ -146,187 +63,106 @@ const SkillCard = ({ title, skills, icon: Icon, index }: { title: string; skills
 
   return (
     <motion.div
-      ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: index * 0.15 }}
-      viewport={{ once: true, margin: "-100px" }}
       style={{
         rotateX: isMobile ? 0 : springRotateX,
         rotateY: isMobile ? 0 : springRotateY,
         scale: isMobile ? 1 : springScale,
-        filter: `brightness(${springBrightness.get()})`,
         transformStyle: isMobile ? "flat" : "preserve-3d",
-        transform: isMobile ? "none" : "perspective(1000px)",
+        transform: isMobile ? "none" : "perspective(800px)",
       }}
-      className="group bg-black/70 backdrop-blur-lg p-6 rounded-xl border border-blue-500/20 hover:border-blue-500/60 transition-all duration-500 h-full flex flex-col relative overflow-hidden shadow-xl"
+      className="group bg-black/50 backdrop-blur-sm p-6 rounded-xl border border-blue-500/20 hover:border-blue-500/40 transition-all duration-100 h-full flex flex-col relative overflow-hidden"
     >
       {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-blue-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" 
-           style={{ animation: 'gradientShift 8s linear infinite' }}
-      />
-      
-      {/* Holographic effect - prismatic edge */}
-      <div 
-        className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500"
-        style={{ 
-          background: 'linear-gradient(45deg, #ff00cc, #3333ff, #00ccff, #33cc33, #ffff00, #ff3399)',
-          backgroundSize: '400% 400%',
-          animation: 'prismaticShift 3s ease infinite',
-          filter: 'blur(15px)',
-          mixBlendMode: 'screen'
-        }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       {/* Dynamic shining gradient overlay that follows mouse */}
       <div 
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.2) 0%, transparent 60%)`,
+          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.15) 0%, transparent 50%)`,
           filter: 'blur(20px)',
         }}
       />
       
-      {/* Enhanced 3D layer effect with hover animation */}
-      <div 
-        className="absolute inset-px rounded-xl z-10 transform"
-        style={{
-          background: 'rgba(13, 17, 23, 0.7)',
-          backdropFilter: 'blur(4px)',
-          transform: isHovered ? `translateZ(10px)` : 'none',
-          transition: 'transform 0.3s ease-out',
-        }}
-      />
-      
       {/* Animated border gradient */}
-      <div 
-        className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-        style={{
-          backgroundSize: '200% 100%',
-          animation: 'gradientShift 4s linear infinite',
-        }} 
-      />
-
-      {/* Periodic glow effect */}
-      <motion.div
-        className="absolute inset-0 rounded-xl bg-blue-400/10"
-        initial={{ opacity: 0 }}
-        animate={glowControls}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+           style={{
+             backgroundSize: '200% 100%',
+             animation: 'shine 3s linear infinite',
+           }} 
       />
 
       {/* Floating particles effect */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(10)].map((_, i) => (
+        {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full"
-            initial={{ 
-              x: Math.random() * 100 + '%', 
-              y: Math.random() * 100 + '%',
-              width: Math.random() * 2 + 1 + 'px',
-              height: Math.random() * 2 + 1 + 'px',
-              backgroundColor: i % 3 === 0 ? 'rgba(59,130,246,0.4)' : 
-                             i % 3 === 1 ? 'rgba(139,92,246,0.4)' : 'rgba(6,182,212,0.4)',
-            }}
+            className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
+            initial={{ x: Math.random() * 100 + '%', y: Math.random() * 100 + '%' }}
             animate={{
               x: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
               y: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
               opacity: [0.2, 0.5, 0.2],
-              scale: [0.8, 1.5, 0.8],
             }}
             transition={{
-              duration: Math.random() * 5 + 10,
+              duration: Math.random() * 3 + 2,
               repeat: Infinity,
               ease: "linear",
-            }}
-            style={{ 
-              boxShadow: '0 0 3px currentColor',
-              filter: 'blur(0.5px)'
             }}
           />
         ))}
       </div>
 
-      <div className="flex items-center gap-3 mb-6 relative z-20 transform" style={{ transform: isHovered ? 'translateZ(30px)' : 'none', transition: 'transform 0.3s ease-out' }}>
+      <div className="flex items-center gap-3 mb-6 relative">
         <motion.div
-          whileHover={{ rotate: 360, scale: 1.2 }}
-          transition={{ duration: 0.7, type: "spring" }}
+          whileHover={{ rotate: 360, scale: 1.1 }}
+          transition={{ duration: 0.5 }}
           className="relative"
         >
-          {/* Enhanced icon glow effect */}
-          <motion.div 
-            className="absolute inset-0 bg-blue-400/70 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            animate={{
-              scale: isHovered ? [1, 1.3, 1] : 1,
-              opacity: isHovered ? [0.3, 0.7, 0.3] : 0.3
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              repeatType: "reverse"
+          {/* Dynamic glow effect that follows mouse */}
+          <div 
+            className="absolute inset-0 bg-blue-400/30 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              transform: `translate(${(mousePosition.x - 50) * 0.2}%, ${(mousePosition.y - 50) * 0.2}%)`,
+              filter: 'blur(15px)',
             }}
           />
-          <Icon 
-            className="text-3xl relative z-10 text-transparent" 
-            style={{ 
-              backgroundImage: 'linear-gradient(90deg, #60a5fa, #c084fc, #60a5fa)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 3s linear infinite',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              filter: 'drop-shadow(0 0 4px rgba(59,130,246,0.8))'
-            }} 
-          />
+          <Icon className="text-3xl text-blue-400 relative z-10" style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }} />
         </motion.div>
         <motion.h3 
-          className="text-xl font-semibold relative z-10"
+          className="text-xl font-semibold text-white relative z-10"
           animate={{
             scale: isHovered ? 1.05 : 1,
             x: isHovered ? 5 : 0,
-            textShadow: isHovered ? '0 0 8px rgba(59,130,246,0.6)' : '0 0 4px rgba(59,130,246,0.3)'
           }}
-          transition={{ duration: 0.3 }}
-          style={{ 
-            background: 'linear-gradient(to right, #fff, #b2ccff, #fff)',
-            backgroundSize: '200% 100%',
-            animation: 'shimmer 3s ease-in-out infinite',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}
+          transition={{ duration: 0.2 }}
         >
           {title}
         </motion.h3>
       </div>
-
-      <div className="flex flex-wrap gap-2 flex-1 items-start relative z-20 transform" style={{ transform: isHovered ? 'translateZ(20px)' : 'none', transition: 'transform 0.3s ease-out' }}>
+      <div className="flex flex-wrap gap-2 flex-1 items-start relative z-10">
         {skills.map((skill, index) => (
           <motion.span
             key={index}
-            initial={{ opacity: 0, y: 20, scale: 0.8 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ 
-              delay: index * 0.03 + (Math.random() * 0.05), 
-              duration: 0.5, 
-              type: "spring", 
-              stiffness: 100 
-            }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
             whileHover={{ 
-              scale: 1.1,
-              y: -5,
-              backgroundColor: 'rgba(59,130,246,0.3)',
-              boxShadow: '0 0 15px rgba(59,130,246,0.5)',
+              scale: 1.05,
+              backgroundColor: 'rgba(59,130,246,0.2)',
+              boxShadow: '0 0 15px rgba(59,130,246,0.3)',
             }}
-            className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-300 rounded-full text-sm transition-all duration-300 cursor-default min-w-fit relative group/skill"
+            className="inline-flex items-center px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-sm hover:bg-blue-500/20 transition-all duration-300 cursor-default min-w-fit relative group/skill"
           >
             {/* Dynamic skill tag shine effect that follows mouse */}
             <div 
-              className="absolute inset-0 opacity-0 group-hover/skill:opacity-100 transition-opacity duration-300 rounded-full"
+              className="absolute inset-0 opacity-0 group-hover/skill:opacity-100 transition-opacity duration-300"
               style={{
-                background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.5) 0%, transparent 70%)`,
-                filter: 'blur(5px)',
+                background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.3) 0%, transparent 50%)`,
+                filter: 'blur(10px)',
               }}
             />
             <span className="relative z-10">{skill}</span>
@@ -412,219 +248,122 @@ const Skills = () => {
       icon: FaServer,
     },
     {
-      title: 'DevOps & Tools',
+      title: 'DevOps & Automation',
       skills: [
-        'Docker',
-        'Docker Swarm',
-        'Jenkins',
-        'CI/CD',
-        'GitLab CI',
-        'AWS',
-        'Azure',
         'Linux',
-        'Shell Scripting',
-        'GitHub Actions',
-        'Monitoring',
+        'Jenkins',
         'Nginx',
-        'PM2',
-        'Prometheus',
-        'Grafana',
+        'GitLab CI/CD',
+        'Docker',
+        'Shell Scripting',
+        'YAML',
+        'Kubernetes',
+        'Ansible',
+        'Automation Scripting',
+        'Azure',
+        'Logging',
       ],
       icon: FaTools,
     },
     {
-      title: 'Team Leadership',
+      title: 'Testing & Quality',
       skills: [
-        'Technical Leadership',
-        'Mentoring',
-        'Agile Methodologies',
-        'Scrum',
-        'Code Reviews',
-        'Git Workflows',
-        'Project Management',
-        'Team Coordination',
-        'Stakeholder Management',
-        'Requirements Gathering',
-        'Estimation',
-        'Process Improvement',
-      ],
-      icon: FaUsers,
-    },
-    {
-      title: 'Security Practices',
-      skills: [
-        'OWASP Top 10',
-        'Authentication',
-        'Authorization',
-        'JWT',
-        'OAuth 2.0',
-        'OpenID Connect',
-        'CSRF Protection',
-        'XSS Prevention',
-        'Input Validation',
-        'Security Headers',
-        'Data Encryption',
-        'Secure Coding Practices',
+        'OWASP TOP 10',
+        'Cypress',
+        'Playwright',
+        'Jest',
+        'Unit Testing',
+        'E2E Testing',
+        'Test Automation',
+        'Code Review',
+        'Quality Assurance',
+        'Performance Testing',
+        'Security Testing',
+        'Testing Strategies',
+        'Test-Driven Development',
+        'Continuous Testing',
       ],
       icon: FaShieldAlt,
     },
+    {
+      title: 'Methodologies & Leadership',
+      skills: [
+        'Agile',
+        'Scrum',
+        'Team Leadership',
+        'Cross-functional Teams',
+        'CI/CD',
+        'Project Management',
+        'Technical Documentation',
+        'Code Standards',
+        'Code Review',
+        'Mentoring',
+        'Technical Architecture',
+        'System Design',
+        'Problem Solving',
+        'Team Collaboration',
+      ],
+      icon: FaUsers,
+    },
   ]
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  }
+
   return (
-    <section id="skills" className="section-padding py-20 relative overflow-hidden">
-      {/* Enhanced deep space background */}
+    <section id="skills" className="section-padding relative overflow-hidden">
+      {/* Deep space background */}
       <div className="absolute inset-0 bg-black"></div>
       
-      {/* Advanced animated star field & particles */}
-      <ParticleBackground />
-      
-      {/* Enhanced cosmic glow effects */}
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/5 to-purple-500/5 blur-3xl"></div>
-      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-gradient-to-r from-purple-500/5 to-cyan-500/5 blur-3xl"></div>
-      <div className="absolute top-2/3 right-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-cyan-500/5 to-blue-500/5 blur-3xl"></div>
-      
-      {/* Dynamic nebula effect */}
-      <motion.div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 50%, rgba(76, 29, 149, 0.3) 0%, rgba(17, 24, 39, 0) 70%)',
-          filter: 'blur(40px)',
-        }}
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.1, 0.2, 0.1],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
-      />
-      
+      {/* Star field */}
+      <div className="absolute inset-0 opacity-90">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0), 
+                            radial-gradient(circle at 3px 3px, rgba(136, 96, 208, 0.15) 1px, transparent 0)`,
+          backgroundSize: '30px 30px, 50px 50px'
+        }} />
+      </div>
+
+      {/* Cosmic glow effects */}
+      <div className="absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
+
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           ref={ref}
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 1.5 }}
-          className="max-w-6xl mx-auto"
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <motion.h2 
-              className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400"
-              initial={{ letterSpacing: "0px" }}
-              whileInView={{ letterSpacing: "1px" }}
-              transition={{ duration: 1.5 }}
-              viewport={{ once: true }}
-              style={{
-                textShadow: '0 0 30px rgba(59,130,246,0.4)'
-              }}
-            >
-              Skills & Expertise
-            </motion.h2>
-            
+          {skillCategories.map((category, index) => (
             <motion.div
-              className="w-24 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 mx-auto rounded-full"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              viewport={{ once: true }}
-              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
-            />
-            
-            <motion.p 
-              className="max-w-2xl mx-auto mt-6 text-white/80 text-lg"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              viewport={{ once: true }}
-              style={{ 
-                textShadow: '0 0 2px rgba(255,255,255,0.3)',
-                backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,1), rgba(255,255,255,0.9))',
-                backgroundSize: '200% 100%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                animation: 'shimmer 3s ease-in-out infinite'
-              }}
+              key={index}
+              variants={itemVariants}
             >
-              With extensive experience across the full stack, I've developed a broad range of skills
-              that enable me to tackle complex technical challenges and deliver exceptional solutions.
-            </motion.p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {skillCategories.map((category, index) => (
-              <SkillCard
-                key={index}
-                title={category.title}
-                skills={category.skills}
-                icon={category.icon}
-                index={index}
-              />
-            ))}
-          </div>
-
-          <GlowingDivider delay={0.8} />
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mt-16"
-          >
-            <motion.p 
-              className="max-w-2xl mx-auto text-white/80 text-lg"
-              style={{ 
-                textShadow: '0 0 2px rgba(255,255,255,0.3)',
-                backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,1), rgba(255,255,255,0.9))',
-                backgroundSize: '200% 100%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                animation: 'shimmer 3s ease-in-out 0.5s infinite'
-              }}
-            >
-              Constantly expanding my knowledge and staying up-to-date with the latest industry trends
-              and technologies to deliver cutting-edge solutions.
-            </motion.p>
-          </motion.div>
+              <SkillCard title={category.title} skills={category.skills} icon={category.icon} />
+            </motion.div>
+          ))}
         </motion.div>
       </div>
-      
-      {/* Replace jsx style with style element */}
-      <style>
-        {`
-          @keyframes gradientShift {
-            0% { background-position: 0% 50% }
-            50% { background-position: 100% 50% }
-            100% { background-position: 0% 50% }
-          }
-          
-          @keyframes prismaticShift {
-            0% { background-position: 0% 50% }
-            50% { background-position: 100% 50% }
-            100% { background-position: 0% 50% }
-          }
-          
-          @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-          }
-          
-          @keyframes floatParticles {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            25% { transform: translateY(10px) translateX(10px); }
-            50% { transform: translateY(0) translateX(15px); }
-            75% { transform: translateY(-10px) translateX(5px); }
-          }
-        `}
-      </style>
     </section>
   )
 }
