@@ -82,13 +82,13 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
       transition={{ duration: 0.5, delay: index * 0.1 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="group bg-tertiary/50 backdrop-blur-sm rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-100 h-full flex flex-col relative overflow-hidden"
+      className="group bg-black/50 backdrop-blur-sm rounded-xl border border-blue-500/20 hover:border-blue-500/40 transition-all duration-100 h-full flex flex-col relative overflow-hidden"
     >
       {/* Enhanced background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       {/* Animated border gradient */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary/20 via-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
            style={{
              backgroundSize: '200% 100%',
              animation: 'shine 3s linear infinite',
@@ -97,12 +97,13 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
 
       <div className="p-8 relative z-10 flex flex-col h-full">
         <motion.h3 
-          className="text-2xl font-semibold mb-3 text-secondary relative z-10"
+          className="text-2xl font-semibold mb-3 text-blue-400 relative z-10"
           animate={{
             scale: isHovered ? 1.05 : 1,
             y: isHovered ? -5 : 0,
           }}
           transition={{ duration: 0.2 }}
+          style={{ textShadow: '0 0 10px rgba(59,130,246,0.3)' }}
         >
           {project.title}
         </motion.h3>
@@ -115,7 +116,7 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
 
         {project.features && (
           <div className="mb-6">
-            <h4 className="text-sm font-medium text-secondary mb-2">
+            <h4 className="text-sm font-medium text-blue-400 mb-2">
               Features:
             </h4>
             <ul className="list-disc list-inside text-sm text-gray-400 space-y-1.5">
@@ -140,10 +141,9 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
               key={techIndex}
               whileHover={{ 
                 scale: 1.05,
-                backgroundColor: 'rgba(var(--secondary-rgb), 0.2)',
-                boxShadow: '0 0 15px rgba(var(--secondary-rgb), 0.3)',
+                boxShadow: '0 0 15px rgba(59,130,246,0.3)',
               }}
-              className="inline-flex items-center px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-all duration-300 cursor-default min-w-fit"
+              className="inline-flex items-center px-3 py-1.5 bg-blue-500/10 text-blue-300 rounded-full text-sm hover:bg-blue-500/20 transition-all duration-300 cursor-default min-w-fit"
             >
               {tech}
             </motion.span>
@@ -157,7 +157,8 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.1 }}
-              className="text-secondary hover:text-primary transition-colors duration-300 flex items-center gap-2"
+              className="text-blue-400 hover:text-white transition-colors duration-300 flex items-center gap-2"
+              style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }}
             >
               <FaGithub className="text-xl" />
               <span>GitHub</span>
@@ -169,7 +170,8 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.1 }}
-              className="text-secondary hover:text-primary transition-colors duration-300 flex items-center gap-2"
+              className="text-blue-400 hover:text-white transition-colors duration-300 flex items-center gap-2"
+              style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }}
             >
               <FaExternalLinkAlt className="text-xl" />
               <span>Live Demo</span>
@@ -181,7 +183,8 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.1 }}
-              className="text-secondary hover:text-primary transition-colors duration-300 flex items-center gap-2"
+              className="text-blue-400 hover:text-white transition-colors duration-300 flex items-center gap-2"
+              style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }}
             >
               <FaNpm className="text-xl" />
               <span>npm</span>
@@ -201,6 +204,18 @@ const Projects: React.FC = () => {
 
   return (
     <section id="projects" className="py-20 relative overflow-hidden">
+      {/* Deep space background */}
+      <div className="absolute inset-0 bg-black z-0"></div>
+      
+      {/* Star field */}
+      <div className="absolute inset-0 opacity-90 z-0">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0), 
+                            radial-gradient(circle at 3px 3px, rgba(136, 96, 208, 0.15) 1px, transparent 0)`,
+          backgroundSize: '30px 30px, 50px 50px'
+        }} />
+      </div>
+
       {/* 3D Background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Canvas>
@@ -208,13 +223,18 @@ const Projects: React.FC = () => {
         </Canvas>
       </div>
 
+      {/* Cosmic glow effects */}
+      <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl z-0"></div>
+      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl z-0"></div>
+
       <div className="container mx-auto px-4 relative z-10">
         <motion.h2 
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl font-bold text-center mb-12 text-white"
+          className="text-5xl md:text-6xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+          style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
         >
           Projects
         </motion.h2>

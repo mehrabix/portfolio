@@ -73,22 +73,22 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
         transformStyle: isMobile ? "flat" : "preserve-3d",
         transform: isMobile ? "none" : "perspective(800px)",
       }}
-      className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-100 h-full flex flex-col relative overflow-hidden"
+      className="group bg-black/50 backdrop-blur-sm p-6 rounded-xl border border-blue-500/20 hover:border-blue-500/40 transition-all duration-100 h-full flex flex-col relative overflow-hidden"
     >
       {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       {/* Dynamic shining gradient overlay that follows mouse */}
       <div 
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(var(--secondary-rgb), 0.2) 0%, transparent 50%)`,
+          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.15) 0%, transparent 50%)`,
           filter: 'blur(20px)',
         }}
       />
       
       {/* Animated border gradient */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary/20 via-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
            style={{
              backgroundSize: '200% 100%',
              animation: 'shine 3s linear infinite',
@@ -100,7 +100,7 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
         {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-secondary/20 rounded-full"
+            className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
             initial={{ x: Math.random() * 100 + '%', y: Math.random() * 100 + '%' }}
             animate={{
               x: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
@@ -124,16 +124,16 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
         >
           {/* Dynamic glow effect that follows mouse */}
           <div 
-            className="absolute inset-0 bg-secondary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            className="absolute inset-0 bg-blue-400/30 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             style={{
               transform: `translate(${(mousePosition.x - 50) * 0.2}%, ${(mousePosition.y - 50) * 0.2}%)`,
               filter: 'blur(15px)',
             }}
           />
-          <Icon className="text-3xl text-secondary relative z-10" />
+          <Icon className="text-3xl text-blue-400 relative z-10" style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }} />
         </motion.div>
         <motion.h3 
-          className="heading-3 text-secondary relative z-10"
+          className="text-xl font-semibold text-white relative z-10"
           animate={{
             scale: isHovered ? 1.05 : 1,
             x: isHovered ? 5 : 0,
@@ -152,16 +152,16 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
             transition={{ delay: index * 0.1 }}
             whileHover={{ 
               scale: 1.05,
-              backgroundColor: 'rgba(var(--secondary-rgb), 0.2)',
-              boxShadow: '0 0 15px rgba(var(--secondary-rgb), 0.3)',
+              backgroundColor: 'rgba(59,130,246,0.2)',
+              boxShadow: '0 0 15px rgba(59,130,246,0.3)',
             }}
-            className="inline-flex items-center px-3 py-1 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-all duration-300 cursor-default min-w-fit relative group/skill"
+            className="inline-flex items-center px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-sm hover:bg-blue-500/20 transition-all duration-300 cursor-default min-w-fit relative group/skill"
           >
             {/* Dynamic skill tag shine effect that follows mouse */}
             <div 
               className="absolute inset-0 opacity-0 group-hover/skill:opacity-100 transition-opacity duration-300"
               style={{
-                background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(var(--secondary-rgb), 0.3) 0%, transparent 50%)`,
+                background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.3) 0%, transparent 50%)`,
                 filter: 'blur(10px)',
               }}
             />
@@ -330,16 +330,23 @@ const Skills = () => {
 
   return (
     <section id="skills" className="section-padding relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary" />
+      {/* Deep space background */}
+      <div className="absolute inset-0 bg-black"></div>
+      
+      {/* Star field */}
+      <div className="absolute inset-0 opacity-90">
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0), 
+                            radial-gradient(circle at 3px 3px, rgba(136, 96, 208, 0.15) 1px, transparent 0)`,
+          backgroundSize: '30px 30px, 50px 50px'
         }} />
       </div>
 
-      <div className="container mx-auto px-4">
+      {/* Cosmic glow effects */}
+      <div className="absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           ref={ref}
           variants={containerVariants}

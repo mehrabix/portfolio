@@ -71,16 +71,23 @@ const Experience = () => {
 
   return (
     <section id="experience" className="section-padding relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-gradient-to-br from-secondary to-primary" />
+      {/* Deep space background */}
+      <div className="absolute inset-0 bg-black"></div>
+      
+      {/* Star field */}
+      <div className="absolute inset-0 opacity-90">
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0), 
+                            radial-gradient(circle at 3px 3px, rgba(136, 96, 208, 0.15) 1px, transparent 0)`,
+          backgroundSize: '30px 30px, 50px 50px'
         }} />
       </div>
 
-      <div className="container relative">
+      {/* Cosmic glow effects */}
+      <div className="absolute top-1/4 right-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
+      <div className="absolute bottom-1/4 left-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
+
+      <div className="container relative z-10">
         <motion.div
           ref={ref}
           variants={containerVariants}
@@ -90,21 +97,23 @@ const Experience = () => {
         >
           <motion.div variants={itemVariants} className="text-center mb-16">
             <motion.h2
-              className="heading-2 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-secondary to-primary"
+              className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
             >
               Work Experience
             </motion.h2>
             <motion.div
-              className="w-24 h-1 bg-gradient-to-r from-secondary to-primary mx-auto rounded-full"
+              className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
               initial={{ scaleX: 0 }}
               animate={inView ? { scaleX: 1 } : {}}
               transition={{ duration: 0.5, delay: 0.2 }}
+              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
             />
           </motion.div>
 
           <div className="space-y-8 relative">
             {/* Timeline line */}
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-secondary/30 to-primary/30" />
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500/30 to-purple-500/30 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
 
             {experiences.map((exp, index) => (
               <motion.div
@@ -112,19 +121,19 @@ const Experience = () => {
                 variants={itemVariants}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
-                className="group bg-tertiary/50 backdrop-blur-sm p-6 rounded-xl border border-secondary/20 hover:border-secondary/40 transition-all duration-300 relative overflow-hidden"
+                className="group bg-black/50 backdrop-blur-sm p-6 rounded-xl border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 relative overflow-hidden"
               >
                 {/* Dynamic shining gradient overlay that follows mouse */}
                 <div 
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{
-                    background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(var(--secondary-rgb), 0.2) 0%, transparent 50%)`,
+                    background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.15) 0%, transparent 50%)`,
                     filter: 'blur(20px)',
                   }}
                 />
                 
                 {/* Animated border gradient */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary/20 via-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
                      style={{
                        backgroundSize: '200% 100%',
                        animation: 'shine 3s linear infinite',
@@ -134,10 +143,10 @@ const Experience = () => {
                 {/* Timeline dot with dynamic glow effect */}
                 <motion.div
                   whileHover={{ scale: 1.2 }}
-                  className="absolute left-0 top-8 w-4 h-4 bg-secondary rounded-full transform -translate-x-1/2 shadow-lg shadow-secondary/50 relative z-10"
+                  className="absolute left-0 top-8 w-4 h-4 bg-blue-400 rounded-full transform -translate-x-1/2 shadow-lg shadow-blue-500/50 relative z-10"
                 >
                   <div 
-                    className="absolute inset-0 bg-secondary/30 rounded-full animate-pulse"
+                    className="absolute inset-0 bg-blue-400/30 rounded-full animate-pulse"
                     style={{
                       transform: `translate(${(mousePosition.x - 50) * 0.1}%, ${(mousePosition.y - 50) * 0.1}%)`,
                       filter: 'blur(8px)',
@@ -154,34 +163,34 @@ const Experience = () => {
                     >
                       {/* Dynamic glow effect that follows mouse */}
                       <div 
-                        className="absolute inset-0 bg-secondary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        className="absolute inset-0 bg-blue-400/30 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         style={{
                           transform: `translate(${(mousePosition.x - 50) * 0.2}%, ${(mousePosition.y - 50) * 0.2}%)`,
                           filter: 'blur(15px)',
                         }}
                       />
-                      <FaBriefcase className="text-2xl text-secondary relative z-10" />
+                      <FaBriefcase className="text-2xl text-blue-400 relative z-10" style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }} />
                     </motion.div>
-                    <h3 className="heading-3 text-secondary">{exp.title}</h3>
+                    <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
                     <a
                       href={exp.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-textSecondary hover:text-secondary transition-colors group/link"
+                      className="flex items-center gap-1 text-gray-300 hover:text-white transition-colors group/link"
                     >
                       @{exp.company}
                       <FaExternalLinkAlt className="text-xs opacity-0 group-hover/link:opacity-100 transition-opacity" />
                     </a>
                   </div>
                   
-                  <div className="flex flex-wrap items-center gap-4 text-textSecondary mb-6">
+                  <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
                     <span className="flex items-center gap-2">
-                      <FaMapMarkerAlt className="text-secondary" />
+                      <FaMapMarkerAlt className="text-blue-400" />
                       {exp.location}
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-2">
-                      <FaCalendarAlt className="text-secondary" />
+                      <FaCalendarAlt className="text-blue-400" />
                       {exp.period}
                     </span>
                   </div>
@@ -193,10 +202,10 @@ const Experience = () => {
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        className="flex items-start gap-2 text-textSecondary group/achievement"
+                        className="flex items-start gap-2 text-gray-300 group/achievement"
                       >
-                        <span className="text-secondary mt-1">•</span>
-                        <span className="group-hover/achievement:text-secondary transition-colors duration-300">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span className="group-hover/achievement:text-white transition-colors duration-300">
                           {achievement}
                         </span>
                       </motion.li>

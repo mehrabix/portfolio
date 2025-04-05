@@ -41,16 +41,23 @@ const Contact = () => {
 
   return (
     <section id="contact" className="section-padding relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary" />
+      {/* Deep space background */}
+      <div className="absolute inset-0 bg-black"></div>
+      
+      {/* Star field */}
+      <div className="absolute inset-0 opacity-90">
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0), 
+                            radial-gradient(circle at 3px 3px, rgba(136, 96, 208, 0.15) 1px, transparent 0)`,
+          backgroundSize: '30px 30px, 50px 50px'
         }} />
       </div>
 
-      <div className="container mx-auto px-4">
+      {/* Cosmic glow effects */}
+      <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
+      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           ref={containerRef}
           style={{ y, opacity, scale }}
@@ -62,14 +69,17 @@ const Contact = () => {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <h2 className="heading-2 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-secondary to-primary">
+            <h2 className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600" style={{
+              textShadow: '0 0 30px rgba(59,130,246,0.4)'
+            }}>
               Get In Touch
             </h2>
             <motion.div
-              className="w-24 h-1 bg-gradient-to-r from-secondary to-primary mx-auto rounded-full"
+              className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
+              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
             />
           </motion.div>
 
@@ -89,17 +99,17 @@ const Contact = () => {
                   transition={{ delay: index * 0.1 }}
                   className="relative group"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <a
                     href={info.link}
-                    className="relative p-6 rounded-2xl border border-secondary/10 bg-background/50 backdrop-blur-sm flex items-center gap-4 hover:border-secondary/30 transition-all duration-300"
+                    className="relative p-6 rounded-2xl border border-blue-500/20 bg-black/50 backdrop-blur-sm flex items-center gap-4 hover:border-blue-500/40 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
-                      <info.icon className="text-2xl text-secondary" />
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                      <info.icon className="text-2xl text-blue-400" style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-textPrimary mb-1">{info.title}</h3>
-                      <p className="text-textSecondary hover:text-secondary transition-colors">{info.text}</p>
+                      <h3 className="text-xl font-semibold text-white mb-1">{info.title}</h3>
+                      <p className="text-gray-300 hover:text-white transition-colors">{info.text}</p>
                     </div>
                   </a>
                 </motion.div>
@@ -113,9 +123,9 @@ const Contact = () => {
               transition={{ duration: 0.5 }}
               className="relative group"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-6 rounded-2xl border border-secondary/10 bg-background/50 backdrop-blur-sm">
-                <h3 className="text-xl font-semibold text-textPrimary mb-6">Connect With Me</h3>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative p-6 rounded-2xl border border-blue-500/20 bg-black/50 backdrop-blur-sm group-hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+                <h3 className="text-xl font-semibold text-white mb-6">Connect With Me</h3>
                 <div className="flex gap-6">
                   {socialLinks.map((social, index) => (
                     <motion.a
@@ -126,11 +136,15 @@ const Contact = () => {
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.1, rotate: 360 }}
+                      whileHover={{ scale: 1.2, rotate: 360 }}
                       className="relative group"
                     >
-                      <div className="absolute inset-0 bg-secondary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <social.icon className="text-3xl text-secondary relative z-10" />
+                      <div className="absolute inset-0 bg-blue-400/50 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                           style={{ boxShadow: '0 0 15px rgba(59,130,246,0.8)' }}
+                      />
+                      <social.icon className="text-3xl text-white relative z-10" 
+                                style={{ filter: 'drop-shadow(0 0 5px rgba(59,130,246,0.8))' }}
+                      />
                     </motion.a>
                   ))}
                 </div>

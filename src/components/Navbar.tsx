@@ -46,12 +46,13 @@ const Navbar = () => {
       animate={{ y: 0 }}
       className={`fixed w-full z-[9999] transition-all duration-300 ${
         scrolled 
-          ? 'bg-primary/95 backdrop-blur-xl shadow-lg' 
-          : 'bg-primary/90 backdrop-blur-lg'
+          ? 'bg-black/75 backdrop-blur-2xl border-b border-blue-900/20 shadow-[0_4px_30px_rgba(0,0,0,0.4)]' 
+          : 'bg-black/30 backdrop-blur-lg'
       }`}
       style={{
         perspective: isMobile ? 'none' : '1000px',
         transform: 'translateZ(0)', // Force GPU acceleration
+        boxShadow: scrolled ? '0 4px 20px rgba(30, 64, 175, 0.15)' : 'none'
       }}
     >
       <div className="container mx-auto px-4">
@@ -59,12 +60,13 @@ const Navbar = () => {
           {/* Logo */}
           <motion.a
             href="#"
-            className="text-2xl font-bold text-secondary ml-4"
+            className="text-2xl font-bold text-white ml-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500"
             whileHover={hoverAnimation}
             whileTap={tapAnimation}
             style={{
               transformStyle: isMobile ? 'flat' : 'preserve-3d',
               transform: 'translateZ(0)', // Force GPU acceleration
+              textShadow: '0 0 15px rgba(59,130,246,0.3)'
             }}
           >
             AM
@@ -76,7 +78,7 @@ const Navbar = () => {
               <motion.a
                 key={item.name}
                 href={item.href}
-                className="text-textSecondary hover:text-secondary transition-colors"
+                className="text-gray-300 hover:text-white transition-colors relative group"
                 whileHover={isMobile ? { y: -2 } : { y: -2, rotateX: 10 }}
                 whileTap={tapAnimation}
                 style={{
@@ -85,6 +87,8 @@ const Navbar = () => {
                 }}
               >
                 {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 group-hover:w-full transition-all duration-300" 
+                      style={{ boxShadow: '0 0 10px rgba(59,130,246,0.5)' }}></span>
               </motion.a>
             ))}
           </div>
@@ -93,7 +97,7 @@ const Navbar = () => {
           <div className="md:hidden w-12 flex justify-end">
             <motion.button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-textSecondary hover:text-secondary transition-colors p-2"
+              className="text-gray-300 hover:text-white transition-colors p-2"
               whileHover={hoverAnimation}
               whileTap={tapAnimation}
               style={{
@@ -129,7 +133,7 @@ const Navbar = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-xl z-[9997]"
+                className="fixed inset-0 bg-gradient-to-b from-black/80 to-black/70 backdrop-blur-2xl z-[9997]"
                 onClick={() => setIsOpen(false)}
                 style={{
                   transform: 'translateZ(0)', // Force GPU acceleration
@@ -142,20 +146,22 @@ const Navbar = () => {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -100, opacity: 0 }}
                 transition={{ type: 'spring', damping: 20 }}
-                className="fixed top-0 left-0 right-0 bg-primary/95 backdrop-blur-xl shadow-xl z-[9999]"
+                className="fixed top-0 left-0 right-0 bg-black/90 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.4)] z-[9999]"
                 style={{
                   transformStyle: isMobile ? 'flat' : 'preserve-3d',
                   transform: 'translateZ(0)', // Force GPU acceleration
+                  boxShadow: '0 4px 20px rgba(30, 64, 175, 0.15)'
                 }}
               >
                 <div className="flex flex-col">
-                  <div className="flex items-center justify-between border-b border-secondary/20 px-4 py-4">
+                  <div className="flex items-center justify-between border-b border-blue-900/30 px-4 py-4">
                     <motion.h2 
-                      className="text-xl font-bold text-secondary"
+                      className="text-xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500"
                       whileHover={hoverAnimation}
                       style={{
                         transformStyle: isMobile ? 'flat' : 'preserve-3d',
                         transform: 'translateZ(0)', // Force GPU acceleration
+                        textShadow: '0 0 15px rgba(59,130,246,0.3)'
                       }}
                     >
                       Menu
@@ -163,7 +169,7 @@ const Navbar = () => {
                     <div className="w-12 flex justify-end">
                       <motion.button
                         onClick={() => setIsOpen(false)}
-                        className="p-2 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
+                        className="p-2 text-gray-300 hover:text-white hover:bg-blue-900/10 rounded transition-colors"
                         whileHover={hoverAnimation}
                         whileTap={tapAnimation}
                         style={{
@@ -182,7 +188,7 @@ const Navbar = () => {
                         key={item.href}
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="block rounded-lg px-4 py-3 text-textSecondary hover:text-secondary hover:bg-secondary/10 transition-colors"
+                        className="block rounded-lg px-4 py-3 text-gray-300 hover:text-white hover:bg-blue-900/10 transition-colors"
                         whileHover={isMobile ? { x: 10 } : { x: 10, rotateY: 5 }}
                         style={{
                           transformStyle: isMobile ? 'flat' : 'preserve-3d',
@@ -194,16 +200,17 @@ const Navbar = () => {
                     ))}
                   </nav>
                   
-                  <div className="border-t border-secondary/20 p-4">
+                  <div className="border-t border-blue-900/30 p-4">
                     <motion.a
                       href="#contact"
                       onClick={() => setIsOpen(false)}
-                      className="block w-full rounded-lg bg-secondary px-4 py-3 text-center text-primary hover:bg-secondary/90 transition-colors"
+                      className="block w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 text-center text-white hover:from-blue-700 hover:to-purple-700 transition-colors"
                       whileHover={hoverAnimation}
                       whileTap={tapAnimation}
                       style={{
                         transformStyle: isMobile ? 'flat' : 'preserve-3d',
                         transform: 'translateZ(0)', // Force GPU acceleration
+                        boxShadow: '0 0 15px rgba(30, 64, 175, 0.3)'
                       }}
                     >
                       Contact Me
