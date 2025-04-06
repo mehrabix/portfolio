@@ -18,6 +18,13 @@ import TestTexture from './TestTexture'
 // The path should be relative to this file
 import moonMapUrl from '../assets/textures/moon/moon_map.jpg';
 
+// Add global styles
+const globalStyles = `
+  .drop-shadow-glow {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+  }
+`;
+
 // Extend THREE elements to React Three Fiber
 extend({ 
   PointLight: THREE.PointLight,
@@ -29,7 +36,12 @@ extend({
   PointsMaterial: THREE.PointsMaterial,
   AmbientLight: THREE.AmbientLight,
   Group: THREE.Group,
-  Object3D: THREE.Object3D
+  Object3D: THREE.Object3D,
+  // Add missing primitive and group elements
+  primitive: 'primitive',
+  group: 'group',
+  ambientLight: 'ambientLight',
+  pointLight: 'pointLight'
 })
 
 const InteractiveStars = () => {
@@ -191,6 +203,16 @@ const ParticleField = () => {
 
 const TouchHint = () => {
   const [show, setShow] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -200,7 +222,8 @@ const TouchHint = () => {
     return () => clearTimeout(timer)
   }, [])
 
-  if (!show) return null
+  // On mobile, use the ScrollDownButton instead
+  if (isMobile || !show) return null
 
   return (
     <motion.div
@@ -221,7 +244,7 @@ const TouchHint = () => {
         }}
         className="flex flex-col items-center gap-2"
       >
-        <span className="text-lg">Touch and move to interact</span>
+        <span className="text-lg">Move mouse to interact</span>
         <motion.div
           animate={{
             y: [0, 10, 0],
@@ -237,6 +260,86 @@ const TouchHint = () => {
         </motion.div>
       </motion.div>
     </motion.div>
+  )
+}
+
+const ScrollDownButton = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const handleScrollDown = () => {
+    const nextSection = document.getElementById('about') || document.querySelector('section:nth-of-type(2)')
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      // If no next section is found, just scroll down one viewport height
+      window.scrollTo({
+        top: window.innerHeight,
+        behavior: 'smooth'
+      })
+    }
+  }
+  
+  return (
+    <motion.button
+      onClick={handleScrollDown}
+      onTouchEnd={handleScrollDown} // Ensure touch events are handled
+      initial={{ opacity: 0 }}
+      animate={{ 
+        opacity: 1,
+        y: [0, 10, 0] 
+      }}
+      transition={{
+        opacity: { delay: 1, duration: 0.5 },
+        y: { 
+          delay: 1.5,
+          duration: 1.5, 
+          repeat: Infinity,
+          repeatType: "reverse"
+        }
+      }}
+      className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 text-white flex flex-col items-center cursor-pointer"
+      aria-label="Scroll down"
+      style={{
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      <span className="text-sm mb-2 font-medium">{isMobile ? "Tap to scroll down" : "Scroll Down"}</span>
+      <motion.div
+        animate={{
+          y: [0, 5, 0]
+        }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          repeatType: "reverse"
+        }}
+        className={`p-2 rounded-full ${isMobile ? 'bg-white/10 backdrop-blur-sm' : ''}`}
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          width="24" 
+          height="24" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          className={isMobile ? 'drop-shadow-glow' : ''}
+        >
+          <path d="M12 5v14M5 12l7 7 7-7"/>
+        </svg>
+      </motion.div>
+    </motion.button>
   )
 }
 
@@ -348,6 +451,19 @@ const Hero = () => {
     light.position.set(10, 10, 10);
     return light;
   }, []);
+
+  // Inject global styles
+  useEffect(() => {
+    // Inject the global styles
+    const styleElement = document.createElement('style')
+    styleElement.innerHTML = globalStyles
+    document.head.appendChild(styleElement)
+    
+    // Cleanup on unmount
+    return () => {
+      document.head.removeChild(styleElement)
+    }
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -501,8 +617,9 @@ const Hero = () => {
         )}
       </AnimatePresence>
 
-      {/* Touch Hint */}
+      {/* UI hints - show different components based on device type */}
       <TouchHint />
+      <ScrollDownButton />
     </section>
   )
 }
