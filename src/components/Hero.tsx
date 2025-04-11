@@ -268,6 +268,9 @@ const ScrollDownButton = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
 
+  // Define the order of sections
+  const sectionOrder = ['hero', 'about', 'experience', 'skills', 'projects', 'contact']
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -277,16 +280,61 @@ const ScrollDownButton = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Track current section based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = sectionOrder.map(id => document.getElementById(id))
+      const scrollPosition = window.scrollY + window.innerHeight / 3 // Changed to 1/3 of viewport height
+
+      for (let i = 0; i < sections.length; i++) {
+        const section = sections[i]
+        const nextSection = sections[i + 1]
+        
+        if (section && nextSection) {
+          const sectionTop = section.offsetTop
+          const sectionBottom = sectionTop + section.offsetHeight
+          const nextSectionTop = nextSection.offsetTop
+          
+          if (scrollPosition >= sectionTop && scrollPosition < nextSectionTop) {
+            setCurrentSectionIndex(i)
+            break
+          }
+        } else if (section && !nextSection) {
+          // Last section
+          if (scrollPosition >= section.offsetTop) {
+            setCurrentSectionIndex(i)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    handleScroll() // Initial check
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const handleScrollDown = () => {
-    const sections = document.querySelectorAll('section')
     const nextIndex = currentSectionIndex + 1
-    
-    if (nextIndex < sections.length) {
-      sections[nextIndex].scrollIntoView({ behavior: 'smooth' })
-      setCurrentSectionIndex(nextIndex)
+    if (nextIndex >= sectionOrder.length) {
+      // If we're at the last section, scroll to top
+      const firstSection = document.getElementById('hero')
+      if (firstSection) {
+        firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        setCurrentSectionIndex(0)
+      }
     } else {
-      // If we're at the last section, scroll back to the top
-      sections[0].scrollIntoView({ behavior: 'smooth' })
+      const nextSection = document.getElementById(sectionOrder[nextIndex])
+      if (nextSection) {
+        nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        setCurrentSectionIndex(nextIndex)
+      }
+    }
+  }
+
+  const handleScrollToTop = () => {
+    const firstSection = document.getElementById('hero')
+    if (firstSection) {
+      firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
       setCurrentSectionIndex(0)
     }
   }
@@ -294,12 +342,12 @@ const ScrollDownButton = () => {
   // Only render on mobile devices
   if (!isMobile) return null;
 
-  const isLastSection = currentSectionIndex === document.querySelectorAll('section').length - 1;
+  const isLastSection = currentSectionIndex === sectionOrder.length - 1;
 
   return (
     <motion.button
-      onClick={handleScrollDown}
-      onTouchEnd={handleScrollDown} // Ensure touch events are handled
+      onClick={isLastSection ? handleScrollToTop : handleScrollDown}
+      onTouchEnd={isLastSection ? handleScrollToTop : handleScrollDown}
       initial={{ opacity: 0 }}
       animate={{ 
         opacity: 1,
@@ -597,7 +645,7 @@ const Hero = () => {
   }, [isMobile])
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Loading Screen */}
       <AnimatePresence>
         {isLoading && <LoadingScreen />}
