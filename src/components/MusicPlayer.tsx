@@ -2,6 +2,100 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ShantiPeople from '../assets/music/Shanti_People.mp3';
 
+const Visualizer = ({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement> }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    // Create audio context only once
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+
+    // Create source node only once
+    if (!sourceRef.current) {
+      sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+    }
+
+    // Create analyser
+    const analyser = audioContextRef.current.createAnalyser();
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    // Connect nodes
+    sourceRef.current.connect(analyser);
+    analyser.connect(audioContextRef.current.destination);
+    
+    analyserRef.current = analyser;
+    dataArrayRef.current = dataArray;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const draw = () => {
+      if (!analyserRef.current || !dataArrayRef.current || !canvas || !ctx) return;
+
+      animationRef.current = requestAnimationFrame(draw);
+      analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = (dataArrayRef.current[i] / 255) * canvas.height;
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#3b82f6');
+        gradient.addColorStop(1, '#8b5cf6');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+        x += barWidth + 1;
+      }
+    };
+
+    draw();
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      if (analyser) {
+        analyser.disconnect();
+      }
+    };
+  }, [audioRef]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="absolute inset-0 overflow-hidden rounded-lg"
+    >
+      <canvas
+        ref={canvasRef}
+        width={200}
+        height={60}
+        className="w-full h-full"
+      />
+    </motion.div>
+  );
+};
+
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -53,6 +147,7 @@ const MusicPlayer = () => {
           // Only set the source when user first interacts
           audioRef.current.src = ShantiPeople;
           setHasInteracted(true);
+          setIsLoading(true);
         }
         
         const playPromise = audioRef.current.play();
@@ -93,8 +188,11 @@ const MusicPlayer = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-black/50 backdrop-blur-lg rounded-lg p-4 shadow-lg"
+        className="bg-black/50 backdrop-blur-lg rounded-lg p-4 shadow-lg relative"
       >
+        {/* Visualizer */}
+        {isPlaying && <Visualizer audioRef={audioRef} />}
+        
         <AnimatePresence mode="wait">
           {isLoading ? (
             <motion.div
@@ -102,7 +200,7 @@ const MusicPlayer = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 relative z-10"
             >
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               <span className="text-white text-sm">Loading music...</span>
@@ -113,7 +211,7 @@ const MusicPlayer = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-4"
+              className="flex items-center gap-4 relative z-10"
             >
               <motion.button
                 whileHover={{ scale: 1.1 }}
