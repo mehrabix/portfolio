@@ -266,6 +266,7 @@ const TouchHint = () => {
 
 const ScrollDownButton = () => {
   const [isMobile, setIsMobile] = useState(false)
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -277,15 +278,16 @@ const ScrollDownButton = () => {
   }, [])
 
   const handleScrollDown = () => {
-    const nextSection = document.getElementById('about') || document.querySelector('section:nth-of-type(2)')
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' })
+    const sections = document.querySelectorAll('section')
+    const nextIndex = currentSectionIndex + 1
+    
+    if (nextIndex < sections.length) {
+      sections[nextIndex].scrollIntoView({ behavior: 'smooth' })
+      setCurrentSectionIndex(nextIndex)
     } else {
-      // If no next section is found, just scroll down one viewport height
-      window.scrollTo({
-        top: window.innerHeight,
-        behavior: 'smooth'
-      })
+      // If we're at the last section, scroll back to the top
+      sections[0].scrollIntoView({ behavior: 'smooth' })
+      setCurrentSectionIndex(0)
     }
   }
   
@@ -310,13 +312,12 @@ const ScrollDownButton = () => {
           repeatType: "reverse"
         }
       }}
-      className="absolute bottom-4 right-4 z-50 text-white flex flex-col items-center cursor-pointer"
+      className="fixed bottom-11 right-4 z-50 text-white flex flex-col items-center cursor-pointer"
       aria-label="Scroll down"
       style={{
         WebkitTapHighlightColor: 'transparent',
       }}
     >
-      <span className="text-sm mb-2 font-medium">Tap to scroll down</span>
       <motion.div
         animate={{
           y: [0, 5, 0]
