@@ -310,7 +310,7 @@ const ScrollDownButton = () => {
           repeatType: "reverse"
         }
       }}
-      className="fixed bottom-4 right-4 z-50 text-white flex flex-col items-center cursor-pointer"
+      className="absolute bottom-4 right-4 z-50 text-white flex flex-col items-center cursor-pointer"
       aria-label="Scroll down"
       style={{
         WebkitTapHighlightColor: 'transparent',
