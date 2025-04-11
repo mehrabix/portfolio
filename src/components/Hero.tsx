@@ -278,27 +278,24 @@ const ScrollDownButton = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Track current section based on scroll position
   useEffect(() => {
     const handleScroll = () => {
       const sections = sectionOrder.map(id => document.getElementById(id))
-      const scrollPosition = window.scrollY + window.innerHeight / 3 // Changed to 1/3 of viewport height
+      const scrollPosition = window.scrollY + window.innerHeight / 3
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i]
         const nextSection = sections[i + 1]
-        
+
         if (section && nextSection) {
           const sectionTop = section.offsetTop
-          const sectionBottom = sectionTop + section.offsetHeight
           const nextSectionTop = nextSection.offsetTop
-          
+
           if (scrollPosition >= sectionTop && scrollPosition < nextSectionTop) {
             setCurrentSectionIndex(i)
             break
           }
         } else if (section && !nextSection) {
-          // Last section
           if (scrollPosition >= section.offsetTop) {
             setCurrentSectionIndex(i)
           }
@@ -307,14 +304,13 @@ const ScrollDownButton = () => {
     }
 
     window.addEventListener('scroll', handleScroll)
-    handleScroll() // Initial check
+    handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const handleScrollDown = () => {
     const nextIndex = currentSectionIndex + 1
     if (nextIndex >= sectionOrder.length) {
-      // If we're at the last section, scroll to top
       const firstSection = document.getElementById('hero')
       if (firstSection) {
         firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
