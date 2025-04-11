@@ -6,26 +6,13 @@ const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
       audioRef.current.loop = true;
-      
-      // Try to play on mount
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch(error => {
-            console.log('Auto-play failed:', error);
-            setIsPlaying(false);
-          });
-      }
     }
   }, [volume]);
 
@@ -40,6 +27,7 @@ const MusicPlayer = () => {
           playPromise
             .then(() => {
               setIsPlaying(true);
+              setHasInteracted(true);
             })
             .catch(error => {
               console.log('Play failed:', error);
