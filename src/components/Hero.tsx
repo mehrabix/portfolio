@@ -294,6 +294,8 @@ const ScrollDownButton = () => {
   // Only render on mobile devices
   if (!isMobile) return null;
 
+  const isLastSection = currentSectionIndex === document.querySelectorAll('section').length - 1;
+
   return (
     <motion.button
       onClick={handleScrollDown}
@@ -313,7 +315,7 @@ const ScrollDownButton = () => {
         }
       }}
       className="fixed bottom-11 right-4 z-50 text-white flex flex-col items-center cursor-pointer"
-      aria-label="Scroll down"
+      aria-label={isLastSection ? "Scroll to top" : "Scroll down"}
       style={{
         WebkitTapHighlightColor: 'transparent',
       }}
@@ -340,6 +342,9 @@ const ScrollDownButton = () => {
           strokeLinecap="round" 
           strokeLinejoin="round"
           className="drop-shadow-glow"
+          style={{
+            transform: isLastSection ? 'rotate(180deg)' : 'none'
+          }}
         >
           <path d="M12 5v14M5 12l7 7 7-7"/>
         </svg>
