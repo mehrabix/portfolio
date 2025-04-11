@@ -439,8 +439,97 @@ const GlowingOrb = () => {
   )
 }
 
+const LoadingScreen = () => {
+  const [progress, setProgress] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile()
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          return 100
+        }
+        return prev + 1
+      })
+    }, 30)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50"
+    >
+      <div className="text-center">
+        <motion.div
+          className="relative w-64 h-64 mx-auto mb-8"
+          animate={{
+            scale: [1, 1.1, 1],
+            rotate: [0, 5, -5, 0],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        >
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-xl" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/5 to-purple-500/5 blur-lg" />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="text-white text-xl font-medium mb-4"
+        >
+          Loading Portfolio
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto"
+        >
+          <motion.div
+            className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="text-gray-400 text-sm mt-2"
+        >
+          {progress}%
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
+
 const Hero = () => {
   const [showContent, setShowContent] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isMobile, setIsMobile] = useState(false)
 
@@ -476,8 +565,11 @@ const Hero = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowContent(true)
-    }, 1000)
+      setIsLoading(false)
+      setTimeout(() => {
+        setShowContent(true)
+      }, 500)
+    }, 3000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -496,6 +588,11 @@ const Hero = () => {
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Loading Screen */}
+      <AnimatePresence>
+        {isLoading && <LoadingScreen />}
+      </AnimatePresence>
+
       {/* Background Canvas */}
       <div className="absolute inset-0">
         <Canvas camera={{ position: [0, 0, 5] }}>
