@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ShantiPeople from '../assets/music/Shanti_People.mp3';
 
 const MusicPlayer = () => {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -12,10 +12,20 @@ const MusicPlayer = () => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
       audioRef.current.loop = true;
-      audioRef.current.play().catch(error => {
-        console.log('Auto-play failed:', error);
-        setIsPlaying(false);
-      });
+      
+      // Try to play on mount
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(error => {
+            console.log('Auto-play failed:', error);
+            setIsPlaying(false);
+          });
+      }
     }
   }, [volume]);
 
@@ -23,10 +33,20 @@ const MusicPlayer = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play();
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch(error => {
+              console.log('Play failed:', error);
+              setIsPlaying(false);
+            });
+        }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
