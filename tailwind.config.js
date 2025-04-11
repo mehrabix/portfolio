@@ -18,6 +18,7 @@ export default {
       },
       animation: {
         'gradient': 'gradient 8s linear infinite',
+        marquee: 'marquee 15s linear infinite'
       },
       keyframes: {
         gradient: {
@@ -30,6 +31,10 @@ export default {
             'background-position': 'right center'
           },
         },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' }
+        }
       },
     },
   },
