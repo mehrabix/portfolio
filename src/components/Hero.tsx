@@ -265,6 +265,7 @@ const TouchHint = () => {
 const ScrollDownButton = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
+  const [isScrolling, setIsScrolling] = useState(false)
 
   // Define the order of sections
   const sectionOrder = ['hero', 'about', 'experience', 'skills', 'projects', 'contact']
@@ -280,6 +281,8 @@ const ScrollDownButton = () => {
 
   useEffect(() => {
     const handleScroll = () => {
+      if (isScrolling) return
+
       const sections = sectionOrder.map(id => document.getElementById(id))
       const scrollPosition = window.scrollY + window.innerHeight / 3
 
@@ -304,39 +307,46 @@ const ScrollDownButton = () => {
     }
 
     window.addEventListener('scroll', handleScroll)
-    handleScroll()
+    handleScroll() // Initial check
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [isScrolling])
+
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId)
+    if (section) {
+      setIsScrolling(true)
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      
+      // Reset scrolling state after animation completes
+      setTimeout(() => {
+        setIsScrolling(false)
+      }, 1000) // Adjust timing based on your scroll animation duration
+    }
+  }
 
   const handleScrollDown = () => {
+    if (isScrolling) return
+
     const nextIndex = currentSectionIndex + 1
     if (nextIndex >= sectionOrder.length) {
-      const firstSection = document.getElementById('hero')
-      if (firstSection) {
-        firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        setCurrentSectionIndex(0)
-      }
+      scrollToSection('hero')
+      setCurrentSectionIndex(0)
     } else {
-      const nextSection = document.getElementById(sectionOrder[nextIndex])
-      if (nextSection) {
-        nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        setCurrentSectionIndex(nextIndex)
-      }
+      scrollToSection(sectionOrder[nextIndex])
+      setCurrentSectionIndex(nextIndex)
     }
   }
 
   const handleScrollToTop = () => {
-    const firstSection = document.getElementById('hero')
-    if (firstSection) {
-      firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      setCurrentSectionIndex(0)
-    }
+    if (isScrolling) return
+    scrollToSection('hero')
+    setCurrentSectionIndex(0)
   }
-  
-  // Only render on mobile devices
-  if (!isMobile) return null;
 
-  const isLastSection = currentSectionIndex === sectionOrder.length - 1;
+  // Only render on mobile devices
+  if (!isMobile) return null
+
+  const isLastSection = currentSectionIndex === sectionOrder.length - 1
 
   return (
     <motion.button
@@ -361,6 +371,7 @@ const ScrollDownButton = () => {
       style={{
         WebkitTapHighlightColor: 'transparent',
       }}
+      disabled={isScrolling}
     >
       <motion.div
         animate={{
