@@ -10,6 +10,7 @@ import SkySphere from './SkySphere'
 import CelestialObject from './CelestialObject'
 import WormHole from './WormHole'
 import SpacePortal from './SpacePortal'
+import MusicPlayer from './MusicPlayer'
 
 // Import TestTexture for debugging
 import TestTexture from './TestTexture'
@@ -618,6 +619,9 @@ const Hero = () => {
           <OrbitControls enableZoom={false} enablePan={false} />
         </Canvas>
       </div>
+
+      {/* Music Player */}
+      <MusicPlayer />
 
       {/* For debugging texture loading */}
       {/* <TestTexture /> */}
