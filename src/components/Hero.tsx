@@ -288,6 +288,9 @@ const ScrollDownButton = () => {
     }
   }
   
+  // Only render on mobile devices
+  if (!isMobile) return null;
+
   return (
     <motion.button
       onClick={handleScrollDown}
@@ -312,7 +315,7 @@ const ScrollDownButton = () => {
         WebkitTapHighlightColor: 'transparent',
       }}
     >
-      <span className="text-sm mb-2 font-medium">{isMobile ? "Tap to scroll down" : "Scroll Down"}</span>
+      <span className="text-sm mb-2 font-medium">Tap to scroll down</span>
       <motion.div
         animate={{
           y: [0, 5, 0]
@@ -322,7 +325,7 @@ const ScrollDownButton = () => {
           repeat: Infinity,
           repeatType: "reverse"
         }}
-        className={`p-2 rounded-full ${isMobile ? 'bg-white/10 backdrop-blur-sm' : ''}`}
+        className="p-2 rounded-full bg-white/10 backdrop-blur-sm"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -334,7 +337,7 @@ const ScrollDownButton = () => {
           strokeWidth="2" 
           strokeLinecap="round" 
           strokeLinejoin="round"
-          className={isMobile ? 'drop-shadow-glow' : ''}
+          className="drop-shadow-glow"
         >
           <path d="M12 5v14M5 12l7 7 7-7"/>
         </svg>
