@@ -7,7 +7,7 @@ const MusicPlayer = () => {
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -15,16 +15,29 @@ const MusicPlayer = () => {
       audioRef.current.volume = volume;
       audioRef.current.loop = true;
       
-      // Add event listener for when audio is ready to play
+      // Add event listeners for audio loading states
+      const handleLoadStart = () => {
+        setIsLoading(true);
+      };
+
       const handleCanPlayThrough = () => {
         setIsLoading(false);
       };
 
+      const handleError = () => {
+        setIsLoading(false);
+        console.error('Error loading audio');
+      };
+
+      audioRef.current.addEventListener('loadstart', handleLoadStart);
       audioRef.current.addEventListener('canplaythrough', handleCanPlayThrough);
+      audioRef.current.addEventListener('error', handleError);
       
       return () => {
         if (audioRef.current) {
+          audioRef.current.removeEventListener('loadstart', handleLoadStart);
           audioRef.current.removeEventListener('canplaythrough', handleCanPlayThrough);
+          audioRef.current.removeEventListener('error', handleError);
         }
       };
     }
@@ -36,16 +49,22 @@ const MusicPlayer = () => {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
+        if (!hasInteracted) {
+          // Only set the source when user first interacts
+          audioRef.current.src = ShantiPeople;
+          setHasInteracted(true);
+        }
+        
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
               setIsPlaying(true);
-              setHasInteracted(true);
             })
             .catch(error => {
               console.log('Play failed:', error);
               setIsPlaying(false);
+              setIsLoading(false);
             });
         }
       }
@@ -69,7 +88,7 @@ const MusicPlayer = () => {
 
   return (
     <div className="fixed bottom-4 left-4 z-50">
-      <audio ref={audioRef} src={ShantiPeople} />
+      <audio ref={audioRef} preload="none" />
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
