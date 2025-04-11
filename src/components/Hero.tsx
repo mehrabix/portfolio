@@ -1,23 +1,21 @@
-import { OrbitControls, Sphere, Stars, Text3D, Float, useTexture, Html } from '@react-three/drei'
-import { Canvas, useFrame, ThreeEvent, extend } from '@react-three/fiber'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { OrbitControls, Stars } from '@react-three/drei'
+import { Canvas, ThreeEvent, extend, useFrame } from '@react-three/fiber'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 // Import our standalone components
-import Moon from './Moon'
-import SkySphere from './SkySphere'
 import CelestialObject from './CelestialObject'
-import WormHole from './WormHole'
-import SpacePortal from './SpacePortal'
+import Moon from './Moon'
 import MusicPlayer from './MusicPlayer'
+import SkySphere from './SkySphere'
+import SpacePortal from './SpacePortal'
+import WormHole from './WormHole'
 
 // Import TestTexture for debugging
-import TestTexture from './TestTexture'
 
 // Vite-specific import for texture
 // The path should be relative to this file
-import moonMapUrl from '../assets/textures/moon/moon_map.jpg';
 
 // Add global styles
 const globalStyles = `
