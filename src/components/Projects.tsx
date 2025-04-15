@@ -68,7 +68,6 @@ const projects: Project[] = [
       "SaaS Platform Development", 
       "EHR & E-prescribing Features", 
       "Health Monitoring Integration", 
-      "Operational Optimization"
     ],
     demo: "https://easymed.ir/"
   },
@@ -80,7 +79,6 @@ const projects: Project[] = [
       "Large-scale Insurance Platform", 
       "National Project Underwriting Support", 
       "Risk Management Features",
-      "Micro-frontend Implementation"
     ],
     demo: "https://darmanmobile.iraninsurance.ir/"
   }
