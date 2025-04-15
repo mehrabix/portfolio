@@ -1,5 +1,5 @@
 import { OrbitControls, Stars } from '@react-three/drei'
-import { Canvas, ThreeEvent, extend, useFrame } from '@react-three/fiber'
+import { Canvas, ThreeEvent, extend, useFrame, PrimitiveProps, GroupProps, AmbientLightProps, PointLightProps } from '@react-three/fiber'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -11,6 +11,7 @@ import MusicPlayer from './MusicPlayer'
 import SkySphere from './SkySphere'
 import SpacePortal from './SpacePortal'
 import WormHole from './WormHole'
+import Mars from './Mars'
 
 // Import TestTexture for debugging
 
@@ -34,14 +35,25 @@ extend({
   Points: THREE.Points,
   PointsMaterial: THREE.PointsMaterial,
   AmbientLight: THREE.AmbientLight,
-  Group: THREE.Group,
+  Group: THREE.Group, 
   Object3D: THREE.Object3D,
-  // Add missing primitive and group elements
-  primitive: 'primitive',
-  group: 'group',
-  ambientLight: 'ambientLight',
-  pointLight: 'pointLight'
+  primitive: THREE.Object3D,
+  group: THREE.Group,
+  ambientLight: THREE.AmbientLight,
+  pointLight: THREE.PointLight
 })
+
+// Extend intrinsic elements for TypeScript recognition
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      primitive: PrimitiveProps;
+      group: GroupProps;
+      ambientLight: AmbientLightProps;
+      pointLight: PointLightProps;
+    }
+  }
+}
 
 const InteractiveStars = () => {
   const starsRef = useRef<THREE.Points>(null)
@@ -597,7 +609,7 @@ const Hero = () => {
   const [isMobile, setIsMobile] = useState(false)
 
   // Create scene lights
-  const ambientLight = useMemo(() => new THREE.AmbientLight(0xffffff, 0.5), []);
+  const ambientLight = useMemo(() => new THREE.AmbientLight(0xffffff, 1.0), []);
   const pointLight = useMemo(() => {
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.position.set(10, 10, 10);
@@ -659,7 +671,7 @@ const Hero = () => {
       {/* Background Canvas */}
       <div className="absolute inset-0">
         <Canvas camera={{ position: [0, 0, 5] }}>
-          <ambientLight intensity={0.5} />
+          <ambientLight intensity={1.0} />
           <pointLight position={[10, 10, 10]} intensity={1} />
           
           {/* Background sky */}
@@ -672,6 +684,7 @@ const Hero = () => {
           
           {/* Main objects */}
           <Moon />
+          <Mars position={[15, 5, -20]} size={1.5} />
           <InteractiveStars />
           <ParticleField />
           
