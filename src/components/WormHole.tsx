@@ -108,13 +108,13 @@ const WormHole = ({ position = [0, 0, -40], size = 8 }) => {
   });
 
   return (
-    <group position={position}>
+    <mesh position={position}>
       <Sphere 
         ref={meshRef} 
         args={[size, 64, 64]} 
         material={wormholeMaterial}
       />
-    </group>
+    </mesh>
   );
 };
 

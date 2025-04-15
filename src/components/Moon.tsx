@@ -1,5 +1,5 @@
 import { useRef, useState, useMemo, useEffect } from 'react';
-import { Sphere, Float } from '@react-three/drei';
+import { Sphere, Stars, Float } from '@react-three/drei';
 import { useFrame, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -135,6 +135,8 @@ const Moon = () => {
         material={textureLoaded ? moonMaterial : fallbackMaterial}
         onPointerMove={handleMouseMove}
       />
+      
+      {/* Removed the problematic Stars component */}
     </Float>
   );
 };

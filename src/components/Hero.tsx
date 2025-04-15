@@ -1,18 +1,17 @@
 import { OrbitControls, Stars } from '@react-three/drei'
-import { Canvas, ThreeEvent, extend, useFrame, PrimitiveProps, GroupProps, AmbientLightProps, PointLightProps } from '@react-three/fiber'
+import { Canvas, ThreeEvent, extend, useFrame } from '@react-three/fiber'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 // Import our standalone components
 import CelestialObject from './CelestialObject'
+import Mars from './Mars'
 import Moon from './Moon'
 import MusicPlayer from './MusicPlayer'
 import SkySphere from './SkySphere'
 import SpacePortal from './SpacePortal'
 import WormHole from './WormHole'
-import Mars from './Mars'
-import SolventCursor from './SolventCursor'
 
 // Import TestTexture for debugging
 
@@ -36,25 +35,14 @@ extend({
   Points: THREE.Points,
   PointsMaterial: THREE.PointsMaterial,
   AmbientLight: THREE.AmbientLight,
-  Group: THREE.Group, 
+  Group: THREE.Group,
   Object3D: THREE.Object3D,
-  primitive: THREE.Object3D,
-  group: THREE.Group,
-  ambientLight: THREE.AmbientLight,
-  pointLight: THREE.PointLight
+  // Add missing primitive and group elements
+  primitive: 'primitive',
+  group: 'group',
+  ambientLight: 'ambientLight',
+  pointLight: 'pointLight'
 })
-
-// Extend intrinsic elements for TypeScript recognition
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      primitive: PrimitiveProps;
-      group: GroupProps;
-      ambientLight: AmbientLightProps;
-      pointLight: PointLightProps;
-    }
-  }
-}
 
 const InteractiveStars = () => {
   const starsRef = useRef<THREE.Points>(null)
@@ -419,6 +407,70 @@ const ScrollDownButton = () => {
   )
 }
 
+const ParticleTrail = () => {
+  const [particles, setParticles] = useState<Array<{ x: number; y: number; size: number; opacity: number }>>([])
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: e.clientX,
+        y: e.clientY
+      })
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setParticles(prev => {
+        const newParticle = {
+          x: mousePosition.x,
+          y: mousePosition.y,
+          size: Math.random() * 4 + 2,
+          opacity: 1
+        }
+        return [...prev.slice(-20), newParticle]
+      })
+    }, 50)
+
+    return () => clearInterval(interval)
+  }, [mousePosition])
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {particles.map((particle, index) => (
+        <motion.div
+          key={index}
+          className="absolute bg-white rounded-full"
+          initial={{ 
+            x: particle.x, 
+            y: particle.y,
+            scale: 1,
+            opacity: particle.opacity
+          }}
+          animate={{ 
+            x: particle.x + (Math.random() - 0.5) * 100,
+            y: particle.y + (Math.random() - 0.5) * 100,
+            scale: 0,
+            opacity: 0
+          }}
+          transition={{
+            duration: 1,
+            ease: "easeOut"
+          }}
+          style={{
+            width: particle.size,
+            height: particle.size,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 const GlowingOrb = () => {
   const [isMobile, setIsMobile] = useState(false)
 
@@ -546,7 +598,7 @@ const Hero = () => {
   const [isMobile, setIsMobile] = useState(false)
 
   // Create scene lights
-  const ambientLight = useMemo(() => new THREE.AmbientLight(0xffffff, 1.0), []);
+  const ambientLight = useMemo(() => new THREE.AmbientLight(0xffffff, 0.5), []);
   const pointLight = useMemo(() => {
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.position.set(10, 10, 10);
@@ -608,7 +660,7 @@ const Hero = () => {
       {/* Background Canvas */}
       <div className="absolute inset-0">
         <Canvas camera={{ position: [0, 0, 5] }}>
-          <ambientLight intensity={1.0} />
+          <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} intensity={1} />
           
           {/* Background sky */}
@@ -618,15 +670,12 @@ const Hero = () => {
           <CelestialObject position={[0, 0, -60]} size={15} color="#8860d0" />
           <WormHole position={[-30, 15, -50]} size={8} />
           <SpacePortal position={[30, -12, -50]} size={6} ringCount={4} />
+          <Mars position={[20, 5, -40]} size={2} />
           
           {/* Main objects */}
           <Moon />
-          <Mars position={[15, 5, -20]} size={1.5} />
           <InteractiveStars />
           <ParticleField />
-          
-          {/* Solvent Cursor Effect */}
-          <SolventCursor color="#50c2ff" size={0.08} intensity={1.2} />
           
           <OrbitControls enableZoom={false} enablePan={false} />
         </Canvas>
@@ -657,6 +706,9 @@ const Hero = () => {
           right: '20%',
         }}
       />
+
+      {/* Particle Trail */}
+      <ParticleTrail />
 
       {/* Floating Text */}
       <FloatingText />
@@ -715,7 +767,7 @@ const Hero = () => {
                 whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59,130,246,0.5)' }}
                 whileTap={{ scale: 0.95 }}
                 href="#contact"
-                className="cursor-pointer px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
               >
                 <span className="relative z-10">Contact Me</span>
                 <motion.div
