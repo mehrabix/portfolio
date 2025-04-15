@@ -1,5 +1,5 @@
 import { useRef, useState, useMemo, useEffect } from 'react';
-import { Sphere, Stars, Float } from '@react-three/drei';
+import { Sphere, Float } from '@react-three/drei';
 import { useFrame, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -53,15 +53,6 @@ const Moon = () => {
       color: '#e0e0e0',
       roughness: 0.7,
       metalness: 0.2
-    });
-  }, []);
-
-  // Create effect materials
-  const glowMaterial = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: '#4169E1',
-      transparent: true,
-      opacity: 0.05
     });
   }, []);
 
@@ -137,9 +128,6 @@ const Moon = () => {
       rotationIntensity={0.1} 
       floatIntensity={0.2}
     >
-      {/* Subtle glow effect */}
-      <Sphere args={[0.65, 32, 32]} material={glowMaterial} />
-      
       {/* Main moon */}
       <Sphere 
         ref={moonRef} 
@@ -147,8 +135,6 @@ const Moon = () => {
         material={textureLoaded ? moonMaterial : fallbackMaterial}
         onPointerMove={handleMouseMove}
       />
-      
-      {/* Removed the problematic Stars component */}
     </Float>
   );
 };
