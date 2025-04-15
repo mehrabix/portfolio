@@ -166,9 +166,7 @@ const About = () => {
               </p>
 
               <p className="text-xl text-white leading-relaxed" style={{ textShadow: '0 0 2px rgba(255,255,255,0.3)' }}>
-                I have hands-on experience with micro frontends, DevOps practices, and improving application 
-                performance and user experience. I'm always eager to learn and apply new technologies to create 
-                effective solutions.
+                {t('about.experience')}
               </p>
 
               <div className="flex flex-wrap gap-4 mt-8">

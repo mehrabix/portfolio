@@ -17,74 +17,6 @@ interface Project {
   npm?: string[];
 }
 
-const projects: Project[] = [
-  {
-    title: "Persian Date Picker",
-    description: "A modern, framework-agnostic web component for Persian (Jalali) calendar date selection. Built with TypeScript and Web Components, it works seamlessly across all major frameworks (React, Vue, Angular) and vanilla JavaScript/TypeScript projects. Features a beautiful UI and comprehensive functionality while maintaining complete framework independence.",
-    technologies: ["TypeScript", "Web Components", "CSS", "Jalali Calendar", "Framework Agnostic", "Rspack"],
-    features: [
-      "Works with any framework (React, Vue, Angular) or vanilla JS/TS",
-      "Range selection support",
-      "Holiday highlighting",
-      "RTL support",
-      "Touch gesture support",
-      "Customizable styling",
-      "Event tooltips",
-      "Min/Max date constraints",
-      "Disabled dates handling"
-    ],
-    github: "https://github.com/mehrabix/persian-datepicker-element",
-    demo: "http://mehrabix.github.io/persian-datepicker-element",
-    npm: [
-      "https://www.npmjs.com/package/persian-datepicker-element",
-      "https://www.npmjs.com/package/react-persian-datepicker-element",
-      "https://www.npmjs.com/package/ngx-persian-datepicker-element",
-      "https://www.npmjs.com/package/vue-persian-datepicker-element"
-    ]
-  },
-  {
-    title: "Frontend WebComponent Boilerplate",
-    description: "A powerful boilerplate for creating modern web applications using Web Components. Built with Rspack, Lit.js, TypeScript, and TailwindCSS, it provides a robust foundation for building framework-agnostic web applications. Features hot module replacement, optimized builds, and modern development tools.",
-    technologies: ["TypeScript", "Web Components", "Lit.js", "Rspack", "TailwindCSS", "esbuild"],
-    features: [
-      "Modern JavaScript and TypeScript support with esbuild",
-      "Reactive state management using Preact Signals",
-      "Hot Module Replacement (HMR) for efficient development",
-      "CSS processing with TailwindCSS and PostCSS",
-      "Optimized asset handling using Rspack",
-      "Compression of assets for production",
-      "Source maps for easier debugging",
-      "Framework-agnostic architecture"
-    ],
-    github: "https://github.com/litpack/create",
-    npm: [
-      "https://www.npmjs.com/package/create-litpack"
-    ]
-  },
-  {
-    title: "Easymed EHR Platform",
-    description: "Developed a SaaS platform for electronic healthcare services, including EHR, e-prescribing, and monitoring. Focused on improving healthcare operations and management.",
-    technologies: ["React", "Angular", "Spring Boot", "NestJS", "PL/SQL", "Microservices", "DevOps"],
-    features: [
-      "SaaS Platform Development", 
-      "EHR & E-prescribing Features", 
-      "Health Monitoring Integration", 
-    ],
-    demo: "https://easymed.ir/"
-  },
-  {
-    title: "Darmanmobile Insurance Project",
-    description: "Contributed to a major project for Iran Insurance Company, supporting diverse insurance products and underwriting for large national initiatives.",
-    technologies: ["Micro-frontends", "GitLab CI", "Jenkins", "Ansible", "Kubernetes", "React", "Angular"],
-    features: [
-      "Large-scale Insurance Platform", 
-      "National Project Underwriting Support", 
-      "Risk Management Features",
-    ],
-    demo: "https://darmanmobile.iraninsurance.ir/"
-  }
-];
-
 const ProjectCard = ({ project, index }: { project: Project; index: number }) => {
   const { t } = useLanguage();
   const [isMobile, setIsMobile] = useState(false);
@@ -228,6 +160,75 @@ const Projects: React.FC = () => {
   });
 
   const [showAll, setShowAll] = useState(false);
+
+  // Moved the projects data inside the component to access the t function
+  const projects: Project[] = [
+    {
+      title: t('projects.datepicker.title'),
+      description: t('projects.datepicker.description'),
+      technologies: ["TypeScript", "Web Components", "CSS", "Jalali Calendar", "Framework Agnostic", "Rspack"],
+      features: [
+        t('projects.datepicker.feature1'),
+        t('projects.datepicker.feature2'),
+        t('projects.datepicker.feature3'),
+        t('projects.datepicker.feature4'),
+        t('projects.datepicker.feature5'),
+        t('projects.datepicker.feature6'),
+        t('projects.datepicker.feature7'),
+        t('projects.datepicker.feature8'),
+        t('projects.datepicker.feature9')
+      ],
+      github: "https://github.com/mehrabix/persian-datepicker-element",
+      demo: "http://mehrabix.github.io/persian-datepicker-element",
+      npm: [
+        "https://www.npmjs.com/package/persian-datepicker-element",
+        "https://www.npmjs.com/package/react-persian-datepicker-element",
+        "https://www.npmjs.com/package/ngx-persian-datepicker-element",
+        "https://www.npmjs.com/package/vue-persian-datepicker-element"
+      ]
+    },
+    {
+      title: t('projects.boilerplate.title'),
+      description: t('projects.boilerplate.description'),
+      technologies: ["TypeScript", "Web Components", "Lit.js", "Rspack", "TailwindCSS", "esbuild"],
+      features: [
+        t('projects.boilerplate.feature1'),
+        t('projects.boilerplate.feature2'),
+        t('projects.boilerplate.feature3'),
+        t('projects.boilerplate.feature4'),
+        t('projects.boilerplate.feature5'),
+        t('projects.boilerplate.feature6'),
+        t('projects.boilerplate.feature7'),
+        t('projects.boilerplate.feature8')
+      ],
+      github: "https://github.com/litpack/create",
+      npm: [
+        "https://www.npmjs.com/package/create-litpack"
+      ]
+    },
+    {
+      title: t('projects.easymed.title'),
+      description: t('projects.easymed.description'),
+      technologies: ["React", "Angular", "Spring Boot", "NestJS", "PL/SQL", "Microservices", "DevOps"],
+      features: [
+        t('projects.easymed.feature1'),
+        t('projects.easymed.feature2'),
+        t('projects.easymed.feature3')
+      ],
+      demo: "https://easymed.ir/"
+    },
+    {
+      title: t('projects.darman.title'),
+      description: t('projects.darman.description'),
+      technologies: ["Micro-frontends", "GitLab CI", "Jenkins", "Ansible", "Kubernetes", "React", "Angular"],
+      features: [
+        t('projects.darman.feature1'),
+        t('projects.darman.feature2'),
+        t('projects.darman.feature3')
+      ],
+      demo: "https://darmanmobile.iraninsurance.ir/"
+    }
+  ];
 
   const visibleProjects = showAll ? projects : projects.slice(0, 3);
 
