@@ -12,6 +12,7 @@ import SkySphere from './SkySphere'
 import SpacePortal from './SpacePortal'
 import WormHole from './WormHole'
 import Mars from './Mars'
+import SolventCursor from './SolventCursor'
 
 // Import TestTexture for debugging
 
@@ -418,70 +419,6 @@ const ScrollDownButton = () => {
   )
 }
 
-const ParticleTrail = () => {
-  const [particles, setParticles] = useState<Array<{ x: number; y: number; size: number; opacity: number }>>([])
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: e.clientX,
-        y: e.clientY
-      })
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setParticles(prev => {
-        const newParticle = {
-          x: mousePosition.x,
-          y: mousePosition.y,
-          size: Math.random() * 4 + 2,
-          opacity: 1
-        }
-        return [...prev.slice(-20), newParticle]
-      })
-    }, 50)
-
-    return () => clearInterval(interval)
-  }, [mousePosition])
-
-  return (
-    <div className="absolute inset-0 pointer-events-none">
-      {particles.map((particle, index) => (
-        <motion.div
-          key={index}
-          className="absolute bg-white rounded-full"
-          initial={{ 
-            x: particle.x, 
-            y: particle.y,
-            scale: 1,
-            opacity: particle.opacity
-          }}
-          animate={{ 
-            x: particle.x + (Math.random() - 0.5) * 100,
-            y: particle.y + (Math.random() - 0.5) * 100,
-            scale: 0,
-            opacity: 0
-          }}
-          transition={{
-            duration: 1,
-            ease: "easeOut"
-          }}
-          style={{
-            width: particle.size,
-            height: particle.size,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
 const GlowingOrb = () => {
   const [isMobile, setIsMobile] = useState(false)
 
@@ -688,6 +625,9 @@ const Hero = () => {
           <InteractiveStars />
           <ParticleField />
           
+          {/* Solvent Cursor Effect */}
+          <SolventCursor color="#50c2ff" size={0.08} intensity={1.2} />
+          
           <OrbitControls enableZoom={false} enablePan={false} />
         </Canvas>
       </div>
@@ -717,9 +657,6 @@ const Hero = () => {
           right: '20%',
         }}
       />
-
-      {/* Particle Trail */}
-      <ParticleTrail />
 
       {/* Floating Text */}
       <FloatingText />
