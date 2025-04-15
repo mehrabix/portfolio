@@ -3,6 +3,7 @@ import { Canvas, ThreeEvent, extend, useFrame } from '@react-three/fiber'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { useLanguage } from '../context/LanguageContext'
 
 // Import our standalone components
 import CelestialObject from './CelestialObject'
@@ -24,6 +25,18 @@ const globalStyles = `
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
   }
 `;
+
+// Fix JSX intrinsic elements by declaring these custom elements
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'group': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'primitive': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'ambientLight': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'pointLight': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
+}
 
 // Extend THREE elements to React Three Fiber
 extend({ 
@@ -91,6 +104,7 @@ const InteractiveStars = () => {
 }
 
 const FloatingText = () => {
+  const { t } = useLanguage()
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isMobile, setIsMobile] = useState(false)
 
@@ -592,6 +606,7 @@ const LoadingScreen = () => {
 }
 
 const Hero = () => {
+  const { t } = useLanguage()
   const [showContent, setShowContent] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -755,7 +770,7 @@ const Hero = () => {
                 textShadow: '0 0 10px rgba(255,255,255,0.3)',
               }}
             >
-              Full Stack Software Engineer
+              {t('hero.role')}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -769,7 +784,7 @@ const Hero = () => {
                 href="#contact"
                 className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
               >
-                <span className="relative z-10">Contact Me</span>
+                <span className="relative z-10">{t('nav.contactMe')}</span>
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   initial={{ x: '-100%' }}

@@ -1,0 +1,47 @@
+{
+  "nav.about": "Über mich",
+  "nav.experience": "Erfahrung",
+  "nav.skills": "Fähigkeiten",
+  "nav.projects": "Projekte",
+  "nav.contact": "Kontakt",
+  "nav.contactMe": "Kontaktiere mich",
+  "nav.menu": "Menü",
+  "nav.language": "Sprache",
+  
+  "hero.greeting": "Hallo, ich bin",
+  "hero.role": "Full-Stack Entwickler",
+  "hero.description": "Ich entwickle außergewöhnliche digitale Erlebnisse für das Web und darüber hinaus.",
+  "hero.cta": "Meine Arbeit ansehen",
+  
+  "about.title": "Über mich",
+  "about.description": "Ich bin ein leidenschaftlicher Entwickler, der gerne ansprechende Web-Erlebnisse mit modernsten Technologien erstellt.",
+  
+  "experience.title": "Erfahrung",
+  "experience.workExperience": "Berufserfahrung",
+  
+  "skills.title": "Fähigkeiten",
+  "skills.frontendDev": "Frontend-Entwicklung",
+  "skills.frontendArch": "Frontend-Architektur",
+  "skills.backendDev": "Backend-Entwicklung",
+  "skills.devOps": "DevOps & Automatisierung",
+  "skills.testing": "Testing & Qualität",
+  "skills.methodologies": "Methoden & Führung",
+  
+  "projects.title": "Projekte",
+  "projects.viewAll": "Alle anzeigen",
+  "projects.showLess": "Weniger anzeigen",
+  "projects.features": "Funktionen",
+  "projects.liveDemo": "Live Demo",
+  "projects.github": "GitHub",
+  "projects.npm": "npm",
+  
+  "contact.title": "Kontakt aufnehmen",
+  "contact.description": "Kontaktiere mich",
+  "contact.name": "Name",
+  "contact.email": "E-Mail",
+  "contact.phone": "Telefon",
+  "contact.location": "Standort",
+  "contact.connectWithMe": "Verbinde dich mit mir",
+  "contact.message": "Nachricht",
+  "contact.send": "Nachricht senden"
+} 

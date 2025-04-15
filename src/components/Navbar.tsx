@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useLanguage } from '../context/LanguageContext'
+import LanguageSelector from './LanguageSelector'
 
 const Navbar = () => {
+  const { t } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -26,11 +29,11 @@ const Navbar = () => {
   }, [])
 
   const navItems = [
-    { name: 'About', href: '#about' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'Skills', href: '#skills' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Contact', href: '#contact' },
+    { name: t('nav.about'), href: '#about' },
+    { name: t('nav.experience'), href: '#experience' },
+    { name: t('nav.skills'), href: '#skills' },
+    { name: t('nav.projects'), href: '#projects' },
+    { name: t('nav.contact'), href: '#contact' },
   ]
 
   // Optimized hover animations based on device
@@ -73,28 +76,38 @@ const Navbar = () => {
           </motion.a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                className="text-gray-300 hover:text-white transition-colors relative group"
-                whileHover={isMobile ? { y: -2 } : { y: -2, rotateX: 10 }}
-                whileTap={tapAnimation}
-                style={{
-                  transformStyle: isMobile ? 'flat' : 'preserve-3d',
-                  transform: 'translateZ(0)', // Force GPU acceleration
-                }}
-              >
-                {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 group-hover:w-full transition-all duration-300" 
-                      style={{ boxShadow: '0 0 10px rgba(59,130,246,0.5)' }}></span>
-              </motion.a>
-            ))}
+          <div className="hidden md:flex items-center">
+            <div className="flex space-x-8 mr-4">
+              {navItems.map((item) => (
+                <motion.a
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-300 hover:text-white transition-colors relative group"
+                  whileHover={isMobile ? { y: -2 } : { y: -2, rotateX: 10 }}
+                  whileTap={tapAnimation}
+                  style={{
+                    transformStyle: isMobile ? 'flat' : 'preserve-3d',
+                    transform: 'translateZ(0)', // Force GPU acceleration
+                  }}
+                >
+                  {item.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 group-hover:w-full transition-all duration-300" 
+                        style={{ boxShadow: '0 0 10px rgba(59,130,246,0.5)' }}></span>
+                </motion.a>
+              ))}
+            </div>
+            
+            {/* Language Selector - Desktop */}
+            <div className="border-l border-blue-900/30 pl-4">
+              <LanguageSelector />
+            </div>
           </div>
 
           {/* Mobile Navigation Button */}
-          <div className="md:hidden w-12 flex justify-end">
+          <div className="md:hidden flex items-center">
+            {/* Language Selector for Mobile */}
+            <LanguageSelector />
+            
             <motion.button
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-300 hover:text-white transition-colors p-2"
@@ -164,7 +177,7 @@ const Navbar = () => {
                         textShadow: '0 0 15px rgba(59,130,246,0.3)'
                       }}
                     >
-                      Menu
+                      {t('nav.menu')}
                     </motion.h2>
                     <div className="w-12 flex justify-end">
                       <motion.button
@@ -213,7 +226,7 @@ const Navbar = () => {
                         boxShadow: '0 0 15px rgba(30, 64, 175, 0.3)'
                       }}
                     >
-                      Contact Me
+                      {t('nav.contactMe')}
                     </motion.a>
                   </div>
                 </div>

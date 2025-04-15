@@ -19,6 +19,7 @@ import { TbBrandCSharp, TbApi, TbScript, TbTerminal2, TbTestPipe, TbBulb } from 
 import { GoMilestone } from 'react-icons/go'
 import { LuComponent } from 'react-icons/lu'
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
 // Define the skill icon map
 const skillIconMap: { [key: string]: React.ElementType } = {
@@ -302,93 +303,44 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
 }
 
 const Skills = () => {
+  const { t } = useLanguage()
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   })
 
-  // Replacing skill categories entirely with the user-provided list
-  const skillCategories = [
+  const skillGroups = [
     {
-      title: 'Frontend Development',
-      skills: [
-        'JavaScript', 'TypeScript', 'CSS', 'SCSS', 'TailwindCSS', 'HTML', 
-        'React', 'Next.js', 'Angular', 'Rx.js', 'Svelte', 'SvelteKit', 
-        'Lit', 'Stencil.js', 'Web Components', 'Module Federation', 'Vue.js', 
-        'jQuery', 'Bootstrap', 'Material UI'
-      ],
+      title: t('skills.frontendDev'),
       icon: FaCode,
+      skills: ["JavaScript", "TypeScript", "React", "Next.js", "Angular", "Vue.js", "SCSS", "TailwindCSS", "HTML", "CSS", "jQuery", "Bootstrap", "Material UI"]
     },
     {
-      title: 'Frontend Architecture', // Using existing icon for this related category
-      skills: [
-        'Micro Frontends', 'Webpack', 'Rollup', 'Redux', 'NgRx', 
-        'Storybook', 'Build Optimization', 'Performance Tuning', 
-        'Cross-browser Compatibility', 'State Management', 'Component Architecture', 
-        'Design Systems', 'Responsive Design', 'Progressive Web Apps'
-      ],
-      icon: FaCogs,
+      title: t('skills.frontendArch'),
+      icon: FaSitemap,
+      skills: ["Micro Frontends", "Module Federation", "Webpack", "Rollup", "Redux", "NgRx", "Performance Tuning", "Storybook", "Design Systems", "State Management", "Component Architecture"]
     },
     {
-      title: 'Backend Development',
-      skills: [
-        'Node.js', 'Express', 'Nest.js', 'Socket.io', 'Java', 
-        'Spring Boot', 'PL/SQL', 'RESTful APIs', 'Backend Integration', 
-        'API Design', 'GraphQL', 'MongoDB', 'PostgreSQL', 'Redis', 'Microservices'
-      ],
+      title: t('skills.backendDev'),
       icon: FaServer,
+      skills: ["Node.js", "Express", "Nest.js", "Socket.io", "Java", "Spring Boot", "PL/SQL", "RESTful APIs", "GraphQL", "PostgreSQL", "MongoDB", "Redis", "Microservices"]
     },
     {
-      title: 'DevOps & Automation',
-      skills: [
-        'Linux', 'Jenkins', 'Nginx', 'GitLab CI/CD', 'Docker', 
-        'Shell Scripting', 'YAML', 'Kubernetes', 'Ansible', 
-        'Automation Scripting', 'Azure', 'Logging'
-      ],
+      title: t('skills.devOps'),
       icon: FaTools,
+      skills: ["Linux", "GitLab CI/CD", "Jenkins", "Docker", "Kubernetes", "Ansible", "Shell Scripting", "YAML", "Nginx", "Automation Scripting", "Azure"]
     },
     {
-      title: 'Testing & Quality',
-      skills: [
-        'OWASP TOP 10', 'Cypress', 'Playwright', 'Jest', 'Unit Testing', 
-        'E2E Testing', 'Test Automation', 'Code Review', 'Quality Assurance', 
-        'Performance Testing', 'Security Testing', 'Testing Strategies', 
-        'Test-Driven Development', 'Continuous Testing'
-      ],
+      title: t('skills.testing'),
       icon: FaShieldAlt,
+      skills: ["Jest", "Cypress", "Playwright", "Unit Testing", "E2E Testing", "Test Automation", "Performance Testing", "Security Testing", "Code Review", "OWASP TOP 10"]
     },
     {
-      title: 'Methodologies & Leadership',
-      skills: [
-        'Agile', 'Scrum', 'Team Leadership', 'Cross-functional Teams', 
-        'CI/CD', 'Project Management', 'Technical Documentation', 
-        'Code Standards', 'Code Review', 'Mentoring', 'Technical Architecture', 
-        'System Design', 'Problem Solving', 'Team Collaboration'
-      ],
+      title: t('skills.methodologies'),
       icon: FaUsers,
-    },
+      skills: ["Agile", "Scrum", "Team Leadership", "Cross-functional Teams", "CI/CD", "Project Management", "Technical Documentation", "Mentoring", "Code Standards"]
+    }
   ]
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5
-      }
-    }
-  }
 
   return (
     <section id="skills" className="section-padding relative overflow-hidden">
@@ -405,48 +357,50 @@ const Skills = () => {
       </div>
 
       {/* Cosmic glow effects */}
-      <div className="absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
-      <div className="absolute bottom-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
+      <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
+      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Add Title Section */}
-        <motion.div 
-          ref={ref} 
-          initial="hidden" 
-          animate={inView ? "visible" : "hidden"} 
-          variants={itemVariants} // Use itemVariants for the title section itself
-          className="text-center mb-16"
-        >
-          <motion.h2
-            className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
-            style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
-          >
-            Skills
-          </motion.h2>
-          <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
-            initial={{ scaleX: 0 }}
-            animate={inView ? { scaleX: 1 } : {}} // Animate based on inView
-            transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
-          />
-        </motion.div>
-        {/* End Title Section */}
-
+      <div className="container relative z-10">
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          ref={ref}
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-6xl mx-auto"
         >
-          {skillCategories.map((category, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-center mb-16"
+          >
+            <motion.h2
+              className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
             >
-              <SkillCard title={category.title} skills={category.skills} icon={category.icon} />
-            </motion.div>
-          ))}
+              {t('skills.title')}
+            </motion.h2>
+            <motion.div
+              className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
+              initial={{ scaleX: 0 }}
+              animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
+            />
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {skillGroups.map((group, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+              >
+                <SkillCard title={group.title} skills={group.skills} icon={group.icon} />
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>

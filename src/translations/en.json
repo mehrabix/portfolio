@@ -1,0 +1,47 @@
+{
+  "nav.about": "About",
+  "nav.experience": "Experience",
+  "nav.skills": "Skills",
+  "nav.projects": "Projects",
+  "nav.contact": "Contact",
+  "nav.contactMe": "Contact Me",
+  "nav.menu": "Menu",
+  "nav.language": "Language",
+  
+  "hero.greeting": "Hi, I'm",
+  "hero.role": "Full-Stack Developer",
+  "hero.description": "I build exceptional digital experiences for the web and beyond.",
+  "hero.cta": "Check out my work",
+  
+  "about.title": "About Me",
+  "about.description": "I'm a passionate developer who loves creating engaging web experiences with cutting-edge technologies.",
+  
+  "experience.title": "Experience",
+  "experience.workExperience": "Work Experience",
+  
+  "skills.title": "Skills",
+  "skills.frontendDev": "Frontend Development",
+  "skills.frontendArch": "Frontend Architecture",
+  "skills.backendDev": "Backend Development",
+  "skills.devOps": "DevOps & Automation",
+  "skills.testing": "Testing & Quality",
+  "skills.methodologies": "Methodologies & Leadership",
+  
+  "projects.title": "Projects",
+  "projects.viewAll": "View All",
+  "projects.showLess": "Show Less",
+  "projects.features": "Features",
+  "projects.liveDemo": "Live Demo",
+  "projects.github": "GitHub",
+  "projects.npm": "npm",
+  
+  "contact.title": "Get In Touch",
+  "contact.description": "Get in touch with me",
+  "contact.name": "Name",
+  "contact.email": "Email",
+  "contact.phone": "Phone",
+  "contact.location": "Location",
+  "contact.connectWithMe": "Connect With Me",
+  "contact.message": "Message",
+  "contact.send": "Send Message"
+} 

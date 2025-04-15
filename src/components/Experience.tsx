@@ -2,8 +2,10 @@ import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaBriefcase, FaMapMarkerAlt, FaCalendarAlt, FaExternalLinkAlt } from 'react-icons/fa'
 import { useState } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
 const Experience = () => {
+  const { t } = useLanguage()
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -105,7 +107,7 @@ const Experience = () => {
               className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
               style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
             >
-              Work Experience
+              {t('experience.title')}
             </motion.h2>
             <motion.div
               className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"

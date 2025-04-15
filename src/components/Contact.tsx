@@ -1,8 +1,10 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { FaEnvelope, FaGithub, FaLinkedin, FaPhone, FaMapMarkerAlt } from 'react-icons/fa'
+import { useLanguage } from '../context/LanguageContext'
 
 const Contact = () => {
+  const { t } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -16,19 +18,19 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: FaEnvelope,
-      title: 'Email',
+      title: t('contact.email'),
       text: 'mehrabi@post.com',
       link: 'mailto:mehrabi@post.com'
     },
     {
       icon: FaPhone,
-      title: 'Phone',
+      title: t('contact.phone'),
       text: '+989211857452',
       link: 'tel:+989211857452'
     },
     {
       icon: FaMapMarkerAlt,
-      title: 'Location',
+      title: t('contact.location'),
       text: 'Isfahan, Iran',
       link: '#'
     }
@@ -72,7 +74,7 @@ const Contact = () => {
             <h2 className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600" style={{
               textShadow: '0 0 30px rgba(59,130,246,0.4)'
             }}>
-              Get In Touch
+              {t('contact.title')}
             </h2>
             <motion.div
               className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
@@ -125,7 +127,7 @@ const Contact = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative p-6 rounded-2xl border border-blue-500/20 bg-black/50 backdrop-blur-sm group-hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]">
-                <h3 className="text-xl font-semibold text-white mb-6">Connect With Me</h3>
+                <h3 className="text-xl font-semibold text-white mb-6">{t('contact.connectWithMe')}</h3>
                 <div className="flex gap-6">
                   {socialLinks.map((social, index) => (
                     <motion.a

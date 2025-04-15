@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { FaGithub, FaExternalLinkAlt, FaNpm } from 'react-icons/fa';
 import { Canvas } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Project {
   title: string;
@@ -85,6 +86,7 @@ const projects: Project[] = [
 ];
 
 const ProjectCard = ({ project, index }: { project: Project; index: number }) => {
+  const { t } = useLanguage();
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -139,7 +141,7 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
         {project.features && (
           <div className="mb-6">
             <h4 className="text-sm font-medium text-blue-400 mb-2">
-              Features:
+              {t('projects.features')}:
             </h4>
             <ul className="list-disc list-inside text-sm text-gray-400 space-y-1.5">
               {project.features.map((feature, idx) => (
@@ -183,7 +185,7 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
               style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }}
             >
               <FaGithub className="text-xl" />
-              <span>GitHub</span>
+              <span>{t('projects.github')}</span>
             </motion.a>
           )}
           {project.demo && (
@@ -196,7 +198,7 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
               style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }}
             >
               <FaExternalLinkAlt className="text-xl" />
-              <span>Live Demo</span>
+              <span>{t('projects.liveDemo')}</span>
             </motion.a>
           )}
           {project.npm && project.npm.length > 0 && (
@@ -209,7 +211,7 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
               style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))' }}
             >
               <FaNpm className="text-xl" />
-              <span>npm</span>
+              <span>{t('projects.npm')}</span>
             </motion.a>
           )}
         </div>
@@ -219,79 +221,97 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
 };
 
 const Projects: React.FC = () => {
+  const { t } = useLanguage();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
+  const [showAll, setShowAll] = useState(false);
+
+  const visibleProjects = showAll ? projects : projects.slice(0, 3);
+
   return (
-    <section id="projects" className="py-20 relative overflow-hidden">
+    <section id="projects" className="section-padding relative overflow-hidden">
       {/* Deep space background */}
-      <div className="absolute inset-0 bg-black z-0"></div>
+      <div className="absolute inset-0 bg-black"></div>
       
       {/* Star field */}
-      <div className="absolute inset-0 opacity-90 z-0">
+      <div className="absolute inset-0 opacity-90">
         <div className="absolute inset-0" style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0), 
                             radial-gradient(circle at 3px 3px, rgba(136, 96, 208, 0.15) 1px, transparent 0)`,
           backgroundSize: '30px 30px, 50px 50px'
         }} />
       </div>
-
-      {/* 3D Background */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <Canvas>
-          <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+      
+      {/* Cosmic particles background */}
+      <div className="absolute -z-10 w-full h-full">
+        <Canvas camera={{ position: [0, 0, 1] }}>
+          <Stars radius={100} depth={50} count={800} factor={4} saturation={0} fade speed={0.5} />
         </Canvas>
       </div>
 
       {/* Cosmic glow effects */}
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl z-0"></div>
-      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl z-0"></div>
+      <div className="absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Updated Title Section */}
         <motion.div
           ref={ref}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          variants={{ // Inline variants for simplicity or use shared variants if defined
-            hidden: { opacity: 0, y: 20 },
-            visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-          }}
-          className="text-center mb-16" // Increased bottom margin
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-6xl mx-auto"
         >
-          <motion.h2 
-            className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
-            style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
-          >
-            Projects
-          </motion.h2>
-          <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
-            initial={{ scaleX: 0 }}
-            animate={inView ? { scaleX: 1 } : {}} // Animate based on inView
-            transition={{ duration: 0.5, delay: 0.2 }} // Keep delay for the line
-            style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
-          />
-        </motion.div>
-        {/* End Updated Title Section */}
-        
-        <motion.div // Add container for the grid with stagger effect
-          variants={{ // Container variants for staggering children
-            hidden: { opacity: 0 },
-            visible: { 
-              opacity: 1, 
-              transition: { staggerChildren: 0.2, delayChildren: 0.3 } // Add delayChildren
-            }
-          }}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
-        >
-          {projects.map((project, index) => (
-            <ProjectCard key={index} project={project} index={index} />
-          ))}
+          <motion.div className="text-center mb-16">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
+            >
+              {t('projects.title')}
+            </motion.h2>
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
+              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
+            />
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8">
+            {visibleProjects.map((project, index) => (
+              <ProjectCard key={index} project={project} index={index} />
+            ))}
+          </div>
+
+          {projects.length > 3 && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="flex justify-center mt-12"
+            >
+              <motion.button
+                onClick={() => setShowAll(!showAll)}
+                whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59,130,246,0.5)' }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden"
+              >
+                <span className="relative z-10">{showAll ? t('projects.showLess') : t('projects.viewAll')}</span>
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 hover:opacity-100 transition-opacity duration-300"
+                  initial={{ x: '-100%' }}
+                  whileHover={{ x: '0%' }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.button>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </section>

@@ -2,8 +2,10 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa'
 import profileImage from '../assets/ahmadmehrabi.webp'
+import { useLanguage } from '../context/LanguageContext'
 
 const About = () => {
+  const { t } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -54,7 +56,7 @@ const About = () => {
             <h2 className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600" style={{
               textShadow: '0 0 30px rgba(59,130,246,0.4)'
             }}>
-              About Me
+              {t('about.title')}
             </h2>
             <motion.div
               className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
@@ -160,9 +162,7 @@ const About = () => {
               className="space-y-6"
             >
               <p className="text-xl text-white leading-relaxed" style={{ textShadow: '0 0 2px rgba(255,255,255,0.3)' }}>
-                As a Full Stack Software Engineer with over 3 years of experience, I enjoy tackling challenges
-                across both frontend and backend development. My focus is on building reliable, efficient, 
-                and scalable applications using technologies like React, Angular, Node.js, and Spring Boot.
+                {t('about.description')}
               </p>
 
               <p className="text-xl text-white leading-relaxed" style={{ textShadow: '0 0 2px rgba(255,255,255,0.3)' }}>
