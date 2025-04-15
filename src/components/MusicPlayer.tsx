@@ -183,13 +183,13 @@ const MusicPlayer = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-50">
+    <div className="fixed bottom-4 left-4 z-50" id="music-player">
       <audio ref={audioRef} preload="none" />
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-black/50 backdrop-blur-lg rounded-lg p-4 shadow-lg relative"
+        className="bg-black/50 backdrop-blur-lg rounded-lg p-4 shadow-lg relative hover:shadow-[0_0_15px_rgba(80,194,255,0.5)] transition-all duration-300"
       >
         {/* Visualizer */}
         {isPlaying && <Visualizer audioRef={audioRef} />}
@@ -218,7 +218,7 @@ const MusicPlayer = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={togglePlay}
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center relative"
+                className="cursor-pointer w-10 h-10 rounded-full bg-white/10 flex items-center justify-center relative hover:bg-white/20 transition-all duration-200"
               >
                 <AnimatePresence mode="wait">
                   {isPlaying ? (
@@ -281,7 +281,7 @@ const MusicPlayer = () => {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={toggleMute}
-                    className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
+                    className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
                   >
                     <AnimatePresence mode="wait">
                       {isMuted ? (
@@ -329,13 +329,16 @@ const MusicPlayer = () => {
                     step="0.01"
                     value={volume}
                     onChange={handleVolumeChange}
-                    className="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                    className="cursor-pointer w-20 h-1 bg-white/20 rounded-lg appearance-none hover:bg-white/30 transition-all duration-200"
                   />
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Visual indicator for interactive area */}
+        <div className="absolute -top-3 -left-3 -right-3 -bottom-3 rounded-xl border border-blue-400/20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </motion.div>
     </div>
   );

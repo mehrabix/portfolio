@@ -63,10 +63,10 @@ const SolventCursor = ({
   intensity = 1.0 
 }: SolventCursorProps) => {
   const { viewport } = useThree()
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 })
   const [isMobile, setIsMobile] = useState(false)
+  const [isOverInteractive, setIsOverInteractive] = useState(false)
   const shaderRef = useRef<THREE.ShaderMaterial>(null)
-  const [reactiveParticles, setReactiveParticles] = useState<ReactiveParticle[]>([])
   
   // Convert hex color to Three.js color
   const threeColor = useMemo(() => new THREE.Color(color), [color])
@@ -81,9 +81,122 @@ const SolventCursor = ({
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Handle document-level mouse movements for DOM cursor
+  // Create and handle the DOM cursor
   useEffect(() => {
     if (isMobile) return
+
+    console.log("Creating Solvent Cursor")
+    
+    // Add a splash notification about the cursor
+    const showSplashNotification = () => {
+      const notificationStyle = document.createElement('style')
+      notificationStyle.innerHTML = `
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translateY(20px); }
+          10% { opacity: 1; transform: translateY(0); }
+          90% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        #cursor-notification {
+          position: fixed;
+          bottom: 100px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(10px);
+          color: white;
+          padding: 12px 20px;
+          border-radius: 8px;
+          border: 1px solid ${color}80;
+          box-shadow: 0 0 15px ${color}40;
+          z-index: 10002;
+          font-family: sans-serif;
+          text-align: center;
+          pointer-events: none;
+          animation: fadeInOut 5s forwards;
+        }
+        
+        #cursor-notification h3 {
+          margin: 0 0 8px 0;
+          font-size: 16px;
+          font-weight: bold;
+          color: ${color};
+        }
+        
+        #cursor-notification p {
+          margin: 0;
+          font-size: 14px;
+          opacity: 0.9;
+        }
+      `
+      document.head.appendChild(notificationStyle)
+      
+      const notification = document.createElement('div')
+      notification.id = 'cursor-notification'
+      
+      const title = document.createElement('h3')
+      title.textContent = '✨ Interactive Solvent Cursor Activated'
+      
+      const text = document.createElement('p')
+      text.textContent = 'Move your cursor to interact with elements. All buttons and links remain clickable.'
+      
+      notification.appendChild(title)
+      notification.appendChild(text)
+      document.body.appendChild(notification)
+      
+      // Remove after animation completes
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification)
+        }
+        if (notificationStyle.parentNode) {
+          notificationStyle.parentNode.removeChild(notificationStyle)
+        }
+      }, 5000)
+    }
+    
+    // Show splash notification after a slight delay
+    setTimeout(showSplashNotification, 1000)
+    
+    // Add a debug element to show cursor status
+    const addDebugInfo = () => {
+      const debugStyle = document.createElement('style')
+      debugStyle.innerHTML = `
+        #solvent-cursor-debug {
+          position: fixed;
+          bottom: 80px;
+          right: 10px;
+          background: rgba(0, 0, 0, 0.7);
+          color: white;
+          padding: 5px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          z-index: 10001;
+          pointer-events: none;
+          font-family: monospace;
+        }
+      `
+      document.head.appendChild(debugStyle)
+      
+      const debugEl = document.createElement('div')
+      debugEl.id = 'solvent-cursor-debug'
+      debugEl.textContent = 'Solvent Cursor: Active'
+      document.body.appendChild(debugEl)
+      
+      return { debugStyle, debugEl }
+    }
+    
+    // Create debug elements in development
+    const isProduction = window.location.hostname !== 'localhost' && 
+                         !window.location.hostname.includes('127.0.0.1');
+    const debugElements = !isProduction ? addDebugInfo() : null
+    
+    // Remove any existing cursor containers first
+    const existingContainer = document.getElementById('solvent-cursor-container')
+    if (existingContainer) {
+      document.body.removeChild(existingContainer)
+    }
     
     // Create DOM cursor container
     const cursorContainer = document.createElement('div')
@@ -91,10 +204,10 @@ const SolventCursor = ({
     cursorContainer.style.position = 'fixed'
     cursorContainer.style.top = '0'
     cursorContainer.style.left = '0'
-    cursorContainer.style.width = '100%'
-    cursorContainer.style.height = '100%'
+    cursorContainer.style.width = '100vw'
+    cursorContainer.style.height = '100vh'
     cursorContainer.style.pointerEvents = 'none'
-    cursorContainer.style.zIndex = '9999'
+    cursorContainer.style.zIndex = '10000'
     cursorContainer.style.overflow = 'hidden'
     document.body.appendChild(cursorContainer)
     
@@ -107,13 +220,18 @@ const SolventCursor = ({
     cursorDiv.style.height = '80px'
     cursorDiv.style.borderRadius = '50%'
     cursorDiv.style.transform = 'translate(-50%, -50%)'
-    cursorDiv.style.opacity = '0'
+    cursorDiv.style.opacity = '0.9'
     cursorDiv.style.mixBlendMode = 'screen'
     cursorDiv.style.filter = 'blur(8px)'
     cursorDiv.style.background = `radial-gradient(circle, ${color}, transparent 70%)`
     cursorDiv.style.boxShadow = `0 0 20px ${color}80, 0 0 40px ${color}40`
     cursorDiv.id = 'solvent-cursor'
     cursorContainer.appendChild(cursorDiv)
+    
+    // Position cursor at initial mouse position or center of screen
+    const initialX = window.innerWidth / 2
+    const initialY = window.innerHeight / 2
+    cursorDiv.style.transform = `translate(${initialX}px, ${initialY}px)`
     
     // Create cursor inner core (more intense)
     const cursorCore = document.createElement('div')
@@ -128,6 +246,35 @@ const SolventCursor = ({
     cursorCore.style.boxShadow = `0 0 10px ${color}`
     cursorCore.style.filter = 'blur(2px)'
     cursorDiv.appendChild(cursorCore)
+    
+    // Create pointer cursor for interactive elements
+    const pointerCursor = document.createElement('div')
+    pointerCursor.style.position = 'absolute'
+    pointerCursor.style.top = '50%'
+    pointerCursor.style.left = '50%'
+    pointerCursor.style.width = '24px'
+    pointerCursor.style.height = '24px'
+    pointerCursor.style.borderRadius = '50%'
+    pointerCursor.style.transform = 'translate(-50%, -50%)'
+    pointerCursor.style.border = `2px solid white`
+    pointerCursor.style.opacity = '0'
+    pointerCursor.style.transition = 'opacity 0.2s ease, transform 0.2s ease'
+    pointerCursor.id = 'pointer-cursor'
+    cursorDiv.appendChild(pointerCursor)
+    
+    // Add click animation element
+    const clickRipple = document.createElement('div')
+    clickRipple.style.position = 'absolute'
+    clickRipple.style.top = '50%'
+    clickRipple.style.left = '50%'
+    clickRipple.style.width = '30px'
+    clickRipple.style.height = '30px'
+    clickRipple.style.borderRadius = '50%'
+    clickRipple.style.transform = 'translate(-50%, -50%) scale(0)'
+    clickRipple.style.background = 'rgba(255, 255, 255, 0.6)'
+    clickRipple.style.opacity = '0'
+    clickRipple.id = 'click-ripple'
+    cursorDiv.appendChild(clickRipple)
     
     // Add digital circuit lines
     const createCircuitLine = (angle: number, length: number) => {
@@ -167,20 +314,186 @@ const SolventCursor = ({
       intervals.push(createCircuitLine(angle, length))
     }
     
-    // Animate in
-    setTimeout(() => {
-      cursorDiv.style.transition = 'opacity 0.3s ease-in-out'
-      cursorDiv.style.opacity = '0.9'
-    }, 100)
-    
     // Track mouse position and generate particles
-    let lastX = 0
-    let lastY = 0
+    let lastX = initialX
+    let lastY = initialY
     let lastParticleTime = 0
     
+    // Helper to check if an element is interactive
+    const isInteractiveElement = (element: Element | null): boolean => {
+      if (!element) return false
+      
+      // Direct checks for specific component IDs
+      const specificInteractiveIds = [
+        'music-player', 
+        'about', 
+        'experience', 
+        'skills', 
+        'projects', 
+        'contact',
+        'navbar'
+      ]
+      
+      // Check for element ID or parent with ID
+      if (element.id && specificInteractiveIds.some(id => element.id === id || element.id.includes(id))) {
+        return true
+      }
+      
+      const parentWithId = element.closest(`#${specificInteractiveIds.join(', #')}`)
+      if (parentWithId) return true
+      
+      // Check for standard interactive elements
+      const interactiveTags = [
+        'A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 
+        'AUDIO', 'VIDEO', 'SUMMARY', 'DETAILS', 'LABEL'
+      ]
+      
+      // Check tag name
+      if (interactiveTags.includes(element.tagName)) {
+        return true
+      }
+      
+      // Expanded list of interactive classes
+      const interactiveClasses = [
+        'cursor-pointer', 'clickable', 'interactive', 
+        'group-hover', 'hover:', 'link', 'nav-link', 'btn',
+        'motion', 'social', 'whileHover'
+      ]
+      
+      // Check element classList
+      const classList = Array.from(element.classList)
+      for (const className of classList) {
+        if (interactiveClasses.some(cls => className.includes(cls))) {
+          return true
+        }
+      }
+      
+      // Check for interactive attributes
+      const interactiveAttributes = [
+        'onclick', 'role="button"', 'aria-controls', 'controls',
+        'href', 'target', 'rel', 'whileHover', 'whileTap'
+      ]
+      
+      // Check attributes
+      for (const attr of interactiveAttributes) {
+        const attrName = attr.split('=')[0]
+        if (element.hasAttribute(attrName)) {
+          return true
+        }
+      }
+      
+      // Check computed style for cursor property
+      const style = window.getComputedStyle(element)
+      if (style.cursor === 'pointer' || style.cursor === 'hand') {
+        return true
+      }
+      
+      // Special checks for common elements in portfolio
+      
+      // Check for social icons (used in About and Contact)
+      if (
+        element.closest('a') && 
+        (element.classList.contains('text-3xl') || 
+         element.closest('svg') || 
+         element.closest('[class*="Fa"]'))
+      ) {
+        return true
+      }
+      
+      // Check for nav items in Navbar
+      if (element.closest('nav') && element.closest('a')) {
+        return true
+      }
+      
+      // Check for project cards in Projects
+      if (element.closest('.group') && 
+          (element.closest('a') || 
+           element.closest('[whileHover]') || 
+           element.closest('[class*="cursor"]'))
+      ) {
+        return true
+      }
+      
+      // Check if element is inside a motion div
+      if (element.closest('motion') || 
+          element.hasAttribute('whileHover') || 
+          element.hasAttribute('whileTap')) {
+        return true
+      }
+      
+      // Check parent elements recursively (limit to 3 levels to avoid performance issues)
+      let depth = 0
+      let parentElement = element.parentElement
+      while (parentElement && depth < 3) {
+        // Check parent tag
+        if (interactiveTags.includes(parentElement.tagName)) {
+          return true
+        }
+        
+        // Check parent classList
+        const parentClassList = Array.from(parentElement.classList)
+        for (const className of parentClassList) {
+          if (interactiveClasses.some(cls => className.includes(cls))) {
+            return true
+          }
+        }
+        
+        // Check parent style
+        const parentStyle = window.getComputedStyle(parentElement)
+        if (parentStyle.cursor === 'pointer' || parentStyle.cursor === 'hand') {
+          return true
+        }
+        
+        parentElement = parentElement.parentElement
+        depth++
+      }
+      
+      return false
+    }
+    
+    // Update debug info when mouse moves
+    const updateDebugInfo = (x: number, y: number, isInteractive: boolean) => {
+      if (!debugElements?.debugEl) return
+      
+      debugElements.debugEl.innerHTML = `
+        Solvent Cursor: Active<br>
+        Position: ${Math.round(x)}, ${Math.round(y)}<br>
+        Interactive: ${isInteractive ? 'Yes' : 'No'}
+      `
+    }
+    
     const handleMouseMove = (e: MouseEvent) => {
+      if (!cursorDiv) return
+
       const currentX = e.clientX
       const currentY = e.clientY
+      
+      // Get element under cursor
+      const elementUnderCursor = document.elementFromPoint(currentX, currentY)
+      const interactive = isInteractiveElement(elementUnderCursor)
+      
+      // Update debug info
+      updateDebugInfo(currentX, currentY, interactive)
+      
+      // Update state
+      setIsOverInteractive(interactive)
+      
+      // Update pointer cursor visibility
+      if (pointerCursor) {
+        pointerCursor.style.opacity = interactive ? '1' : '0'
+        
+        // Add pointer UI when over interactive elements
+        if (interactive) {
+          // Change cursor styles for interactive elements
+          cursorDiv.style.width = '50px'
+          cursorDiv.style.height = '50px'
+          cursorDiv.style.opacity = '0.7'
+        } else {
+          cursorDiv.style.width = '80px'
+          cursorDiv.style.height = '80px'
+          cursorDiv.style.opacity = '0.9'
+        }
+      }
       
       // Update cursor position
       cursorDiv.style.transform = `translate(${currentX}px, ${currentY}px)`
@@ -191,9 +504,9 @@ const SolventCursor = ({
         Math.pow(currentY - lastY, 2)
       )
       
-      // Generate particles based on mouse speed
+      // Generate particles based on mouse speed and not over interactive elements
       const now = performance.now()
-      if (speed > 5 && now - lastParticleTime > 30) {
+      if (!interactive && speed > 5 && now - lastParticleTime > 30) {
         lastParticleTime = now
         generateParticle(currentX, currentY, speed)
       }
@@ -257,7 +570,9 @@ const SolventCursor = ({
         if (opacity > 0) {
           requestAnimationFrame(animateParticle)
         } else {
-          cursorContainer.removeChild(particle)
+          if (particle.parentNode === cursorContainer) {
+            cursorContainer.removeChild(particle)
+          }
         }
       }
       
@@ -265,7 +580,36 @@ const SolventCursor = ({
       requestAnimationFrame(animateParticle)
     }
     
+    // Handle mouse click animation
+    const handleMouseDown = () => {
+      if (isOverInteractive) {
+        // Animate the click ripple
+        clickRipple.style.transition = 'transform 0.3s ease, opacity 0.3s ease'
+        clickRipple.style.transform = 'translate(-50%, -50%) scale(1)'
+        clickRipple.style.opacity = '0.8'
+        
+        // Shrink the pointer cursor
+        pointerCursor.style.transform = 'translate(-50%, -50%) scale(0.8)'
+        
+        // Reset after animation
+        setTimeout(() => {
+          clickRipple.style.transform = 'translate(-50%, -50%) scale(0)'
+          clickRipple.style.opacity = '0'
+          pointerCursor.style.transform = 'translate(-50%, -50%) scale(1)'
+        }, 300)
+      }
+    }
+    
+    const handleMouseUp = () => {
+      if (isOverInteractive) {
+        pointerCursor.style.transform = 'translate(-50%, -50%) scale(1)'
+      }
+    }
+
+    // Add all event listeners
     document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mousedown', handleMouseDown)
+    document.addEventListener('mouseup', handleMouseUp)
     
     // Use a style tag for custom cursor
     const styleTag = document.createElement('style')
@@ -273,8 +617,21 @@ const SolventCursor = ({
       body { 
         cursor: none !important; 
       }
-      a, button, [role="button"], .cursor-pointer {
-        cursor: none !important;
+      /* Allow regular cursor on interactive elements */
+      a, button, [role="button"], .cursor-pointer, input, select, textarea, 
+      [onclick], [id="music-player"], [id="music-player"] *, nav a, 
+      [id="about"] a, [id="projects"] a, [id="contact"] a,
+      .social-icon, .social-link, [whileHover], [whileTap],
+      svg, .group a, [class*="motion"] a, [class*="Fa"] {
+        cursor: pointer !important;
+      }
+      /* Add hover effect for interactive elements */
+      a:hover, button:hover, [role="button"]:hover, .cursor-pointer:hover, 
+      input:hover, select:hover, [onclick]:hover, 
+      [id="music-player"] button:hover, [id="music-player"] input:hover,
+      nav a:hover, .social-icon:hover, [whileHover]:hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 0 10px rgba(80, 194, 255, 0.5) !important;
       }
       @keyframes circuit-pulse {
         0% { opacity: 0.4; }
@@ -285,10 +642,31 @@ const SolventCursor = ({
     document.head.appendChild(styleTag)
     
     return () => {
+      console.log("Cleaning up Solvent Cursor")
       document.removeEventListener('mousemove', handleMouseMove)
-      document.body.removeChild(cursorContainer)
-      document.head.removeChild(styleTag)
+      document.removeEventListener('mousedown', handleMouseDown)
+      document.removeEventListener('mouseup', handleMouseUp)
+      
+      // Safety check before removal
+      if (cursorContainer && cursorContainer.parentNode === document.body) {
+        document.body.removeChild(cursorContainer)
+      }
+      
+      if (styleTag && styleTag.parentNode === document.head) {
+        document.head.removeChild(styleTag)
+      }
+      
       intervals.forEach(clearInterval)
+      
+      // Remove debug elements
+      if (debugElements) {
+        if (debugElements.debugEl && debugElements.debugEl.parentNode) {
+          debugElements.debugEl.parentNode.removeChild(debugElements.debugEl)
+        }
+        if (debugElements.debugStyle && debugElements.debugStyle.parentNode) {
+          debugElements.debugStyle.parentNode.removeChild(debugElements.debugStyle)
+        }
+      }
     }
   }, [isMobile, color])
 
@@ -331,6 +709,13 @@ const SolventCursor = ({
         mousePosition.x,
         mousePosition.y
       )
+      
+      // Reduce effect when over interactive elements
+      if (isOverInteractive) {
+        shaderRef.current.uniforms.radius.value = Math.max(0.02, size * 0.4)
+      } else {
+        shaderRef.current.uniforms.radius.value = size
+      }
     }
   })
 
