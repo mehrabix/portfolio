@@ -87,78 +87,7 @@ const SolventCursor = ({
 
     console.log("Creating Solvent Cursor")
     
-    // Add a splash notification about the cursor
-    const showSplashNotification = () => {
-      const notificationStyle = document.createElement('style')
-      notificationStyle.innerHTML = `
-        @keyframes fadeInOut {
-          0% { opacity: 0; transform: translateY(20px); }
-          10% { opacity: 1; transform: translateY(0); }
-          90% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-20px); }
-        }
-        
-        #cursor-notification {
-          position: fixed;
-          bottom: 100px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(10px);
-          color: white;
-          padding: 12px 20px;
-          border-radius: 8px;
-          border: 1px solid ${color}80;
-          box-shadow: 0 0 15px ${color}40;
-          z-index: 10002;
-          font-family: sans-serif;
-          text-align: center;
-          pointer-events: none;
-          animation: fadeInOut 5s forwards;
-        }
-        
-        #cursor-notification h3 {
-          margin: 0 0 8px 0;
-          font-size: 16px;
-          font-weight: bold;
-          color: ${color};
-        }
-        
-        #cursor-notification p {
-          margin: 0;
-          font-size: 14px;
-          opacity: 0.9;
-        }
-      `
-      document.head.appendChild(notificationStyle)
-      
-      const notification = document.createElement('div')
-      notification.id = 'cursor-notification'
-      
-      const title = document.createElement('h3')
-      title.textContent = '✨ Interactive Solvent Cursor Activated'
-      
-      const text = document.createElement('p')
-      text.textContent = 'Move your cursor to interact with elements. All buttons and links remain clickable.'
-      
-      notification.appendChild(title)
-      notification.appendChild(text)
-      document.body.appendChild(notification)
-      
-      // Remove after animation completes
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification)
-        }
-        if (notificationStyle.parentNode) {
-          notificationStyle.parentNode.removeChild(notificationStyle)
-        }
-      }, 5000)
-    }
-    
-    // Show splash notification after a slight delay
-    setTimeout(showSplashNotification, 1000)
-    
+    // Add debug info (removed splash notification code)
     // Add a debug element to show cursor status
     const addDebugInfo = () => {
       const debugStyle = document.createElement('style')
@@ -220,7 +149,7 @@ const SolventCursor = ({
     cursorDiv.style.height = '80px'
     cursorDiv.style.borderRadius = '50%'
     cursorDiv.style.transform = 'translate(-50%, -50%)'
-    cursorDiv.style.opacity = '0.9'
+    cursorDiv.style.opacity = '0.7'
     cursorDiv.style.mixBlendMode = 'screen'
     cursorDiv.style.filter = 'blur(8px)'
     cursorDiv.style.background = `radial-gradient(circle, ${color}, transparent 70%)`
@@ -238,16 +167,17 @@ const SolventCursor = ({
     cursorCore.style.position = 'absolute'
     cursorCore.style.top = '50%'
     cursorCore.style.left = '50%'
-    cursorCore.style.width = '30px'
-    cursorCore.style.height = '30px'
+    cursorCore.style.width = '20px'
+    cursorCore.style.height = '20px'
     cursorCore.style.borderRadius = '50%'
     cursorCore.style.transform = 'translate(-50%, -50%)'
     cursorCore.style.background = `radial-gradient(circle, white, ${color} 70%)`
     cursorCore.style.boxShadow = `0 0 10px ${color}`
     cursorCore.style.filter = 'blur(2px)'
+    cursorCore.style.opacity = '0.7'
     cursorDiv.appendChild(cursorCore)
     
-    // Create pointer cursor for interactive elements
+    // Create pointer cursor for interactive elements - making it invisible as we're showing the real cursor
     const pointerCursor = document.createElement('div')
     pointerCursor.style.position = 'absolute'
     pointerCursor.style.top = '50%'
@@ -257,7 +187,7 @@ const SolventCursor = ({
     pointerCursor.style.borderRadius = '50%'
     pointerCursor.style.transform = 'translate(-50%, -50%)'
     pointerCursor.style.border = `2px solid white`
-    pointerCursor.style.opacity = '0'
+    pointerCursor.style.opacity = '0' // Always keep it at 0 opacity
     pointerCursor.style.transition = 'opacity 0.2s ease, transform 0.2s ease'
     pointerCursor.id = 'pointer-cursor'
     cursorDiv.appendChild(pointerCursor)
@@ -478,21 +408,16 @@ const SolventCursor = ({
       // Update state
       setIsOverInteractive(interactive)
       
-      // Update pointer cursor visibility
-      if (pointerCursor) {
-        pointerCursor.style.opacity = interactive ? '1' : '0'
-        
-        // Add pointer UI when over interactive elements
-        if (interactive) {
-          // Change cursor styles for interactive elements
-          cursorDiv.style.width = '50px'
-          cursorDiv.style.height = '50px'
-          cursorDiv.style.opacity = '0.7'
-        } else {
-          cursorDiv.style.width = '80px'
-          cursorDiv.style.height = '80px'
-          cursorDiv.style.opacity = '0.9'
-        }
+      // No need to update pointer cursor visibility since we're showing the real cursor
+      // Keep the cursor effect size changes
+      if (interactive) {
+        cursorDiv.style.width = '60px'
+        cursorDiv.style.height = '60px'
+        cursorDiv.style.opacity = '0.4' // Further reduced for better cursor visibility
+      } else {
+        cursorDiv.style.width = '80px'
+        cursorDiv.style.height = '80px'
+        cursorDiv.style.opacity = '0.6' // Reduced for better cursor visibility
       }
       
       // Update cursor position
@@ -615,7 +540,7 @@ const SolventCursor = ({
     const styleTag = document.createElement('style')
     styleTag.innerHTML = `
       body { 
-        cursor: none !important; 
+        cursor: auto !important; /* Changed from 'none' to 'auto' to show the real cursor */
       }
       /* Allow regular cursor on interactive elements */
       a, button, [role="button"], .cursor-pointer, input, select, textarea, 
@@ -625,14 +550,7 @@ const SolventCursor = ({
       svg, .group a, [class*="motion"] a, [class*="Fa"] {
         cursor: pointer !important;
       }
-      /* Add hover effect for interactive elements */
-      a:hover, button:hover, [role="button"]:hover, .cursor-pointer:hover, 
-      input:hover, select:hover, [onclick]:hover, 
-      [id="music-player"] button:hover, [id="music-player"] input:hover,
-      nav a:hover, .social-icon:hover, [whileHover]:hover {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        box-shadow: 0 0 10px rgba(80, 194, 255, 0.5) !important;
-      }
+      /* Removed hover effect style manipulation */
       @keyframes circuit-pulse {
         0% { opacity: 0.4; }
         50% { opacity: 0.8; }
@@ -710,9 +628,9 @@ const SolventCursor = ({
         mousePosition.y
       )
       
-      // Reduce effect when over interactive elements
+      // Make interactive element effect less pronounced
       if (isOverInteractive) {
-        shaderRef.current.uniforms.radius.value = Math.max(0.02, size * 0.4)
+        shaderRef.current.uniforms.radius.value = Math.max(0.03, size * 0.6) // Less reduction
       } else {
         shaderRef.current.uniforms.radius.value = size
       }
