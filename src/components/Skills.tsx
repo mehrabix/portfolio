@@ -409,8 +409,31 @@ const Skills = () => {
       <div className="absolute bottom-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
 
       <div className="container mx-auto px-4 relative z-10">
+        {/* Add Title Section */}
+        <motion.div 
+          ref={ref} 
+          initial="hidden" 
+          animate={inView ? "visible" : "hidden"} 
+          variants={itemVariants} // Use itemVariants for the title section itself
+          className="text-center mb-16"
+        >
+          <motion.h2
+            className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+            style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
+          >
+            Skills
+          </motion.h2>
+          <motion.div
+            className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}} // Animate based on inView
+            transition={{ duration: 0.5, delay: 0.2 }}
+            style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
+          />
+        </motion.div>
+        {/* End Title Section */}
+
         <motion.div
-          ref={ref}
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}

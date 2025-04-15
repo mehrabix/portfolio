@@ -250,22 +250,49 @@ const Projects: React.FC = () => {
       <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl z-0"></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.h2 
+        {/* Updated Title Section */}
+        <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-5xl md:text-6xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
-          style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          variants={{ // Inline variants for simplicity or use shared variants if defined
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+          }}
+          className="text-center mb-16" // Increased bottom margin
         >
-          Projects
-        </motion.h2>
+          <motion.h2 
+            className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+            style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
+          >
+            Projects
+          </motion.h2>
+          <motion.div
+            className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}} // Animate based on inView
+            transition={{ duration: 0.5, delay: 0.2 }} // Keep delay for the line
+            style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
+          />
+        </motion.div>
+        {/* End Updated Title Section */}
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div // Add container for the grid with stagger effect
+          variants={{ // Container variants for staggering children
+            hidden: { opacity: 0 },
+            visible: { 
+              opacity: 1, 
+              transition: { staggerChildren: 0.2, delayChildren: 0.3 } // Add delayChildren
+            }
+          }}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
           {projects.map((project, index) => (
             <ProjectCard key={index} project={project} index={index} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
