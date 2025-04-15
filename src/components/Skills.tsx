@@ -1,7 +1,130 @@
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { FaCode, FaServer, FaTools, FaShieldAlt, FaUsers, FaCogs } from 'react-icons/fa'
+import { 
+  FaCode, FaServer, FaTools, FaShieldAlt, FaUsers, FaCogs, FaReact, FaAngular, FaVuejs, 
+  FaNodeJs, FaJava, FaDocker, FaJenkins, FaGitlab, FaLinux, FaBootstrap, FaCss3Alt, FaHtml5, 
+  FaJsSquare, FaPython, FaDatabase, FaLeaf, FaLayerGroup, FaRoute, FaCodeBranch, FaClipboardCheck, 
+  FaTasks, FaUsersCog, FaLightbulb, FaWrench, FaProjectDiagram, FaSearch, FaBug, FaNetworkWired, 
+  FaPuzzlePiece, FaLock, FaTachometerAlt, FaBook, FaComments, FaSync, FaCheckCircle, FaHourglassHalf,
+  FaPaperPlane, FaPenFancy, FaFileCode, FaRulerCombined, FaQuestionCircle, FaUserShield, FaCubes, FaExchangeAlt,
+  FaUniversalAccess, FaMobileAlt, FaSitemap, FaThList, FaObjectGroup, FaRegObjectUngroup, FaCloud
+} from 'react-icons/fa'
+import { 
+  SiTypescript, SiTailwindcss, SiNextdotjs, SiSvelte, SiLit, SiWebpack, SiRollupdotjs, 
+  SiRedux, SiNgrx, SiStorybook, SiExpress, SiNestjs, SiSocketdotio, SiSpringboot, SiPostgresql, 
+  SiMongodb, SiRedis, SiKubernetes, SiAnsible, SiNginx, SiCypress, SiJest, SiYaml, SiJquery, 
+  SiStencil, SiGraphql, SiTerraform, SiPrometheus, SiGrafana, SiGnubash
+} from 'react-icons/si' // Import Simple Icons
+import { TbBrandCSharp, TbApi, TbScript, TbTerminal2, TbTestPipe, TbBulb } from 'react-icons/tb' // Import Tabler Icons
+import { GoMilestone } from 'react-icons/go'
+import { LuComponent } from 'react-icons/lu'
 import { useState, useEffect } from 'react'
+
+// Define the skill icon map
+const skillIconMap: { [key: string]: React.ElementType } = {
+  // Frontend Development
+  'JavaScript': FaJsSquare,
+  'TypeScript': SiTypescript,
+  'CSS': FaCss3Alt,
+  'SCSS': FaCss3Alt, // Using CSS icon for SCSS too
+  'TailwindCSS': SiTailwindcss,
+  'HTML': FaHtml5,
+  'React': FaReact,
+  'Next.js': SiNextdotjs,
+  'Angular': FaAngular,
+  'Rx.js': FaCodeBranch, // Generic icon for RxJS
+  'Svelte': SiSvelte,
+  'SvelteKit': SiSvelte, // Using Svelte icon
+  'Lit': SiLit,
+  'Stencil.js': SiStencil,
+  'Web Components': LuComponent,
+  'Module Federation': FaPuzzlePiece,
+  'Vue.js': FaVuejs,
+  'jQuery': SiJquery,
+  'Bootstrap': FaBootstrap,
+  'Material UI': LuComponent,
+
+  // Frontend Architecture
+  'Micro Frontends': FaObjectGroup,
+  'Webpack': SiWebpack,
+  'Rollup': SiRollupdotjs,
+  'Redux': SiRedux,
+  'NgRx': SiNgrx,
+  'Storybook': SiStorybook,
+  'Build Optimization': FaWrench,
+  'Performance Tuning': FaTachometerAlt,
+  'Cross-browser Compatibility': FaUniversalAccess,
+  'State Management': FaLayerGroup,
+  'Component Architecture': FaSitemap,
+  'Design Systems': FaRulerCombined,
+  'Responsive Design': FaMobileAlt,
+  'Progressive Web Apps': FaMobileAlt, // Using mobile icon
+
+  // Backend Development
+  'Node.js': FaNodeJs,
+  'Express': SiExpress,
+  'Nest.js': SiNestjs,
+  'Socket.io': SiSocketdotio,
+  'Java': FaJava,
+  'Spring Boot': SiSpringboot,
+  'PL/SQL': FaDatabase, // Generic DB icon
+  'RESTful APIs': TbApi,
+  'Backend Integration': FaExchangeAlt,
+  'API Design': FaPenFancy,
+  'GraphQL': SiGraphql,
+  'MongoDB': SiMongodb,
+  'PostgreSQL': SiPostgresql,
+  'Redis': SiRedis,
+  'Microservices': FaCubes,
+
+  // DevOps & Automation
+  'Linux': FaLinux,
+  'Jenkins': FaJenkins,
+  'Nginx': SiNginx,
+  'GitLab CI/CD': FaGitlab,
+  'Docker': FaDocker,
+  'Shell Scripting': SiGnubash,
+  'YAML': SiYaml,
+  'Kubernetes': SiKubernetes,
+  'Ansible': SiAnsible,
+  'Automation Scripting': TbScript,
+  'Azure': FaCloud,
+  'Logging': FaClipboardCheck,
+
+  // Testing & Quality
+  'OWASP TOP 10': FaUserShield,
+  'Cypress': SiCypress,
+  'Playwright': TbTestPipe,
+  'Jest': SiJest,
+  'Unit Testing': TbTestPipe,
+  'E2E Testing': TbTestPipe, // Using same icon
+  'Test Automation': FaWrench, // Using wrench icon
+  'Code Review': FaSearch,
+  'Quality Assurance': FaCheckCircle,
+  'Performance Testing': FaTachometerAlt, // Using performance icon
+  'Security Testing': FaLock,
+  'Testing Strategies': FaRoute,
+  'Test-Driven Development': FaCodeBranch, // Using branch icon
+  'Continuous Testing': FaSync,
+
+  // Methodologies & Leadership
+  'Agile': FaSync, // Using sync icon
+  'Scrum': FaTasks,
+  'Team Leadership': FaUsersCog,
+  'Cross-functional Teams': FaUsers,
+  'CI/CD': FaPaperPlane,
+  'Project Management': FaProjectDiagram,
+  'Technical Documentation': FaBook,
+  'Code Standards': FaFileCode,
+  'Mentoring': FaLightbulb,
+  'Technical Architecture': FaSitemap, // Using sitemap icon
+  'System Design': FaCogs, // Using cogs icon
+  'Problem Solving': TbBulb,
+  'Team Collaboration': FaComments,
+
+  // Default
+  'default': FaCodeBranch, 
+};
 
 const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: string[]; icon: any }) => {
   const [isMobile, setIsMobile] = useState(false)
@@ -144,30 +267,35 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
         </motion.h3>
       </div>
       <div className="flex flex-wrap gap-2 flex-1 items-start relative z-10">
-        {skills.map((skill, index) => (
-          <motion.span
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ 
-              scale: 1.05,
-              backgroundColor: 'rgba(59,130,246,0.2)',
-              boxShadow: '0 0 15px rgba(59,130,246,0.3)',
-            }}
-            className="inline-flex items-center px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-sm hover:bg-blue-500/20 transition-all duration-300 cursor-default min-w-fit relative group/skill"
-          >
-            {/* Dynamic skill tag shine effect that follows mouse */}
-            <div 
-              className="absolute inset-0 opacity-0 group-hover/skill:opacity-100 transition-opacity duration-300"
-              style={{
-                background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.3) 0%, transparent 50%)`,
-                filter: 'blur(10px)',
+        {skills.map((skill, index) => {
+          const SkillIcon = skillIconMap[skill] || skillIconMap['default']; // Get icon or default
+          return (
+            <motion.span
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ 
+                scale: 1.05,
+                backgroundColor: 'rgba(59,130,246,0.2)',
+                boxShadow: '0 0 15px rgba(59,130,246,0.3)',
               }}
-            />
-            <span className="relative z-10">{skill}</span>
-          </motion.span>
-        ))}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-sm hover:bg-blue-500/20 transition-all duration-300 cursor-default min-w-fit relative group/skill" // Added gap-1.5
+            >
+              {/* Dynamic skill tag shine effect that follows mouse */}
+              <div 
+                className="absolute inset-0 opacity-0 group-hover/skill:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59,130,246,0.3) 0%, transparent 50%)`,
+                  filter: 'blur(10px)',
+                }}
+              />
+              {/* Render Skill Icon */}
+              <SkillIcon className="relative z-10 text-base" /> 
+              <span className="relative z-10">{skill}</span>
+            </motion.span>
+          )
+        })}
       </div>
     </motion.div>
   )
@@ -179,129 +307,63 @@ const Skills = () => {
     threshold: 0.1,
   })
 
+  // Replacing skill categories entirely with the user-provided list
   const skillCategories = [
     {
       title: 'Frontend Development',
       skills: [
-        'JavaScript',
-        'TypeScript',
-        'CSS',
-        'SCSS',
-        'TailwindCSS',
-        'HTML',
-        'React',
-        'Next.js',
-        'Angular',
-        'Rx.js',
-        'Svelte',
-        'SvelteKit',
-        'Lit',
-        'Stencil.js',
-        'Web Components',
-        'Module Federation',
-        'Vue.js',
-        'jQuery',
-        'Bootstrap',
-        'Material UI',
+        'JavaScript', 'TypeScript', 'CSS', 'SCSS', 'TailwindCSS', 'HTML', 
+        'React', 'Next.js', 'Angular', 'Rx.js', 'Svelte', 'SvelteKit', 
+        'Lit', 'Stencil.js', 'Web Components', 'Module Federation', 'Vue.js', 
+        'jQuery', 'Bootstrap', 'Material UI'
       ],
       icon: FaCode,
     },
     {
-      title: 'Frontend Architecture',
+      title: 'Frontend Architecture', // Using existing icon for this related category
       skills: [
-        'Micro Frontends',
-        'Webpack',
-        'Rollup',
-        'Redux',
-        'NgRx',
-        'Storybook',
-        'Build Optimization',
-        'Performance Tuning',
-        'Cross-browser Compatibility',
-        'State Management',
-        'Component Architecture',
-        'Design Systems',
-        'Responsive Design',
-        'Progressive Web Apps',
+        'Micro Frontends', 'Webpack', 'Rollup', 'Redux', 'NgRx', 
+        'Storybook', 'Build Optimization', 'Performance Tuning', 
+        'Cross-browser Compatibility', 'State Management', 'Component Architecture', 
+        'Design Systems', 'Responsive Design', 'Progressive Web Apps'
       ],
       icon: FaCogs,
     },
     {
       title: 'Backend Development',
       skills: [
-        'Node.js',
-        'Express',
-        'Nest.js',
-        'Socket.io',
-        'Java',
-        'Spring Boot',
-        'PL/SQL',
-        'RESTful APIs',
-        'Backend Integration',
-        'API Design',
-        'GraphQL',
-        'MongoDB',
-        'PostgreSQL',
-        'Redis',
-        'Microservices',
+        'Node.js', 'Express', 'Nest.js', 'Socket.io', 'Java', 
+        'Spring Boot', 'PL/SQL', 'RESTful APIs', 'Backend Integration', 
+        'API Design', 'GraphQL', 'MongoDB', 'PostgreSQL', 'Redis', 'Microservices'
       ],
       icon: FaServer,
     },
     {
       title: 'DevOps & Automation',
       skills: [
-        'Linux',
-        'Jenkins',
-        'Nginx',
-        'GitLab CI/CD',
-        'Docker',
-        'Shell Scripting',
-        'YAML',
-        'Kubernetes',
-        'Ansible',
-        'Automation Scripting',
-        'Azure',
-        'Logging',
+        'Linux', 'Jenkins', 'Nginx', 'GitLab CI/CD', 'Docker', 
+        'Shell Scripting', 'YAML', 'Kubernetes', 'Ansible', 
+        'Automation Scripting', 'Azure', 'Logging'
       ],
       icon: FaTools,
     },
     {
       title: 'Testing & Quality',
       skills: [
-        'OWASP TOP 10',
-        'Cypress',
-        'Playwright',
-        'Jest',
-        'Unit Testing',
-        'E2E Testing',
-        'Test Automation',
-        'Code Review',
-        'Quality Assurance',
-        'Performance Testing',
-        'Security Testing',
-        'Testing Strategies',
-        'Test-Driven Development',
-        'Continuous Testing',
+        'OWASP TOP 10', 'Cypress', 'Playwright', 'Jest', 'Unit Testing', 
+        'E2E Testing', 'Test Automation', 'Code Review', 'Quality Assurance', 
+        'Performance Testing', 'Security Testing', 'Testing Strategies', 
+        'Test-Driven Development', 'Continuous Testing'
       ],
       icon: FaShieldAlt,
     },
     {
       title: 'Methodologies & Leadership',
       skills: [
-        'Agile',
-        'Scrum',
-        'Team Leadership',
-        'Cross-functional Teams',
-        'CI/CD',
-        'Project Management',
-        'Technical Documentation',
-        'Code Standards',
-        'Code Review',
-        'Mentoring',
-        'Technical Architecture',
-        'System Design',
-        'Problem Solving',
-        'Team Collaboration',
+        'Agile', 'Scrum', 'Team Leadership', 'Cross-functional Teams', 
+        'CI/CD', 'Project Management', 'Technical Documentation', 
+        'Code Standards', 'Code Review', 'Mentoring', 'Technical Architecture', 
+        'System Design', 'Problem Solving', 'Team Collaboration'
       ],
       icon: FaUsers,
     },

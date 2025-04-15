@@ -160,19 +160,19 @@ const About = () => {
               className="space-y-6"
             >
               <p className="text-xl text-white leading-relaxed" style={{ textShadow: '0 0 2px rgba(255,255,255,0.3)' }}>
-                I'm a passionate Full Stack Developer with expertise in modern web technologies.
-                With a strong foundation in both frontend and backend development, I create
-                scalable and performant applications that deliver exceptional user experiences.
+                As a Full Stack Software Engineer with over 3 years of experience, I enjoy tackling challenges
+                across both frontend and backend development. My focus is on building reliable, efficient, 
+                and scalable applications using technologies like React, Angular, Node.js, and Spring Boot.
               </p>
 
               <p className="text-xl text-white leading-relaxed" style={{ textShadow: '0 0 2px rgba(255,255,255,0.3)' }}>
-                My journey in software development has been driven by a constant desire to learn
-                and innovate. I specialize in building micro-frontend architectures, implementing
-                robust state management solutions, and optimizing application performance.
+                I have hands-on experience with micro frontends, DevOps practices, and improving application 
+                performance and user experience. I'm always eager to learn and apply new technologies to create 
+                effective solutions.
               </p>
 
               <div className="flex flex-wrap gap-4 mt-8">
-                {['Frontend Development', 'Backend Development', 'DevOps'].map((skill, index) => (
+                {['React', 'Angular', 'Node.js', 'Spring Boot', 'Micro Frontends', 'DevOps'].map((skill, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, scale: 0.8 }}

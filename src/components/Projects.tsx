@@ -59,6 +59,30 @@ const projects: Project[] = [
     npm: [
       "https://www.npmjs.com/package/create-litpack"
     ]
+  },
+  {
+    title: "Easymed EHR Platform",
+    description: "Developed a SaaS platform for electronic healthcare services, including EHR, e-prescribing, and monitoring. Focused on improving healthcare operations and management.",
+    technologies: ["React", "Angular", "Spring Boot", "NestJS", "PL/SQL", "Microservices", "DevOps"],
+    features: [
+      "SaaS Platform Development", 
+      "EHR & E-prescribing Features", 
+      "Health Monitoring Integration", 
+      "Operational Optimization"
+    ],
+    demo: "https://easymed.ir/"
+  },
+  {
+    title: "Darmanmobile Insurance Project",
+    description: "Contributed to a major project for Iran Insurance Company, supporting diverse insurance products and underwriting for large national initiatives.",
+    technologies: ["Micro-frontends", "GitLab CI", "Jenkins", "Ansible", "Kubernetes", "React", "Angular"],
+    features: [
+      "Large-scale Insurance Platform", 
+      "National Project Underwriting Support", 
+      "Risk Management Features",
+      "Micro-frontend Implementation"
+    ],
+    demo: "https://darmanmobile.iraninsurance.ir/"
   }
 ];
 
