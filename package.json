@@ -5,16 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && vite build --ssr",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "NODE_ENV=production node server.js",
+    "dev:ssr": "node server.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@react-three/drei": "^9.88.0",
     "@react-three/fiber": "^8.15.0",
     "@types/react-scroll": "^1.8.10",
+    "compression": "^1.8.0",
+    "express": "^4.21.2",
     "framer-motion": "^11.18.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,6 +29,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/compression": "^1.7.5",
+    "@types/express": "^4.17.21",
     "@types/node": "^22.13.14",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

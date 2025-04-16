@@ -26,17 +26,7 @@ const globalStyles = `
   }
 `;
 
-// Fix JSX intrinsic elements by declaring these custom elements
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'group': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-      'primitive': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-      'ambientLight': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-      'pointLight': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-    }
-  }
-}
+
 
 // Extend THREE elements to React Three Fiber
 extend({ 
