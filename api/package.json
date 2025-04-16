@@ -1,7 +1,0 @@
-{
-  "name": "portfolio-ssr-api",
-  "type": "module",
-  "dependencies": {
-    "vite": "^6.2.0"
-  }
-} 
