@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build && vite build --ssr",
     "build:ssr": "vite build --ssr",
+    "vercel-build": "vite build && vite build --ssr && pnpm run copy-server",
+    "copy-server": "mkdir -p dist/server && cp dist/server/entry-server.js dist/server/",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
@@ -48,5 +50,8 @@
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
