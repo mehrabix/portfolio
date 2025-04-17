@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        run: npm install -g pnpm
+        
+      - name: Install dependencies
+        run: pnpm install
+        
+      # Fix i18next dependencies if needed
+      - name: Check dependencies
+        run: |
+          if ! pnpm list i18next react-i18next i18next-browser-languagedetector i18next-http-backend | grep -q "i18next@"; then
+            pnpm add i18next react-i18next i18next-browser-languagedetector i18next-http-backend
+          fi
+        
+      - name: Build
+        run: pnpm build
+        
+      - name: Debug environment
+        run: |
+          echo "Listing files in dist directory:"
+          ls -la dist
+          echo "Checking for specific key files:"
+          find dist -name "*.html" -o -name "*.js" | head -10
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
