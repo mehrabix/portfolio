@@ -13,6 +13,9 @@ import { useTranslation } from 'react-i18next'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import './i18n' // Import i18n initialization
 
+// Add global styles for section spacing
+import './index.css'
+
 function App() {
   const { i18n } = useTranslation()
   // Add loading state to prevent flickering during translation load
@@ -142,7 +145,7 @@ function App() {
         {/* Content */}
         <div className="relative z-10" style={{ position: 'relative' }}>
           <Navbar currentSection={activeSection} />
-          <main style={{ position: 'relative' }}>
+          <main style={{ position: 'relative' }} className="space-y-0">
             <Hero />
             <About />
             <Experience />

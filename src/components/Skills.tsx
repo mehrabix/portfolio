@@ -343,7 +343,7 @@ const Skills = () => {
   ]
 
   return (
-    <section id="skills" className="section-padding py-24 relative overflow-hidden" style={{ position: 'relative' }}>
+    <section id="skills" className="section-padding relative overflow-hidden" style={{ position: 'relative' }}>
       {/* Deep space background */}
       <div className="absolute inset-0 bg-black"></div>
       

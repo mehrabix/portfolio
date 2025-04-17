@@ -12,7 +12,11 @@
 
 @layer components {
   .section-padding {
-    @apply py-20 px-4 sm:px-6 lg:px-8;
+    @apply py-10 px-4 sm:px-6 lg:px-8;
+  }
+  
+  .section-spacing {
+    @apply mb-8;
   }
   
   .container {
@@ -83,6 +87,15 @@
   100% {
     background-position: 0% 50%;
   }
+}
+
+/* Consistent section spacing */
+main > section {
+  margin-bottom: 0; /* Remove default margins */
+}
+
+main > section + section {
+  padding-top: 2rem; /* Add consistent spacing between consecutive sections */
 }
 
 /* Custom scrollbar for all webkit browsers */

@@ -443,7 +443,7 @@ const Projects: React.FC = () => {
   return (
     <section 
       id="projects" 
-      className="section-padding py-24 relative overflow-hidden"
+      className="section-padding relative overflow-hidden"
       style={{ position: 'relative' }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
