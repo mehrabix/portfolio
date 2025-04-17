@@ -13,6 +13,7 @@ const Moon = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [textureError, setTextureError] = useState(false);
   const [textureLoaded, setTextureLoaded] = useState(false);
+  const textureRef = useRef<THREE.Texture | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -23,14 +24,29 @@ const Moon = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Load texture with proper error handling
+  // Create empty texture in useMemo
   const moonTexture = useMemo(() => {
+    const texture = new THREE.Texture();
+    // Apply texture settings
+    texture.minFilter = THREE.LinearMipMapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    textureRef.current = texture;
+    return texture;
+  }, []);
+
+  // Handle texture loading in useEffect
+  useEffect(() => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load(
+    loader.load(
       moonMapUrl,
-      () => {
+      (loadedTexture) => {
         console.log('Moon texture loaded successfully');
-        setTextureLoaded(true);
+        if (textureRef.current) {
+          textureRef.current.image = loadedTexture.image;
+          textureRef.current.needsUpdate = true;
+          setTextureLoaded(true);
+        }
       },
       undefined,
       (error) => {
@@ -38,13 +54,6 @@ const Moon = () => {
         setTextureError(true);
       }
     );
-    
-    // Apply texture settings
-    texture.minFilter = THREE.LinearMipMapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    
-    return texture;
   }, []);
 
   // Create a fallback material

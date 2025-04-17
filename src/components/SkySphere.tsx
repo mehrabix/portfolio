@@ -11,6 +11,7 @@ const SkySphere = () => {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [textureLoaded, setTextureLoaded] = useState(false);
+  const textureRef = useRef<THREE.Texture | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -21,27 +22,34 @@ const SkySphere = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Load sky texture
+  // Create texture instance without loading in useMemo
   const skyTexture = useMemo(() => {
+    const texture = new THREE.Texture();
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    textureRef.current = texture;
+    return texture;
+  }, []);
+
+  // Handle texture loading in useEffect
+  useEffect(() => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load(
+    loader.load(
       skyMapUrl,
-      () => {
+      (loadedTexture) => {
         console.log('Sky texture loaded successfully');
-        setTextureLoaded(true);
+        if (textureRef.current) {
+          textureRef.current.image = loadedTexture.image;
+          textureRef.current.needsUpdate = true;
+          setTextureLoaded(true);
+        }
       },
       undefined,
       (error) => {
         console.error('Error loading sky texture:', error);
       }
     );
-    
-    // Apply texture settings
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    
-    return texture;
   }, []);
 
   // Create materials

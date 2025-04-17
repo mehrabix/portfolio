@@ -1,0 +1,194 @@
+/* Custom animations for portfolio */
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.4);
+  }
+}
+
+@keyframes shine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes rotate3d-slow {
+  0% {
+    transform: rotate3d(1, 1, 1, 0deg);
+  }
+  100% {
+    transform: rotate3d(1, 1, 1, 360deg);
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Particle animation */
+@keyframes particle-float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-5px) translateX(5px);
+  }
+  50% {
+    transform: translateY(-10px) translateX(0);
+  }
+  75% {
+    transform: translateY(-5px) translateX(-5px);
+  }
+}
+
+/* Text reveal animation */
+@keyframes text-reveal {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+/* Utility classes for animations */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-shine {
+  background-size: 200% 100%;
+  animation: shine 5s linear infinite;
+}
+
+.animate-rotate3d {
+  animation: rotate3d-slow 20s linear infinite;
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradient-flow 5s ease infinite;
+}
+
+.animate-particle-float {
+  animation: particle-float 8s ease-in-out infinite;
+}
+
+.animate-text-reveal {
+  animation: text-reveal 1.5s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+/* Parallax effect classes */
+.parallax-slow {
+  will-change: transform;
+  transform: translateZ(0);
+  transition: transform 0.1s ease-out;
+}
+
+.parallax-medium {
+  will-change: transform;
+  transform: translateZ(0);
+  transition: transform 0.08s ease-out;
+}
+
+.parallax-fast {
+  will-change: transform;
+  transform: translateZ(0);
+  transition: transform 0.05s ease-out;
+}
+
+/* Glass morphism */
+.glass-effect {
+  backdrop-filter: blur(16px);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(2, 6, 23, 0.2);
+}
+
+.glass-card {
+  backdrop-filter: blur(16px);
+  background: rgba(13, 16, 45, 0.3);
+  border: 1px solid rgba(77, 143, 221, 0.2);
+  box-shadow: 0 8px 32px rgba(2, 6, 23, 0.2);
+}
+
+/* Text gradient */
+.text-gradient-blue {
+  background: linear-gradient(90deg, #60a5fa, #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: shine 5s linear infinite;
+}
+
+/* Neon glow effects */
+.neon-blue {
+  text-shadow: 
+    0 0 5px rgba(96, 165, 250, 0.5),
+    0 0 10px rgba(96, 165, 250, 0.5),
+    0 0 20px rgba(96, 165, 250, 0.5);
+}
+
+.border-glow {
+  box-shadow: 
+    0 0 5px rgba(96, 165, 250, 0.5),
+    0 0 10px rgba(96, 165, 250, 0.3);
+}
+
+/* Animated border */
+.animated-border-gradient {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.animated-border-gradient::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3b82f6, #7c3aed, #3b82f6);
+  background-size: 400% 400%;
+  animation: gradient-flow 5s ease infinite;
+  z-index: -1;
+  border-radius: 0.85rem;
+} 

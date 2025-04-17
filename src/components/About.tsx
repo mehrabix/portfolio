@@ -44,8 +44,8 @@ const About = () => {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           ref={containerRef}
-          style={{ y, opacity, scale }}
-          className="max-w-4xl mx-auto"
+          style={{ y, opacity, scale, position: 'relative' }}
+          className="max-w-4xl mx-auto relative"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -67,7 +67,7 @@ const About = () => {
             />
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Profile Image Section */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}

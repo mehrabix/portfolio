@@ -43,9 +43,12 @@
   "skills.methodologies": "Methodologies & Leadership",
   
   "projects.title": "Projects",
+  "projects.subtitle": "Check out some of my recent projects and work",
   "projects.viewAll": "View All",
   "projects.showLess": "Show Less",
   "projects.features": "Features",
+  "projects.showFeatures": "Show Features",
+  "projects.technologies": "Technologies",
   "projects.liveDemo": "Live Demo",
   "projects.github": "GitHub",
   "projects.npm": "npm",

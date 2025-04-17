@@ -44,28 +44,77 @@
   }
 }
 
-/* Custom scrollbar - Cosmic Theme */
+/* Custom scrollbar styles */
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.5);
+  }
+
+  /* Firefox scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(59, 130, 246, 0.3) rgba(59, 130, 246, 0.1);
+  }
+}
+
+/* Add overflow animation */
+@keyframes shine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Custom scrollbar for all webkit browsers */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #000000; /* Deep space black background */
+  background: #13151f;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, rgba(59, 130, 246, 0.5), rgba(124, 58, 237, 0.5)); /* Blue to purple gradient */
-  border-radius: 999px;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); /* Subtle blue glow */
+  background: #3b82f620;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, rgba(59, 130, 246, 0.8), rgba(124, 58, 237, 0.8)); /* Brighter gradient on hover */
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6); /* Enhanced glow on hover */
+  background: #3b82f640;
 }
 
-/* Firefox scrollbar support */
+/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(59, 130, 246, 0.5) #000000;
+  scrollbar-color: #3b82f620 #13151f;
+}
+
+/* Remove autofill background color */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #13151f inset !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
