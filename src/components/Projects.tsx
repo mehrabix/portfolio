@@ -127,7 +127,7 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
           style={{ backgroundSize: '200% 100%' }}
         />
 
-        <div className="p-6 md:p-8 relative z-10 flex flex-col h-full overflow-auto custom-scrollbar" style={{ transform: 'translateZ(20px)' }}>
+        <div className={`p-6 md:p-8 relative z-10 flex flex-col h-full ${isMobile ? 'overflow-auto' : 'overflow-auto custom-scrollbar'}`} style={{ transform: 'translateZ(20px)' }}>
           {/* Pagination indicator */}
           <div className="absolute top-6 right-6 flex items-center gap-2 text-blue-400/80 text-sm font-mono">
             <span className="text-blue-500 font-bold">{index + 1}</span>
@@ -154,7 +154,7 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
           </div>
 
           {/* Two columns layout for larger screens */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+          <div className={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-2'} gap-6 mb-4`}>
             {/* Left column: Technologies */}
             <div>
               <h4 className="text-xs uppercase tracking-wider text-blue-400 mb-2 font-medium">
@@ -181,7 +181,7 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
             </div>
             
             {/* Right column: Features section with toggle */}
-            {project.features && (
+            {project.features && !isMobile && (
               <div className="features-container">
                 <h4 className="text-xs uppercase tracking-wider text-blue-400 mb-2 font-medium flex items-center gap-2">
                   {t('projects.features')}
@@ -233,6 +233,23 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
                 )}
               </div>
             )}
+            
+            {/* Mobile-optimized features section - always visible but compact */}
+            {project.features && isMobile && (
+              <div className="features-container">
+                <h4 className="text-xs uppercase tracking-wider text-blue-400 mb-2 font-medium">
+                  {t('projects.features')}
+                </h4>
+                <ul className="list-disc list-inside text-xs text-gray-400 space-y-1 ml-2">
+                  {project.features.slice(0, 3).map((feature, idx) => (
+                    <li key={idx} className="leading-tight">{feature}</li>
+                  ))}
+                  {project.features.length > 3 && (
+                    <li className="text-blue-400 text-xs">+{project.features.length - 3} {t('projects.moreFeatures') || 'more'}</li>
+                  )}
+                </ul>
+              </div>
+            )}
           </div>
           
           {/* Links section */}
@@ -247,7 +264,7 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
                 style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))', transform: 'translateZ(15px)' }}
               >
                 <FaGithub className="text-lg" />
-                <span>{t('projects.github')}</span>
+                <span>{isMobile ? '' : t('projects.github')}</span>
               </motion.a>
             )}
             {project.demo && (
@@ -260,7 +277,7 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
                 style={{ transform: 'translateZ(15px)' }}
               >
                 <FaExternalLinkAlt className="text-lg" />
-                <span>{t('projects.liveDemo')}</span>
+                <span>{isMobile ? '' : t('projects.liveDemo')}</span>
               </motion.a>
             )}
             {project.npm && project.npm.length > 0 && (
@@ -273,7 +290,7 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
                 style={{ filter: 'drop-shadow(0 0 3px rgba(59,130,246,0.6))', transform: 'translateZ(15px)' }}
               >
                 <FaNpm className="text-lg" />
-                <span>{t('projects.npm')}</span>
+                <span>{isMobile ? '' : t('projects.npm')}</span>
               </motion.a>
             )}
           </div>
@@ -293,6 +310,9 @@ const Projects: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
 
   // Projects data
   const projects: Project[] = [
@@ -374,18 +394,51 @@ const Projects: React.FC = () => {
     setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
   };
 
-  // Auto-scroll functionality with pause on hover
-  const [isHovering, setIsHovering] = useState(false);
-  
+  // Auto-scroll functionality with pause on hover/touch
   useEffect(() => {
-    if (isHovering) return;
+    if (isHovering || isTouching) return;
     
     const interval = setInterval(() => {
       nextProject();
     }, 8000); // Change every 8 seconds when not hovering
     
     return () => clearInterval(interval);
-  }, [currentIndex, isHovering]);
+  }, [currentIndex, isHovering, isTouching]);
+
+  // Touch handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsTouching(true);
+    setTouchStartX(e.touches[0].clientX);
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    // Optional: add visual feedback during swiping if needed
+  };
+  
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchEndX - touchStartX;
+    
+    // Threshold to detect a swipe (adjust as needed)
+    const swipeThreshold = 70;
+    
+    if (Math.abs(diffX) > swipeThreshold) {
+      if (diffX > 0) {
+        prevProject(); // Swiped right - go to previous
+      } else {
+        nextProject(); // Swiped left - go to next
+      }
+    }
+    
+    // Reset touch state
+    setTouchStartX(null);
+    setTimeout(() => setIsTouching(false), 100);
+  };
+
+  // Add indicator for swipe direction
+  const [swipeIndicator, setSwipeIndicator] = useState<string | null>(null);
 
   return (
     <section 
@@ -451,6 +504,9 @@ const Projects: React.FC = () => {
           ref={containerRef}
           className="relative h-[600px] sm:h-[550px] md:h-[500px] w-full max-w-5xl mx-auto my-12"
           style={{ position: 'relative' }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <AnimatePresence mode="wait" initial={false} custom={direction}>
             <ProjectCard 
@@ -507,6 +563,20 @@ const Projects: React.FC = () => {
             </motion.button>
           </div>
         </div>
+        
+        {/* Visual feedback for swipe (optional) */}
+        {swipeIndicator && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 pointer-events-none flex items-center justify-center z-50"
+          >
+            <div className="text-blue-500 text-5xl">
+              {swipeIndicator === 'left' ? <FaArrowLeft /> : <FaArrowRight />}
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );
