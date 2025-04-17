@@ -183,7 +183,7 @@ const MusicPlayer = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-50" id="music-player">
+    <div className="fixed bottom-4 left-4 z-50" id="music-player" style={{ position: 'fixed' }}>
       <audio ref={audioRef} preload="none" />
       
       <motion.div

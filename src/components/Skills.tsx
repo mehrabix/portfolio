@@ -360,23 +360,25 @@ const Skills = () => {
       <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
       <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
 
-      <div className="container relative z-10">
+      <div className="container relative z-10" style={{ position: 'relative' }}>
         <motion.div
           ref={ref}
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 0.5 }}
           className="max-w-6xl mx-auto"
+          style={{ position: 'relative' }}
         >
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-center mb-16"
+            style={{ position: 'relative' }}
           >
             <motion.h2
               className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
-              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
+              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)', position: 'relative' }}
             >
               {t('skills.title')}
             </motion.h2>
@@ -385,7 +387,7 @@ const Skills = () => {
               initial={{ scaleX: 0 }}
               animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
+              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)', position: 'relative' }}
             />
           </motion.div>
 
@@ -396,6 +398,7 @@ const Skills = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                style={{ position: 'relative' }}
               >
                 <SkillCard title={group.title} skills={group.skills} icon={group.icon} />
               </motion.div>

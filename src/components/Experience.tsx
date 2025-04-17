@@ -101,11 +101,12 @@ const Experience = () => {
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
           className="max-w-4xl mx-auto"
+          style={{ position: 'relative' }}
         >
-          <motion.div variants={itemVariants} className="text-center mb-16">
+          <motion.div variants={itemVariants} className="text-center mb-16" style={{ position: 'relative' }}>
             <motion.h2
               className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
-              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)' }}
+              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)', position: 'relative' }}
             >
               {t('experience.title')}
             </motion.h2>
@@ -114,7 +115,7 @@ const Experience = () => {
               initial={{ scaleX: 0 }}
               animate={inView ? { scaleX: 1 } : {}}
               transition={{ duration: 0.5, delay: 0.2 }}
-              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
+              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)', position: 'relative' }}
             />
           </motion.div>
 

@@ -5,39 +5,29 @@ import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../context/LanguageContext'
 import LanguageSelector from './LanguageSelector'
 
-const Navbar = () => {
+interface NavbarProps {
+  currentSection?: string;
+}
+
+const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
   // Use i18next directly
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [activeSection, setActiveSection] = useState('hero')
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
-      
-      // Update active section based on scroll position
-      const sections = ['hero', 'about', 'experience', 'skills', 'projects', 'contact']
-      for (const section of sections) {
-        const element = document.getElementById(section)
-        if (element) {
-          const rect = element.getBoundingClientRect()
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section)
-            break
-          }
-        }
-      }
     }
     
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
     
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX)
       mouseY.set(e.clientY)
     }
@@ -83,10 +73,11 @@ const Navbar = () => {
         transform: 'translateZ(0)', // Force GPU acceleration
         boxShadow: scrolled 
           ? '0 8px 32px rgba(2, 6, 23, 0.3), 0 0 10px rgba(59, 130, 246, 0.15)' 
-          : 'none'
+          : 'none',
+        position: 'fixed'
       }}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4" style={{ position: 'relative' }}>
         <div className="flex items-center justify-between h-16">
           {/* Logo with glow effect */}
           <motion.a
@@ -110,7 +101,7 @@ const Navbar = () => {
                   key={item.name}
                   href={item.href}
                   className={`text-gray-300 hover:text-white transition-colors relative group px-2 py-1 ${
-                    activeSection === item.id ? 'text-white' : ''
+                    currentSection === item.id ? 'text-white' : ''
                   }`}
                   whileHover={{ y: -2 }}
                   whileTap={tapAnimation}
@@ -118,12 +109,12 @@ const Navbar = () => {
                   {item.name}
                   <motion.span 
                     className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-300 rounded-full ${
-                      activeSection === item.id ? 'w-full' : 'w-0'
+                      currentSection === item.id ? 'w-full' : 'w-0'
                     }`}
-                    animate={{ width: activeSection === item.id ? '100%' : '0%' }}
+                    animate={{ width: currentSection === item.id ? '100%' : '0%' }}
                     transition={{ duration: 0.3 }}
                     style={{ 
-                      boxShadow: activeSection === item.id ? '0 0 10px rgba(59,130,246,0.5)' : 'none' 
+                      boxShadow: currentSection === item.id ? '0 0 10px rgba(59,130,246,0.5)' : 'none' 
                     }}
                   />
                 </motion.a>
@@ -227,14 +218,14 @@ const Navbar = () => {
                         href={item.href}
                         onClick={() => setIsOpen(false)}
                         className={`block py-3 px-4 text-gray-300 hover:text-white hover:bg-blue-900/10 rounded-lg transition-all duration-200 relative ${
-                          activeSection === item.id ? 'text-white bg-blue-900/20' : ''
+                          currentSection === item.id ? 'text-white bg-blue-900/20' : ''
                         }`}
                         whileHover={{ x: 5 }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className="flex items-center justify-between">
                           <span>{item.name}</span>
-                          {activeSection === item.id && (
+                          {currentSection === item.id && (
                             <motion.span
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
@@ -243,11 +234,12 @@ const Navbar = () => {
                             />
                           )}
                         </div>
-                        {activeSection === item.id && (
+                        {currentSection === item.id && (
                           <motion.div
                             className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-purple-500 rounded-r"
                             initial={{ height: 0 }}
                             animate={{ height: '100%' }}
+                            transition={{ duration: 0.3 }}
                             style={{ boxShadow: '0 0 10px rgba(59,130,246,0.5)' }}
                           />
                         )}

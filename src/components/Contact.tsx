@@ -43,7 +43,7 @@ const Contact = () => {
   ]
 
   return (
-    <section id="contact" className="section-padding relative overflow-hidden">
+    <section id="contact" className="section-padding relative overflow-hidden" style={{ position: 'relative' }}>
       {/* Deep space background */}
       <div className="absolute inset-0 bg-black"></div>
       
@@ -60,7 +60,7 @@ const Contact = () => {
       <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
       <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10" style={{ position: 'relative' }}>
         <motion.div
           ref={containerRef}
           style={{ y, opacity, scale, position: 'relative' }}

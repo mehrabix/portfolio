@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useRef } from 'react'
 import Hero from './components/Hero'
 import About from './components/About'
 import Experience from './components/Experience'
@@ -20,6 +20,9 @@ function App() {
   const { scrollY } = useScroll()
   const opacityLayer1 = useTransform(scrollY, [0, 300], [0.8, 0])
   const opacityLayer2 = useTransform(scrollY, [0, 700], [0, 0.5])
+  // Track current section for URL updates
+  const [activeSection, setActiveSection] = useState('hero')
+  const isManualNavigation = useRef(false)
 
   useEffect(() => {
     // First check if i18n is initialized
@@ -43,6 +46,58 @@ function App() {
       }
     }
   }, [i18n])
+
+  // Effect for handling scroll-based section detection and URL updates
+  useEffect(() => {
+    const handleScroll = () => {
+      // Skip if this is a manual navigation
+      if (isManualNavigation.current) {
+        isManualNavigation.current = false
+        return
+      }
+      
+      // Update active section based on scroll position
+      const sections = ['hero', 'about', 'experience', 'skills', 'projects', 'contact']
+      for (const section of sections) {
+        const element = document.getElementById(section)
+        if (element) {
+          const rect = element.getBoundingClientRect()
+          // If element is in viewport (with some buffer at the top)
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            if (activeSection !== section) {
+              setActiveSection(section)
+              // Update URL without triggering a new scroll
+              const newUrl = section === 'hero' ? window.location.pathname : `#${section}`
+              window.history.replaceState(null, '', newUrl)
+            }
+            break
+          }
+        }
+      }
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [activeSection])
+
+  // Handle hash changes in URL (when user clicks nav links)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '')
+      if (hash) {
+        isManualNavigation.current = true
+        setActiveSection(hash)
+      }
+    }
+    
+    // Initial check
+    if (window.location.hash) {
+      handleHashChange()
+    }
+    
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
 
   if (loading) {
     return (
@@ -86,7 +141,7 @@ function App() {
 
         {/* Content */}
         <div className="relative z-10" style={{ position: 'relative' }}>
-          <Navbar />
+          <Navbar currentSection={activeSection} />
           <main style={{ position: 'relative' }}>
             <Hero />
             <About />
@@ -106,7 +161,9 @@ function App() {
 
 // Scroll Progress Bar Component
 const ScrollProgressBar = () => {
-  const { scrollYProgress } = useScroll()
+  const { scrollYProgress } = useScroll({
+    layoutEffect: false // Add this to prevent layout thrashing
+  })
   
   return (
     <motion.div

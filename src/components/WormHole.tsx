@@ -6,6 +6,7 @@ import * as THREE from 'three';
 // Create a wormhole effect with procedural animation
 const WormHole = ({ position = [0, 0, -40], size = 8 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [time, setTime] = useState(0);
 
@@ -108,13 +109,20 @@ const WormHole = ({ position = [0, 0, -40], size = 8 }) => {
   });
 
   return (
-    <mesh position={position}>
-      <Sphere 
-        ref={meshRef} 
-        args={[size, 64, 64]} 
-        material={wormholeMaterial}
-      />
-    </mesh>
+    <group 
+      ref={groupRef} 
+      position={position}
+      rotation={[0, 0, 0]}
+      scale={[1, 1, 1]}
+    >
+      <mesh>
+        <Sphere 
+          ref={meshRef} 
+          args={[size, 64, 64]} 
+          material={wormholeMaterial}
+        />
+      </mesh>
+    </group>
   );
 };
 

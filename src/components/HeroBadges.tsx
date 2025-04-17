@@ -53,6 +53,7 @@ const HeroBadges: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 1, delay: 0.5 }}
       className="absolute inset-0 pointer-events-none overflow-hidden"
+      style={{ position: 'absolute' }}
     >
       {badges.map((badge, index) => (
         <FloatingBadge

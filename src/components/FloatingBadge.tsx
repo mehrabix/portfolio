@@ -89,7 +89,8 @@ const FloatingBadge: React.FC<FloatingBadgeProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.5 }}
       style={{
-        perspective: 1000
+        perspective: 1000,
+        position: 'relative'
       }}
     >
       {/* The 3D rotating card element */}
@@ -102,7 +103,8 @@ const FloatingBadge: React.FC<FloatingBadgeProps> = ({
           boxShadow: isMobile 
             ? `0 15px 35px rgba(0,0,0,0.2), 0 0 15px ${glowColor}` 
             : `${shadowX.get()}px ${shadowY.get()}px 30px rgba(0,0,0,${shadowOpacity.get()}), 0 0 15px ${glowColor}`,
-          animationDelay: `-${floatDelay}s`
+          animationDelay: `-${floatDelay}s`,
+          position: 'relative'
         }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
@@ -113,7 +115,8 @@ const FloatingBadge: React.FC<FloatingBadgeProps> = ({
           style={{
             background: `radial-gradient(circle at ${glowX.get() + 50}% ${glowY.get() + 50}%, ${glowColor}, transparent 70%)`,
             opacity: glowOpacity,
-            zIndex: -1
+            zIndex: -1,
+            position: 'absolute'
           }}
         />
         
@@ -123,7 +126,8 @@ const FloatingBadge: React.FC<FloatingBadgeProps> = ({
           style={{
             background: `linear-gradient(45deg, ${glowColor}, transparent 60%, ${glowColor})`,
             backgroundSize: '200% 200%',
-            zIndex: -1
+            zIndex: -1,
+            position: 'absolute'
           }}
         />
         
@@ -134,7 +138,8 @@ const FloatingBadge: React.FC<FloatingBadgeProps> = ({
             translateX: isMobile ? 0 : contentX,
             translateY: isMobile ? 0 : contentY,
             transformStyle: 'preserve-3d',
-            transform: 'translateZ(20px)'
+            transform: 'translateZ(20px)',
+            position: 'relative'
           }}
         >
           {icon && (

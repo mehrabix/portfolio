@@ -464,19 +464,19 @@ const Projects: React.FC = () => {
           </AnimatePresence>
 
           {/* Navigation Controls */}
-          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex items-center gap-8 mt-8">
+          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex items-center gap-8 mt-8" style={{ position: 'absolute' }}>
             <motion.button
               onClick={prevProject}
               className="bg-blue-500/10 hover:bg-blue-500/30 text-blue-400 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)' }}
+              style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)', position: 'relative' }}
             >
               <FaArrowLeft />
             </motion.button>
             
             {/* Dot indicators */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" style={{ position: 'relative' }}>
               {projects.map((_, index) => (
                 <motion.button
                   key={index}
@@ -491,6 +491,7 @@ const Projects: React.FC = () => {
                   }`}
                   whileHover={{ scale: 1.2 }}
                   whileTap={{ scale: 0.9 }}
+                  style={{ position: 'relative' }}
                 />
               ))}
             </div>
@@ -500,7 +501,7 @@ const Projects: React.FC = () => {
               className="bg-blue-500/10 hover:bg-blue-500/30 text-blue-400 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)' }}
+              style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)', position: 'relative' }}
             >
               <FaArrowRight />
             </motion.button>

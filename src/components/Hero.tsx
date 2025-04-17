@@ -658,14 +658,14 @@ const Hero = () => {
   }, [isMobile])
 
   return (
-    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ position: 'relative' }}>
       {/* Loading Screen */}
       <AnimatePresence>
         {isLoading && <LoadingScreen />}
       </AnimatePresence>
 
       {/* Background Canvas */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" style={{ position: 'absolute' }}>
         <Canvas camera={{ position: [0, 0, 5] }}>
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} intensity={1} />
@@ -740,6 +740,7 @@ const Hero = () => {
             className="relative z-10 text-center"
             style={{
               perspective: isMobile ? 'none' : '1000px',
+              position: 'relative'
             }}
           >
             <motion.h1
