@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../context/LanguageContext';
 
 // SVG flags as components
@@ -30,7 +31,9 @@ const GermanFlag = () => (
 );
 
 const LanguageSelector: React.FC = () => {
-  const { language, setLanguage, t } = useLanguage();
+  // Use i18next directly alongside the context for compatibility
+  const { i18n, t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

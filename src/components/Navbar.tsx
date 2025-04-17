@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../context/LanguageContext'
 import LanguageSelector from './LanguageSelector'
 
 const Navbar = () => {
-  const { t } = useLanguage()
+  // Use i18next directly
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
