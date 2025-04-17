@@ -28,6 +28,8 @@ jobs:
         
       - name: Build
         run: pnpm build
+        env:
+          GITHUB_PAGES: 'true'
         
       - name: Check dist folder
         run: ls -la dist
