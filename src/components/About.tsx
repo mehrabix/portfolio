@@ -93,27 +93,44 @@ const About = () => {
 
                 {/* Floating particles effect - more similar to Hero */}
                 <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(15)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-1 h-1 bg-white rounded-full"
-                      initial={{ x: Math.random() * 100 + '%', y: Math.random() * 100 + '%' }}
-                      animate={{
-                        x: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-                        y: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-                        opacity: [0.3, 0.7, 0.3],
-                        scale: [0.8, 1.5, 0.8],
-                      }}
-                      transition={{
-                        duration: Math.random() * 4 + 3,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                      style={{ 
-                        boxShadow: '0 0 3px rgba(255,255,255,0.8)' 
-                      }}
-                    />
-                  ))}
+                  {[...Array(15)].map((_, i) => {
+                    // Use fixed values based on index instead of random numbers
+                    const fixedPositions = [
+                      { x: 10, y: 20 }, { x: 25, y: 50 }, { x: 40, y: 80 },
+                      { x: 60, y: 30 }, { x: 80, y: 75 }, { x: 90, y: 40 },
+                      { x: 15, y: 90 }, { x: 45, y: 15 }, { x: 70, y: 60 },
+                      { x: 30, y: 70 }, { x: 55, y: 35 }, { x: 85, y: 25 },
+                      { x: 20, y: 45 }, { x: 65, y: 85 }, { x: 75, y: 10 }
+                    ];
+                    
+                    // Safely access positions based on index, with fallback
+                    const position = fixedPositions[i % fixedPositions.length];
+                    
+                    return (
+                      <motion.div
+                        key={i}
+                        className="absolute w-1 h-1 bg-white rounded-full"
+                        initial={{ 
+                          x: `${position.x}%`, 
+                          y: `${position.y}%` 
+                        }}
+                        animate={{
+                          x: [`${position.x}%`, `${(position.x + 10) % 100}%`],
+                          y: [`${position.y}%`, `${(position.y + 15) % 100}%`],
+                          opacity: [0.3, 0.7, 0.3],
+                          scale: [0.8, 1.5, 0.8],
+                        }}
+                        transition={{
+                          duration: 3 + (i % 4),
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        style={{ 
+                          boxShadow: '0 0 3px rgba(255,255,255,0.8)' 
+                        }}
+                      />
+                    );
+                  })}
                 </div>
 
                 {/* Animated corner accents */}

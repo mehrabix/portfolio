@@ -221,23 +221,42 @@ const SkillCard = ({ title, skills, icon: Icon }: { title: string; skills: strin
 
       {/* Floating particles effect */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
-            initial={{ x: Math.random() * 100 + '%', y: Math.random() * 100 + '%' }}
-            animate={{
-              x: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-              y: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-              opacity: [0.2, 0.5, 0.2],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
+        {[...Array(5)].map((_, i) => {
+          // Use fixed values based on index instead of random numbers
+          const fixedPositions = [
+            { x: 15, y: 25 }, { x: 35, y: 65 }, { x: 75, y: 35 }, 
+            { x: 65, y: 75 }, { x: 45, y: 50 }
+          ];
+          
+          // Safely access positions based on index, with fallback
+          const position = fixedPositions[i % fixedPositions.length];
+          
+          // Define fixed animation positions
+          const targetPositions = [
+            { x: 25, y: 45 }, { x: 55, y: 85 }, { x: 85, y: 15 }, 
+            { x: 35, y: 55 }, { x: 65, y: 30 }
+          ];
+          
+          const targetPosition = targetPositions[i % targetPositions.length];
+          
+          return (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
+              initial={{ x: `${position.x}%`, y: `${position.y}%` }}
+              animate={{
+                x: [`${position.x}%`, `${targetPosition.x}%`],
+                y: [`${position.y}%`, `${targetPosition.y}%`],
+                opacity: [0.2, 0.5, 0.2],
+              }}
+              transition={{
+                duration: 2 + (i % 3),
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+          );
+        })}
       </div>
 
       <div className="flex items-center gap-3 mb-6 relative">
