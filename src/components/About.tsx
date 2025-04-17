@@ -23,7 +23,7 @@ const About = () => {
   ]
 
   return (
-    <section id="about" className="section-padding relative overflow-hidden">
+    <section id="about" className="section-padding relative overflow-hidden" style={{ position: 'relative' }}>
       {/* Deep space background */}
       <div className="absolute inset-0 bg-black"></div>
       
@@ -42,7 +42,7 @@ const About = () => {
       <div className="absolute top-2/3 right-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-blue-500/5 to-purple-500/5 blur-3xl"></div>
 
       {/* Container with cosmic parallax effect */}
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10" style={{ position: 'relative' }}>
         <motion.div
           ref={containerRef}
           style={{ y, opacity, scale, position: 'relative' }}

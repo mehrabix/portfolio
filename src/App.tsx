@@ -46,8 +46,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-black">
-        <div className="relative h-24 w-24">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-black" style={{ position: 'fixed' }}>
+        <div className="relative h-24 w-24" style={{ position: 'relative' }}>
           <div className="animate-ping absolute h-full w-full rounded-full bg-blue-500 opacity-20"></div>
           <div className="animate-spin absolute inset-0 h-full w-full rounded-full border-t-2 border-r-2 border-blue-500"></div>
           <div className="animate-pulse absolute inset-0 flex items-center justify-center text-blue-500">
@@ -65,7 +65,7 @@ function App() {
     <LanguageProvider>
       <div className="relative" style={{ position: 'relative' }}>
         {/* 3D Background */}
-        <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="fixed inset-0 -z-10 pointer-events-none" style={{ position: 'fixed' }}>
           <Canvas>
             <Suspense fallback={null}>
               <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
@@ -77,17 +77,17 @@ function App() {
         {/* Parallax Overlay Layers */}
         <motion.div 
           className="fixed inset-0 bg-gradient-to-b from-blue-900/20 to-purple-900/20 pointer-events-none z-[-5]"
-          style={{ opacity: opacityLayer1 }}
+          style={{ opacity: opacityLayer1, position: 'fixed' }}
         />
         <motion.div 
           className="fixed inset-0 bg-gradient-to-t from-blue-600/10 to-transparent pointer-events-none z-[-5]"
-          style={{ opacity: opacityLayer2 }}
+          style={{ opacity: opacityLayer2, position: 'fixed' }}
         />
 
         {/* Content */}
-        <div className="relative z-10">
+        <div className="relative z-10" style={{ position: 'relative' }}>
           <Navbar />
-          <main>
+          <main style={{ position: 'relative' }}>
             <Hero />
             <About />
             <Experience />

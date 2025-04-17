@@ -390,14 +390,29 @@ const Projects: React.FC = () => {
   return (
     <section 
       id="projects" 
-      className="min-h-screen py-20 relative overflow-hidden"
+      className="section-padding py-24 relative overflow-hidden"
+      style={{ position: 'relative' }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
       {/* Background effects - darker background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-black/70"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-black"></div>
+        
+        {/* Star field - same as Skills.tsx */}
+        <div className="absolute inset-0 opacity-90">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0), 
+                              radial-gradient(circle at 3px 3px, rgba(136, 96, 208, 0.15) 1px, transparent 0)`,
+            backgroundSize: '30px 30px, 50px 50px'
+          }} />
+        </div>
+        
+        {/* Cosmic glow effects - same as Skills.tsx */}
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl"></div>
+        <div className="absolute top-2/3 right-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-blue-500/5 to-purple-500/5 blur-3xl"></div>
+        
         <Canvas className="absolute inset-0">
           <Stars radius={300} depth={100} count={1000} factor={4} saturation={0} fade speed={0.5} />
           <OrbitalSystem />

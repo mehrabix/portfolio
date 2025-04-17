@@ -77,7 +77,7 @@ const Experience = () => {
   }
 
   return (
-    <section id="experience" className="section-padding relative overflow-hidden">
+    <section id="experience" className="section-padding py-24 relative overflow-hidden" style={{ position: 'relative' }}>
       {/* Deep space background */}
       <div className="absolute inset-0 bg-black"></div>
       

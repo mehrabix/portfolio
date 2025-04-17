@@ -375,6 +375,7 @@ const ScrollDownButton = () => {
       aria-label={isLastSection ? "Scroll to top" : "Scroll down"}
       style={{
         WebkitTapHighlightColor: 'transparent',
+        position: 'fixed'
       }}
       disabled={isScrolling}
     >
@@ -388,6 +389,7 @@ const ScrollDownButton = () => {
           repeatType: "reverse"
         }}
         className="p-2 rounded-full bg-white/10 backdrop-blur-sm"
+        style={{ position: 'relative' }}
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
