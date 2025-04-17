@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../context/LanguageContext';
 
 // SVG flags as components
@@ -31,21 +30,27 @@ const GermanFlag = () => (
 );
 
 const LanguageSelector: React.FC = () => {
-  // Use i18next directly alongside the context for compatibility
-  const { i18n, t } = useTranslation();
-  const { language, setLanguage } = useLanguage();
+  // Use language context
+  const { language, setLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const languages = [
     { code: 'en', name: 'English', flag: <UKFlag /> },
     { code: 'de', name: 'Deutsch', flag: <GermanFlag /> },
   ];
 
-  const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
+  // Get current language
+  const getCurrentLanguage = () => {
+    const current = languages.find(lang => lang.code === language);
+    return current || languages[0];
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
+    setIsMounted(true);
+    
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -58,6 +63,9 @@ const LanguageSelector: React.FC = () => {
     };
   }, []);
 
+  // Only render the actual content when mounted to prevent hydration issues
+  const currentLanguage = getCurrentLanguage();
+
   return (
     <div className="relative" ref={dropdownRef}>
       <motion.button
@@ -65,14 +73,16 @@ const LanguageSelector: React.FC = () => {
         className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors px-3 py-2 rounded-md"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        aria-label={t('nav.language')}
+        aria-label={isMounted ? t('nav.language') : ''}
       >
         <div className="flex items-center justify-center">{currentLanguage.flag}</div>
-        <span className="font-medium hidden sm:inline">{currentLanguage.code.toUpperCase()}</span>
+        {isMounted && (
+          <span className="font-medium hidden sm:inline">{currentLanguage.code.toUpperCase()}</span>
+        )}
       </motion.button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && isMounted && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

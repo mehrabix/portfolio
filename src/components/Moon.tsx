@@ -13,23 +13,41 @@ const Moon = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [textureError, setTextureError] = useState(false);
   const [textureLoaded, setTextureLoaded] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
+  // Create an empty texture that will be populated in useEffect
+  const moonTexture = useMemo(() => {
+    const texture = new THREE.Texture();
+    return texture;
+  }, []);
+
+  // Combined useEffect for all client-side operations
   useEffect(() => {
+    // Mark component as mounted
+    setIsMounted(true);
+    
+    // Mobile detection
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
     window.addEventListener('resize', checkMobile);
     checkMobile(); // Initial check
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Load texture with proper error handling
-  const moonTexture = useMemo(() => {
+    
+    // Load texture
     const loader = new THREE.TextureLoader();
-    const texture = loader.load(
+    loader.load(
       moonMapUrl,
-      () => {
+      (loadedTexture) => {
         console.log('Moon texture loaded successfully');
+        // Update the existing texture with loaded data
+        moonTexture.image = loadedTexture.image;
+        moonTexture.needsUpdate = true;
+        
+        // Apply texture settings
+        moonTexture.minFilter = THREE.LinearMipMapLinearFilter;
+        moonTexture.magFilter = THREE.LinearFilter;
+        moonTexture.wrapS = moonTexture.wrapT = THREE.RepeatWrapping;
+        
         setTextureLoaded(true);
       },
       undefined,
@@ -39,13 +57,11 @@ const Moon = () => {
       }
     );
     
-    // Apply texture settings
-    texture.minFilter = THREE.LinearMipMapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    
-    return texture;
-  }, []);
+    // Cleanup function
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, [moonTexture]);
 
   // Create a fallback material
   const fallbackMaterial = useMemo(() => {

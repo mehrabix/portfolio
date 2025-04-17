@@ -15,41 +15,37 @@ import './i18n' // Import i18n initialization
 function App() {
   const { i18n } = useTranslation()
   // Add loading state to prevent flickering during translation load
-  const [loading, setLoading] = useState(false) // Default to false for SSR
+  const [loading, setLoading] = useState(true) // Default to true
+  const [isMounted, setIsMounted] = useState(false)
   
   useEffect(() => {
-    // Only run loading logic on the client side
-    const isClient = typeof window !== 'undefined'
+    // Mark component as mounted - this runs only on client
+    setIsMounted(true)
     
-    if (isClient) {
-      // Set loading to true initially only on client-side
-      setLoading(true)
-      
-      // Check if i18n is already initialized
-      if (i18n.isInitialized) {
+    // Check if i18n is already initialized
+    if (i18n.isInitialized) {
+      setLoading(false)
+    } else {
+      // Add event listener for initialization
+      const handleInitialized = () => {
         setLoading(false)
-      } else {
-        // Add event listener for initialization
-        const handleInitialized = () => {
-          setLoading(false)
-        }
-        i18n.on('initialized', handleInitialized)
-        
-        // Short delay as fallback
-        const timer = setTimeout(() => {
-          setLoading(false)
-        }, 300)
-        
-        return () => {
-          clearTimeout(timer)
-          i18n.off('initialized', handleInitialized)
-        }
+      }
+      i18n.on('initialized', handleInitialized)
+      
+      // Short delay as fallback
+      const timer = setTimeout(() => {
+        setLoading(false)
+      }, 300)
+      
+      return () => {
+        clearTimeout(timer)
+        i18n.off('initialized', handleInitialized)
       }
     }
   }, [i18n])
 
-  // Show loading spinner only when on client and in loading state
-  if (loading && typeof window !== 'undefined') {
+  // Show loading spinner only when mounted and still loading
+  if (isMounted && loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -60,15 +56,17 @@ function App() {
   return (
     <LanguageProvider>
       <div className="relative">
-        {/* 3D Background */}
-        <div className="fixed inset-0 -z-10 pointer-events-none">
-          <Canvas>
-            <Suspense fallback={null}>
-              <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-              <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
-            </Suspense>
-          </Canvas>
-        </div>
+        {/* 3D Background - Only render on client side */}
+        {isMounted && (
+          <div className="fixed inset-0 -z-10 pointer-events-none">
+            <Canvas>
+              <Suspense fallback={null}>
+                <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+                <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
+              </Suspense>
+            </Canvas>
+          </div>
+        )}
 
         {/* Content */}
         <div className="relative z-10">

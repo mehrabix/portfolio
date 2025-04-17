@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { Sphere } from '@react-three/drei';
-import { useFrame, ThreeEvent } from '@react-three/fiber';
+import { Sphere, useGLTF } from '@react-three/drei';
+import { useFrame, ThreeElements } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // Import sky texture using Vite's asset imports
@@ -12,6 +12,7 @@ const SkySphere = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [textureLoaded, setTextureLoaded] = useState(false);
 
+  // Client-side-only logic wrapped in useEffect
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -21,13 +22,30 @@ const SkySphere = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Load sky texture
+  // Load sky texture - moved inside useEffect to prevent render-time state updates
   const skyTexture = useMemo(() => {
+    // Create base texture that will be updated after loading
+    const texture = new THREE.Texture();
+    
+    // Return the texture immediately without loading during SSR
+    return texture;
+  }, []);
+
+  // Move texture loading to useEffect to happen after component mount
+  useEffect(() => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load(
+    loader.load(
       skyMapUrl,
-      () => {
+      (loadedTexture) => {
         console.log('Sky texture loaded successfully');
+        skyTexture.image = loadedTexture.image;
+        skyTexture.needsUpdate = true;
+        
+        // Apply texture settings
+        skyTexture.minFilter = THREE.LinearFilter;
+        skyTexture.magFilter = THREE.LinearFilter;
+        skyTexture.mapping = THREE.EquirectangularReflectionMapping;
+        
         setTextureLoaded(true);
       },
       undefined,
@@ -35,14 +53,7 @@ const SkySphere = () => {
         console.error('Error loading sky texture:', error);
       }
     );
-    
-    // Apply texture settings
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    
-    return texture;
-  }, []);
+  }, [skyTexture]);
 
   // Create materials
   const skyMaterial = useMemo(() => {
@@ -91,12 +102,13 @@ const SkySphere = () => {
   };
 
   return (
-    <group onPointerMove={handleInteraction}>
+    <>
       {/* Main sky sphere */}
       <Sphere 
         ref={meshRef} 
         args={[90, isMobile ? 32 : 64, isMobile ? 32 : 64]}
         material={textureLoaded ? skyMaterial : fallbackMaterial}
+        onPointerMove={handleInteraction}
       />
       
       {/* Interactive glow effect - only show before interaction */}
@@ -106,7 +118,7 @@ const SkySphere = () => {
           material={glowMaterial}
         />
       )}
-    </group>
+    </>
   );
 };
 

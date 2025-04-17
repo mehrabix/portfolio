@@ -6,44 +6,65 @@ import { useLanguage } from '../context/LanguageContext'
 import LanguageSelector from './LanguageSelector'
 
 const Navbar = () => {
-  // Use i18next directly
-  const { t } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  // Use the language context
+  const { t } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+    // Mark component as mounted
+    setIsMounted(true);
     
-    window.addEventListener('scroll', handleScroll)
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', checkMobile);
+    checkMobile(); // Initial check
     
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', checkMobile)
-    }
-  }, [])
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
-  const navItems = [
-    { name: t('nav.about'), href: '#about' },
-    { name: t('nav.experience'), href: '#experience' },
-    { name: t('nav.skills'), href: '#skills' },
-    { name: t('nav.projects'), href: '#projects' },
-    { name: t('nav.contact'), href: '#contact' },
-  ]
+  // Create nav items only after component is mounted to prevent hydration mismatches
+  const getNavItems = () => {
+    if (!isMounted) {
+      // Return empty placeholders during SSR
+      return [
+        { name: '', href: '#about' },
+        { name: '', href: '#experience' },
+        { name: '', href: '#skills' },
+        { name: '', href: '#projects' },
+        { name: '', href: '#contact' },
+      ];
+    }
+    
+    // Only populate with translations after mounting
+    return [
+      { name: t('nav.about'), href: '#about' },
+      { name: t('nav.experience'), href: '#experience' },
+      { name: t('nav.skills'), href: '#skills' },
+      { name: t('nav.projects'), href: '#projects' },
+      { name: t('nav.contact'), href: '#contact' },
+    ];
+  };
+  
+  const navItems = getNavItems();
 
   // Optimized hover animations based on device
   const hoverAnimation = isMobile 
     ? { scale: 1.05 } 
-    : { scale: 1.05, rotateY: 10 }
+    : { scale: 1.05, rotateY: 10 };
 
-  const tapAnimation = { scale: 0.95 }
+  const tapAnimation = { scale: 0.95 };
 
   return (
     <motion.nav
@@ -80,9 +101,10 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center">
             <div className="flex space-x-8 mr-4">
-              {navItems.map((item) => (
+              {/* Only show nav items when mounted */}
+              {isMounted && navItems.map((item) => (
                 <motion.a
-                  key={item.name}
+                  key={item.href}
                   href={item.href}
                   className="text-gray-300 hover:text-white transition-colors relative group"
                   whileHover={isMobile ? { y: -2 } : { y: -2, rotateX: 10 }}
@@ -131,7 +153,7 @@ const Navbar = () => {
 
         {/* Mobile menu */}
         <AnimatePresence>
-          {isOpen && (
+          {isOpen && isMounted && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -228,7 +250,7 @@ const Navbar = () => {
                         boxShadow: '0 0 15px rgba(30, 64, 175, 0.3)'
                       }}
                     >
-                      {t('nav.contactMe')}
+                      {isMounted ? t('nav.contactMe') : ''}
                     </motion.a>
                   </div>
                 </div>

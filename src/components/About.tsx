@@ -44,7 +44,7 @@ const About = () => {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           ref={containerRef}
-          style={{ y, opacity, scale }}
+          style={{ y, opacity, scale, position: 'relative' }}
           className="max-w-4xl mx-auto"
         >
           <motion.div

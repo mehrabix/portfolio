@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext } from 'react';
+import React, { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type Language = 'en' | 'de';
@@ -13,12 +13,36 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { t, i18n } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   
-  // Get current language - handle both i18next format and our simplified format
-  const language = (i18n.language?.startsWith('en') ? 'en' : 'de') as Language;
+  // Get the initial language for SSR - same logic as in i18n.ts
+  const getInitialLanguage = (): Language => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedLang = localStorage.getItem('language');
+      if (storedLang === 'en' || storedLang === 'de') {
+        return storedLang as Language;
+      }
+    }
+    return 'en';
+  };
+  
+  // Use a state to track the language to ensure it's reactive
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage());
+  
+  // Mark component as mounted after initial render
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Sync with i18n's current language
+    const currentLang = (i18n.language?.startsWith('en') ? 'en' : 'de') as Language;
+    if (currentLang !== language) {
+      setLanguageState(currentLang);
+    }
+  }, [i18n.language, language]);
   
   // Change language function that works with i18next
   const setLanguage = (newLanguage: Language) => {
+    setLanguageState(newLanguage);
     i18n.changeLanguage(newLanguage).catch(error => {
       console.error('Failed to change language:', error);
     });
