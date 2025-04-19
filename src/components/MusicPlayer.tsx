@@ -102,8 +102,55 @@ const MusicPlayer = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isOnContactSection, setIsOnContactSection] = useState(false);
+  // Track if the collapse was automatic or manual
+  const [isAutoCollapsed, setIsAutoCollapsed] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const songTitle = "Asato (Mark Dekoda)-24070-DNC Shanti People";
+
+  // Check if user is viewing the contact section
+  useEffect(() => {
+    const checkContactSection = () => {
+      const contactSection = document.getElementById('contact');
+      if (contactSection) {
+        const rect = contactSection.getBoundingClientRect();
+        // If contact section is in viewport
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          if (!isOnContactSection) {
+            setIsOnContactSection(true);
+            // Auto-collapse when entering contact section
+            if (!isCollapsed) {
+              setIsCollapsed(true);
+              setIsAutoCollapsed(true); // Mark as auto-collapsed
+            }
+          }
+        } else {
+          if (isOnContactSection) {
+            setIsOnContactSection(false);
+            // Auto-expand when leaving contact section if it was auto-collapsed
+            if (isCollapsed && isAutoCollapsed) {
+              setIsCollapsed(false);
+              setIsAutoCollapsed(false);
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', checkContactSection);
+    checkContactSection(); // Initial check
+    
+    return () => {
+      window.removeEventListener('scroll', checkContactSection);
+    };
+  }, [isCollapsed, isAutoCollapsed, isOnContactSection]);
+  
+  // Modified toggle function to track auto vs manual collapse
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+    setIsAutoCollapsed(false); // User manually toggled
+  };
 
   useEffect(() => {
     if (audioRef.current) {
@@ -183,7 +230,33 @@ const MusicPlayer = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-50" id="music-player" style={{ position: 'fixed' }}>
+    <motion.div 
+      className="fixed bottom-4 left-4 z-50 group"
+      animate={{
+        y: isCollapsed ? 'calc(100% - 40px)' : 0,
+        x: isOnContactSection && !isCollapsed ? -10 : 0,
+        opacity: isOnContactSection ? (isCollapsed ? 0.8 : 0.6) : 1
+      }}
+      transition={{ duration: 0.3 }}
+      id="music-player" 
+      style={{ position: 'fixed' }}
+      whileHover={{
+        y: isCollapsed ? 'calc(100% - 45px)' : 0,
+        opacity: 1,
+        x: 0
+      }}
+    >
+      {/* Tooltip that appears when player is collapsed in contact section */}
+      {isCollapsed && isOnContactSection && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute -top-10 left-0 bg-black/70 text-white text-xs py-1 px-3 rounded-md backdrop-blur-sm whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          Music player minimized in Contact section
+        </motion.div>
+      )}
+      
       <audio ref={audioRef} preload="none" />
       
       <motion.div
@@ -191,6 +264,37 @@ const MusicPlayer = () => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-black/50 backdrop-blur-lg rounded-lg p-4 shadow-lg relative hover:shadow-[0_0_15px_rgba(80,194,255,0.5)] transition-all duration-300"
       >
+        {/* Collapse/Expand button */}
+        <motion.button
+          className="absolute -top-3 right-2 w-7 h-7 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer border border-blue-500/30 hover:border-blue-500/70 transition-all duration-300 z-20"
+          onClick={toggleCollapse}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-4 w-4 text-white" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+            style={{
+              transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s ease'
+            }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </motion.button>
+        
+        {/* Visual indicator for Contact section */}
+        {isOnContactSection && (
+          <motion.span 
+            className="absolute -top-2 left-2 h-2 w-2 bg-blue-500 rounded-full"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        )}
+
         {/* Visualizer */}
         {isPlaying && <Visualizer audioRef={audioRef} />}
         
@@ -269,70 +373,72 @@ const MusicPlayer = () => {
                 </AnimatePresence>
               </motion.button>
 
-              <div className="flex flex-col gap-1">
-                <div className="overflow-hidden w-[120px] relative">
-                  <div className="flex animate-marquee whitespace-nowrap">
-                    <span className="text-white/80 text-xs">{songTitle}</span>
-                    <span className="text-white/80 text-xs ml-4">{songTitle}</span>
+              {!isCollapsed && (
+                <div className="flex flex-col gap-1">
+                  <div className="overflow-hidden w-[120px] relative">
+                    <div className="flex animate-marquee whitespace-nowrap">
+                      <span className="text-white/80 text-xs">{songTitle}</span>
+                      <span className="text-white/80 text-xs ml-4">{songTitle}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={toggleMute}
+                      className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+                    >
+                      <AnimatePresence mode="wait">
+                        {isMuted ? (
+                          <motion.svg
+                            key="muted"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-white"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </motion.svg>
+                        ) : (
+                          <motion.svg
+                            key="unmuted"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-white"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"
+                              clipRule="evenodd"
+                            />
+                          </motion.svg>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
+
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={volume}
+                      onChange={handleVolumeChange}
+                      className="cursor-pointer w-20 h-1 bg-white/20 rounded-lg appearance-none hover:bg-white/30 transition-all duration-200"
+                    />
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleMute}
-                    className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
-                  >
-                    <AnimatePresence mode="wait">
-                      {isMuted ? (
-                        <motion.svg
-                          key="muted"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-white"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </motion.svg>
-                      ) : (
-                        <motion.svg
-                          key="unmuted"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-white"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"
-                            clipRule="evenodd"
-                          />
-                        </motion.svg>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="cursor-pointer w-20 h-1 bg-white/20 rounded-lg appearance-none hover:bg-white/30 transition-all duration-200"
-                  />
-                </div>
-              </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -340,7 +446,7 @@ const MusicPlayer = () => {
         {/* Visual indicator for interactive area */}
         <div className="absolute -top-3 -left-3 -right-3 -bottom-3 rounded-xl border border-blue-400/20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

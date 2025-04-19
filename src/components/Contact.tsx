@@ -43,7 +43,7 @@ const Contact = () => {
   ]
 
   return (
-    <section id="contact" className="section-padding relative overflow-hidden" style={{ position: 'relative' }}>
+    <section id="contact" className="section-padding relative overflow-hidden pb-24 md:pb-16" style={{ position: 'relative' }}>
       {/* Deep space background */}
       <div className="absolute inset-0 bg-black"></div>
       
