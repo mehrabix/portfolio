@@ -1,17 +1,17 @@
-import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
-import { Suspense, useEffect, useState, useRef } from 'react'
-import Hero from './components/Hero'
+import { Canvas } from '@react-three/fiber'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import About from './components/About'
-import Experience from './components/Experience'
-import Skills from './components/Skills'
 import Contact from './components/Contact'
+import Experience from './components/Experience'
+import Hero from './components/Hero'
 import Navbar from './components/Navbar'
 import Projects from './components/Projects'
+import Skills from './components/Skills'
 import { LanguageProvider } from './context/LanguageContext'
-import { useTranslation } from 'react-i18next'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import './i18n' // Import i18n initialization
+import './i18n'; // Import i18n initialization
 
 // Add global styles for section spacing
 import './index.css'
@@ -133,7 +133,7 @@ function App() {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-black" style={{ position: 'fixed' }}>
         <div className="relative h-24 w-24" style={{ position: 'relative' }}>
-          <div className="animate-ping absolute h-full w-full rounded-full bg-blue-500 opacity-20"></div>
+          <div className="animate-ping absolute h-full w-full rounded-full bg-blue-500 opacity-10"></div>
           <div className="animate-spin absolute inset-0 h-full w-full rounded-full border-t-2 border-r-2 border-blue-500"></div>
           <div className="animate-pulse absolute inset-0 flex items-center justify-center text-blue-500">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,9 +148,9 @@ function App() {
 
   return (
     <LanguageProvider>
-      <div className="relative" style={{ position: 'relative' }}>
+      <div className="relative bg-black" style={{ position: 'relative' }}>
         {/* 3D Background */}
-        <div className="fixed inset-0 -z-10 pointer-events-none" style={{ position: 'fixed' }}>
+        <div className="fixed inset-0 -z-10 pointer-events-none bg-black" style={{ position: 'fixed' }}>
           <Canvas>
             <Suspense fallback={null}>
               <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
@@ -161,11 +161,11 @@ function App() {
 
         {/* Parallax Overlay Layers */}
         <motion.div 
-          className="fixed inset-0 bg-gradient-to-b from-blue-900/20 to-purple-900/20 pointer-events-none z-[-5]"
+          className="fixed inset-0 bg-gradient-to-b from-blue-900/10 to-purple-900/10 pointer-events-none z-[-5]"
           style={{ opacity: opacityLayer1, position: 'fixed' }}
         />
         <motion.div 
-          className="fixed inset-0 bg-gradient-to-t from-blue-600/10 to-transparent pointer-events-none z-[-5]"
+          className="fixed inset-0 bg-gradient-to-t from-blue-600/5 to-transparent pointer-events-none z-[-5]"
           style={{ opacity: opacityLayer2, position: 'fixed' }}
         />
 

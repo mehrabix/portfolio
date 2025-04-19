@@ -1,8 +1,23 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
   text-align: center;
+  background-color: black; /* Ensure background is black during transitions */
+}
+
+/* Remove the unused legacy styles */
+.logo, .card, .read-the-docs {
+  display: none;
+}
+
+/* Ensure the body background is properly set */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: black;
+  overflow-x: hidden;
 }
 
 .logo {

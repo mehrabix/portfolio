@@ -477,38 +477,6 @@ const ParticleTrail = () => {
   )
 }
 
-const GlowingOrb = () => {
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  return (
-    <motion.div
-      className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl"
-      animate={{
-        scale: isMobile ? 1 : [1, 1.2, 1],
-        opacity: isMobile ? 0.3 : [0.3, 0.5, 0.3],
-      }}
-      transition={{
-        duration: 4,
-        repeat: Infinity,
-        repeatType: "reverse",
-      }}
-      style={{
-        top: '20%',
-        left: '20%',
-      }}
-    />
-  )
-}
-
 const LoadingScreen = () => {
   const [progress, setProgress] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
@@ -538,10 +506,12 @@ const LoadingScreen = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50"
+      transition={{ duration: 0.5 }}
+      className="absolute inset-0 flex items-center justify-center bg-black z-50"
+      style={{ position: 'absolute' }}
     >
       <div className="text-center">
         <motion.div
@@ -597,6 +567,40 @@ const LoadingScreen = () => {
   )
 }
 
+const GlowingOrb = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', checkMobile)
+    checkMobile() // Initial check
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  return (
+    <motion.div
+      className="absolute w-64 h-64 rounded-full"
+      style={{
+        top: '20%',
+        left: '20%',
+        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 70%, rgba(0, 0, 0, 0) 100%)',
+        filter: 'blur(40px)',
+      }}
+      animate={{
+        scale: isMobile ? 1 : [1, 1.2, 1],
+        opacity: isMobile ? 0.2 : [0.1, 0.3, 0.1],
+      }}
+      transition={{
+        duration: 4,
+        repeat: Infinity,
+        repeatType: "reverse",
+      }}
+    />
+  )
+}
+
 const Hero = () => {
   const { t } = useLanguage()
   const [showContent, setShowContent] = useState(false)
@@ -639,7 +643,7 @@ const Hero = () => {
       setIsLoading(false)
       setTimeout(() => {
         setShowContent(true)
-      }, 500)
+      }, 300)
     }, 3000)
     return () => clearTimeout(timer)
   }, [])
@@ -658,9 +662,9 @@ const Hero = () => {
   }, [isMobile])
 
   return (
-    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden" style={{ position: 'relative' }}>
+    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-black" style={{ position: 'relative' }}>
       {/* Loading Screen */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isLoading && <LoadingScreen />}
       </AnimatePresence>
 
@@ -697,20 +701,22 @@ const Hero = () => {
       {/* Glowing Orbs */}
       <GlowingOrb />
       <motion.div
-        className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-3xl"
+        className="absolute w-64 h-64 rounded-full"
+        style={{
+          bottom: '20%', 
+          right: '20%',
+          background: 'radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(59, 130, 246, 0.05) 70%, rgba(0, 0, 0, 0) 100%)',
+          filter: 'blur(40px)',
+        }}
         animate={{
           scale: isMobile ? 1 : [1, 1.2, 1],
-          opacity: isMobile ? 0.3 : [0.3, 0.5, 0.3],
+          opacity: isMobile ? 0.2 : [0.1, 0.3, 0.1],
         }}
         transition={{
           duration: 4,
           repeat: Infinity,
           repeatType: "reverse",
           delay: 1,
-        }}
-        style={{
-          bottom: '20%',
-          right: '20%',
         }}
       />
 
