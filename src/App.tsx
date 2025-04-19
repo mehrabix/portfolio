@@ -94,7 +94,16 @@ function App() {
         setTimeout(() => {
           const element = document.getElementById(hash)
           if (element) {
-            element.scrollIntoView({ behavior: 'smooth' })
+            // Calculate exact scroll position accounting for navbar height
+            const navbarHeight = 64; // Approximate height of the navbar
+            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+            const offsetPosition = elementPosition - navbarHeight;
+            
+            // Use smooth scrolling for better UX
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
           }
         }, 100)
       }
@@ -119,8 +128,16 @@ function App() {
         setTimeout(() => {
           const element = document.getElementById(hash)
           if (element) {
-            // Use scrollIntoView with block: "start" for consistent behavior across devices
-            element.scrollIntoView({ block: "start" })
+            // Calculate exact scroll position accounting for navbar height
+            const navbarHeight = 64; // Approximate height of the navbar
+            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+            const offsetPosition = elementPosition - navbarHeight;
+            
+            // Use immediate scrolling for initial page load
+            window.scrollTo({
+              top: offsetPosition
+            });
+            
             // Update the active section
             setActiveSection(hash)
           }

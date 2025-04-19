@@ -288,25 +288,32 @@ const ScrollDownButton = () => {
     const handleScroll = () => {
       if (isScrolling) return
 
-      const sections = sectionOrder.map(id => document.getElementById(id))
-      const scrollPosition = window.scrollY + window.innerHeight / 3
+      // Get all section elements
+      const sections = sectionOrder
+        .map(id => document.getElementById(id))
+        .filter(Boolean) as HTMLElement[]
 
+      // Get current scroll position with buffer for better detection
+      const scrollPosition = window.scrollY + window.innerHeight * 0.2
+
+      // Find which section we're currently in
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i]
         const nextSection = sections[i + 1]
-
-        if (section && nextSection) {
-          const sectionTop = section.offsetTop
-          const nextSectionTop = nextSection.offsetTop
-
-          if (scrollPosition >= sectionTop && scrollPosition < nextSectionTop) {
+        
+        const sectionTop = section.offsetTop
+        const sectionBottom = sectionTop + section.offsetHeight
+        
+        // Check if we're in this section
+        // If this is the last section or we're between this section's top and the next section's top
+        if (
+          (nextSection && scrollPosition >= sectionTop && scrollPosition < nextSection.offsetTop) ||
+          (!nextSection && scrollPosition >= sectionTop)
+        ) {
+          if (currentSectionIndex !== i) {
             setCurrentSectionIndex(i)
-            break
           }
-        } else if (section && !nextSection) {
-          if (scrollPosition >= section.offsetTop) {
-            setCurrentSectionIndex(i)
-          }
+          break
         }
       }
     }
@@ -314,13 +321,25 @@ const ScrollDownButton = () => {
     window.addEventListener('scroll', handleScroll)
     handleScroll() // Initial check
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isScrolling])
+  }, [isScrolling, currentSectionIndex])
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId)
     if (section) {
       setIsScrolling(true)
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      
+      // Calculate the exact position to scroll to
+      // We want to align the top of the section with the top of the viewport
+      // but we need to account for the navbar height
+      const navbarHeight = 64 // Approximate height of navbar in pixels
+      const sectionTop = section.getBoundingClientRect().top + window.scrollY
+      const targetScrollPosition = sectionTop - navbarHeight
+      
+      // Use smooth scrolling for better UX
+      window.scrollTo({
+        top: targetScrollPosition,
+        behavior: 'smooth'
+      })
       
       // Reset scrolling state after animation completes
       setTimeout(() => {
