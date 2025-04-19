@@ -84,7 +84,12 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              // Scroll to top with smooth animation
+              window.scrollTo({ 
+                top: 0, 
+                behavior: 'smooth' 
+              });
+              // Update URL to remove any hash
               window.history.pushState(null, '', window.location.pathname);
             }}
             className="relative px-3 py-2 font-bold text-white ml-2 overflow-hidden group rounded-lg"
@@ -111,8 +116,19 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                     const targetId = item.href.replace('#', '');
                     const targetElement = document.getElementById(targetId);
                     if (targetElement) {
-                      // Scroll to the element
-                      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      // Calculate the exact position to scroll to
+                      // We want to align the top of the section with the top of the viewport
+                      // but we need to account for the navbar height
+                      const navbarHeight = 64; // Approximate height of navbar in pixels
+                      const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+                      const offsetPosition = elementPosition - navbarHeight;
+                      
+                      // Use smooth scrolling for better UX
+                      window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                      });
+                      
                       // Update URL without page reload
                       window.history.pushState(null, '', item.href);
                     }
@@ -240,8 +256,19 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                           const targetId = item.href.replace('#', '');
                           const targetElement = document.getElementById(targetId);
                           if (targetElement) {
-                            // Scroll to the element
-                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Calculate the exact position to scroll to
+                            // We want to align the top of the section with the top of the viewport
+                            // but we need to account for the navbar height
+                            const navbarHeight = 64; // Approximate height of navbar in pixels
+                            const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+                            const offsetPosition = elementPosition - navbarHeight;
+                            
+                            // Use smooth scrolling for better UX
+                            window.scrollTo({
+                              top: offsetPosition,
+                              behavior: 'smooth'
+                            });
+                            
                             // Update URL without page reload
                             window.history.pushState(null, '', item.href);
                           }
