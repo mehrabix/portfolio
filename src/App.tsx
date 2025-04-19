@@ -90,6 +90,13 @@ function App() {
       if (hash) {
         isManualNavigation.current = true
         setActiveSection(hash)
+        // Scroll to the section with a slight delay to ensure DOM is ready
+        setTimeout(() => {
+          const element = document.getElementById(hash)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 100)
       }
     }
     
@@ -101,6 +108,26 @@ function App() {
     window.addEventListener('hashchange', handleHashChange)
     return () => window.removeEventListener('hashchange', handleHashChange)
   }, [])
+
+  // Handle initial page load navigation, especially after refresh
+  useEffect(() => {
+    // This effect runs once after the component mounts and i18n is loaded
+    if (!loading) {
+      const hash = window.location.hash.replace('#', '')
+      if (hash) {
+        // Use a slightly longer delay to ensure everything is properly rendered
+        setTimeout(() => {
+          const element = document.getElementById(hash)
+          if (element) {
+            // Use scrollIntoView with block: "start" for consistent behavior across devices
+            element.scrollIntoView({ block: "start" })
+            // Update the active section
+            setActiveSection(hash)
+          }
+        }, 300)
+      }
+    }
+  }, [loading]); // Only run when loading state changes to false
 
   if (loading) {
     return (

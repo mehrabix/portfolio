@@ -82,6 +82,11 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
           {/* Logo with glow effect */}
           <motion.a
             href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.history.pushState(null, '', window.location.pathname);
+            }}
             className="relative px-3 py-2 font-bold text-white ml-2 overflow-hidden group rounded-lg"
             whileHover={{ scale: 1.05 }}
             whileTap={tapAnimation}
@@ -100,6 +105,18 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                 <motion.a
                   key={item.name}
                   href={item.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Get the target element
+                    const targetId = item.href.replace('#', '');
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                      // Scroll to the element
+                      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      // Update URL without page reload
+                      window.history.pushState(null, '', item.href);
+                    }
+                  }}
                   className={`text-gray-300 hover:text-white transition-colors relative group px-2 py-1 ${
                     currentSection === item.id ? 'text-white' : ''
                   }`}
@@ -216,7 +233,19 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                       <motion.a
                         key={item.name}
                         href={item.href}
-                        onClick={() => setIsOpen(false)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsOpen(false);
+                          // Get the target element
+                          const targetId = item.href.replace('#', '');
+                          const targetElement = document.getElementById(targetId);
+                          if (targetElement) {
+                            // Scroll to the element
+                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Update URL without page reload
+                            window.history.pushState(null, '', item.href);
+                          }
+                        }}
                         className={`block py-3 px-4 text-gray-300 hover:text-white hover:bg-blue-900/10 rounded-lg transition-all duration-200 relative ${
                           currentSection === item.id ? 'text-white bg-blue-900/20' : ''
                         }`}
