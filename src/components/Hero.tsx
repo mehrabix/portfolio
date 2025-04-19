@@ -40,11 +40,11 @@ extend({
   AmbientLight: THREE.AmbientLight,
   Group: THREE.Group,
   Object3D: THREE.Object3D,
-  // Add missing primitive and group elements
-  primitive: 'primitive',
-  group: 'group',
-  ambientLight: 'ambientLight',
-  pointLight: 'pointLight'
+  // Remove these incorrect mappings
+  // primitive: 'primitive',
+  // group: 'group',
+  // ambientLight: 'ambientLight',
+  // pointLight: 'pointLight'
 })
 
 const InteractiveStars = () => {
