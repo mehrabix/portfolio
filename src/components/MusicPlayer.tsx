@@ -246,16 +246,7 @@ const MusicPlayer = () => {
         x: 0
       }}
     >
-      {/* Tooltip that appears when player is collapsed in contact section */}
-      {isCollapsed && isOnContactSection && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute -top-10 left-0 bg-black/70 text-white text-xs py-1 px-3 rounded-md backdrop-blur-sm whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
-          Music player minimized in Contact section
-        </motion.div>
-      )}
+      {/* Removed tooltip message */}
       
       <audio ref={audioRef} preload="none" />
       
