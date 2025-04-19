@@ -16,6 +16,14 @@ import './i18n'; // Import i18n initialization
 // Add global styles for section spacing
 import './index.css'
 
+// Define type for section visibility data
+interface SectionVisibility {
+  [key: string]: {
+    isIntersecting: boolean;
+    ratio: number;
+  }
+}
+
 function App() {
   const { i18n } = useTranslation()
   // Add loading state to prevent flickering during translation load
@@ -26,6 +34,8 @@ function App() {
   // Track current section for URL updates
   const [activeSection, setActiveSection] = useState('hero')
   const isManualNavigation = useRef(false)
+  // Store section visibility data
+  const sectionVisibility = useRef<SectionVisibility>({})
 
   useEffect(() => {
     // First check if i18n is initialized
@@ -50,38 +60,105 @@ function App() {
     }
   }, [i18n])
 
-  // Effect for handling scroll-based section detection and URL updates
+  // Set up Intersection Observer for section detection
   useEffect(() => {
+    // Skip if this is manual navigation or still loading
+    if (loading) return
+
+    const sections = ['hero', 'about', 'experience', 'skills', 'projects', 'contact']
+    
+    // Update section visibility state
+    const updateActiveSection = () => {
+      // Calculate which section is most visible
+      let maxVisibleSection: string | null = null
+      let maxVisibleRatio = 0
+      
+      // Special case for very bottom of page - select last section
+      const isAtBottom = window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight - 10
+      
+      if (isAtBottom) {
+        // We're at the bottom, so the last section should be active
+        maxVisibleSection = 'contact'
+      } else {
+        // Otherwise find the most visible section based on stored visibility data
+        for (const [section, data] of Object.entries(sectionVisibility.current)) {
+          if (data.ratio > maxVisibleRatio) {
+            maxVisibleRatio = data.ratio
+            maxVisibleSection = section
+          }
+        }
+      }
+      
+      // If we have a visible section and it's different from the current active section
+      if (maxVisibleSection && maxVisibleSection !== activeSection) {
+        setActiveSection(maxVisibleSection)
+        // Update URL without triggering a new scroll
+        const newUrl = maxVisibleSection === 'hero' ? window.location.pathname : `#${maxVisibleSection}`
+        window.history.replaceState(null, '', newUrl)
+      }
+    }
+
+    // Set up intersection observer to monitor sections
+    const observerOptions = {
+      root: null, // use viewport
+      rootMargin: "0px",
+      threshold: buildThresholdList(20) // create multiple thresholds for accuracy
+    }
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Store visibility data for each section
+        sectionVisibility.current[entry.target.id] = {
+          isIntersecting: entry.isIntersecting,
+          ratio: entry.intersectionRatio
+        }
+      })
+      
+      // Skip updating during manual navigation
+      if (!isManualNavigation.current) {
+        updateActiveSection()
+      }
+    }, observerOptions)
+    
+    // Observe all sections
+    sections.forEach(sectionId => {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        observer.observe(element)
+      }
+    })
+    
+    // Handle scroll events for edge cases
     const handleScroll = () => {
-      // Skip if this is a manual navigation
       if (isManualNavigation.current) {
         isManualNavigation.current = false
         return
       }
-      
-      // Update active section based on scroll position
-      const sections = ['hero', 'about', 'experience', 'skills', 'projects', 'contact']
-      for (const section of sections) {
-        const element = document.getElementById(section)
-        if (element) {
-          const rect = element.getBoundingClientRect()
-          // If element is in viewport (with some buffer at the top)
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            if (activeSection !== section) {
-              setActiveSection(section)
-              // Update URL without triggering a new scroll
-              const newUrl = section === 'hero' ? window.location.pathname : `#${section}`
-              window.history.replaceState(null, '', newUrl)
-            }
-            break
-          }
-        }
-      }
+      updateActiveSection()
     }
     
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [activeSection])
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    
+    return () => {
+      // Clean up observer and event listener
+      sections.forEach(sectionId => {
+        const element = document.getElementById(sectionId)
+        if (element) {
+          observer.unobserve(element)
+        }
+      })
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [activeSection, loading])
+
+  // Helper function to build multiple threshold steps for more precision
+  function buildThresholdList(numSteps: number): number[] {
+    const thresholds: number[] = []
+    for (let i = 0; i <= numSteps; i++) {
+      thresholds.push(i / numSteps)
+    }
+    return thresholds
+  }
 
   // Handle hash changes in URL (when user clicks nav links)
   useEffect(() => {

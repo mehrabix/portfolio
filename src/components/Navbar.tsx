@@ -59,6 +59,45 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
 
   const tapAnimation = { scale: 0.95 }
 
+  // Improved section navigation handler
+  const handleNavigation = (e: React.MouseEvent, targetId: string) => {
+    e.preventDefault();
+    
+    // Close mobile menu if open
+    if (isOpen) {
+      setIsOpen(false);
+    }
+    
+    // Handle home navigation
+    if (targetId === '') {
+      window.scrollTo({ 
+        top: 0, 
+        behavior: 'smooth' 
+      });
+      window.history.pushState(null, '', window.location.pathname);
+      return;
+    }
+    
+    // Get the target element
+    const targetElement = document.getElementById(targetId);
+    
+    if (targetElement) {
+      // Calculate the exact position to scroll to with navbar offset
+      const navbarHeight = 64; // Approximate height of navbar in pixels
+      const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - navbarHeight;
+      
+      // Use smooth scrolling
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+      
+      // Update URL without page reload
+      window.history.pushState(null, '', `#${targetId}`);
+    }
+  };
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -82,16 +121,7 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
           {/* Logo with glow effect */}
           <motion.a
             href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              // Scroll to top with smooth animation
-              window.scrollTo({ 
-                top: 0, 
-                behavior: 'smooth' 
-              });
-              // Update URL to remove any hash
-              window.history.pushState(null, '', window.location.pathname);
-            }}
+            onClick={(e) => handleNavigation(e, '')}
             className="relative px-3 py-2 font-bold text-white ml-2 overflow-hidden group rounded-lg"
             whileHover={{ scale: 1.05 }}
             whileTap={tapAnimation}
@@ -110,29 +140,7 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                 <motion.a
                   key={item.name}
                   href={item.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // Get the target element
-                    const targetId = item.href.replace('#', '');
-                    const targetElement = document.getElementById(targetId);
-                    if (targetElement) {
-                      // Calculate the exact position to scroll to
-                      // We want to align the top of the section with the top of the viewport
-                      // but we need to account for the navbar height
-                      const navbarHeight = 64; // Approximate height of navbar in pixels
-                      const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
-                      const offsetPosition = elementPosition - navbarHeight;
-                      
-                      // Use smooth scrolling for better UX
-                      window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                      });
-                      
-                      // Update URL without page reload
-                      window.history.pushState(null, '', item.href);
-                    }
-                  }}
+                  onClick={(e) => handleNavigation(e, item.id)}
                   className={`text-gray-300 hover:text-white transition-colors relative group px-2 py-1 ${
                     currentSection === item.id ? 'text-white' : ''
                   }`}
@@ -141,9 +149,7 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                 >
                   {item.name}
                   <motion.span 
-                    className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-300 rounded-full ${
-                      currentSection === item.id ? 'w-full' : 'w-0'
-                    }`}
+                    className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-300 rounded-full`}
                     animate={{ width: currentSection === item.id ? '100%' : '0%' }}
                     transition={{ duration: 0.3 }}
                     style={{ 
@@ -249,30 +255,7 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                       <motion.a
                         key={item.name}
                         href={item.href}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsOpen(false);
-                          // Get the target element
-                          const targetId = item.href.replace('#', '');
-                          const targetElement = document.getElementById(targetId);
-                          if (targetElement) {
-                            // Calculate the exact position to scroll to
-                            // We want to align the top of the section with the top of the viewport
-                            // but we need to account for the navbar height
-                            const navbarHeight = 64; // Approximate height of navbar in pixels
-                            const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
-                            const offsetPosition = elementPosition - navbarHeight;
-                            
-                            // Use smooth scrolling for better UX
-                            window.scrollTo({
-                              top: offsetPosition,
-                              behavior: 'smooth'
-                            });
-                            
-                            // Update URL without page reload
-                            window.history.pushState(null, '', item.href);
-                          }
-                        }}
+                        onClick={(e) => handleNavigation(e, item.id)}
                         className={`block py-3 px-4 text-gray-300 hover:text-white hover:bg-blue-900/10 rounded-lg transition-all duration-200 relative ${
                           currentSection === item.id ? 'text-white bg-blue-900/20' : ''
                         }`}
