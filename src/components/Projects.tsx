@@ -475,108 +475,113 @@ const Projects: React.FC = () => {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-12"
-        >
-          <motion.h2 
-            className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text"
-            initial={{ opacity: 0, y: -20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ textShadow: '0 0 20px rgba(59,130,246,0.3)' }}
-          >
-            {t('projects.title')}
-          </motion.h2>
-          <motion.p 
-            className="text-lg text-gray-300 max-w-3xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            {t('projects.subtitle')}
-          </motion.p>
-        </motion.div>
-
-        {/* Project showcase carousel - adjust height */}
-        <div 
-          ref={containerRef}
-          className="relative h-[600px] sm:h-[550px] md:h-[500px] w-full max-w-5xl mx-auto my-12"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-6xl mx-auto"
           style={{ position: 'relative' }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
-          <AnimatePresence mode="wait" initial={false} custom={direction}>
-            <ProjectCard 
-              key={currentIndex} 
-              project={projects[currentIndex]} 
-              index={currentIndex} 
-              isCurrent={true} 
-              direction={direction}
-              total={projects.length}
-            />
-          </AnimatePresence>
-
-          {/* Navigation Controls */}
-          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex items-center gap-8 mt-8" style={{ position: 'absolute' }}>
-            <motion.button
-              onClick={prevProject}
-              className="bg-blue-500/10 hover:bg-blue-500/30 text-blue-400 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)', position: 'relative' }}
-            >
-              <FaArrowLeft />
-            </motion.button>
-            
-            {/* Dot indicators */}
-            <div className="flex items-center gap-2" style={{ position: 'relative' }}>
-              {projects.map((_, index) => (
-                <motion.button
-                  key={index}
-                  onClick={() => {
-                    setDirection(currentIndex < index ? currentIndex : index);
-                    setCurrentIndex(index);
-                  }}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    index === currentIndex
-                      ? 'bg-blue-500 w-5'
-                      : 'bg-blue-500/30 hover:bg-blue-500/50'
-                  }`}
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
-                  style={{ position: 'relative' }}
-                />
-              ))}
-            </div>
-            
-            <motion.button
-              onClick={nextProject}
-              className="bg-blue-500/10 hover:bg-blue-500/30 text-blue-400 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)', position: 'relative' }}
-            >
-              <FaArrowRight />
-            </motion.button>
-          </div>
-        </div>
-        
-        {/* Visual feedback for swipe (optional) */}
-        {swipeIndicator && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 pointer-events-none flex items-center justify-center z-50"
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-center mb-16"
+            style={{ position: 'relative' }}
           >
-            <div className="text-blue-500 text-5xl">
-              {swipeIndicator === 'left' ? <FaArrowLeft /> : <FaArrowRight />}
-            </div>
+            <motion.h2
+              className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+              style={{ textShadow: '0 0 30px rgba(59,130,246,0.4)', position: 'relative' }}
+            >
+              {t('projects.title')}
+            </motion.h2>
+            <motion.div
+              className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-600 mx-auto rounded-full"
+              initial={{ scaleX: 0 }}
+              animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)', position: 'relative' }}
+            />
+       
           </motion.div>
-        )}
+
+          <div 
+            ref={containerRef}
+            className="relative h-[600px] sm:h-[550px] md:h-[500px] w-full max-w-5xl mx-auto my-12"
+            style={{ position: 'relative' }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <AnimatePresence mode="wait" initial={false} custom={direction}>
+              <ProjectCard 
+                key={currentIndex} 
+                project={projects[currentIndex]} 
+                index={currentIndex} 
+                isCurrent={true} 
+                direction={direction}
+                total={projects.length}
+              />
+            </AnimatePresence>
+
+            {/* Navigation Controls */}
+            <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex items-center gap-8 mt-8" style={{ position: 'absolute' }}>
+              <motion.button
+                onClick={prevProject}
+                className="bg-blue-500/10 hover:bg-blue-500/30 text-blue-400 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)', position: 'relative' }}
+              >
+                <FaArrowLeft />
+              </motion.button>
+              
+              {/* Dot indicators */}
+              <div className="flex items-center gap-2" style={{ position: 'relative' }}>
+                {projects.map((_, index) => (
+                  <motion.button
+                    key={index}
+                    onClick={() => {
+                      setDirection(currentIndex < index ? currentIndex : index);
+                      setCurrentIndex(index);
+                    }}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      index === currentIndex
+                        ? 'bg-blue-500 w-5'
+                        : 'bg-blue-500/30 hover:bg-blue-500/50'
+                    }`}
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                    style={{ position: 'relative' }}
+                  />
+                ))}
+              </div>
+              
+              <motion.button
+                onClick={nextProject}
+                className="bg-blue-500/10 hover:bg-blue-500/30 text-blue-400 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)', position: 'relative' }}
+              >
+                <FaArrowRight />
+              </motion.button>
+            </div>
+          </div>
+          
+          {/* Visual feedback for swipe (optional) */}
+          {swipeIndicator && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 pointer-events-none flex items-center justify-center z-50"
+            >
+              <div className="text-blue-500 text-5xl">
+                {swipeIndicator === 'left' ? <FaArrowLeft /> : <FaArrowRight />}
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
     </section>
   );
