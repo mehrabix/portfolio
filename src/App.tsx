@@ -10,11 +10,14 @@ import Hero from './components/Hero'
 import Navbar from './components/Navbar'
 import Projects from './components/Projects'
 import Skills from './components/Skills'
-import { LanguageProvider } from './context/LanguageContext'
+import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import './i18n'; // Import i18n initialization
 
 // Add global styles for section spacing
 import './index.css'
+
+// Add font imports for Arabic and Chinese
+import './fonts.css' // We'll create this file separately
 
 // Define type for section visibility data
 interface SectionVisibility {
@@ -23,6 +26,31 @@ interface SectionVisibility {
     ratio: number;
   }
 }
+
+// RTL wrapper component
+const RTLWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isRTL } = useLanguage();
+  
+  useEffect(() => {
+    // Set the dir attribute on the html element
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    
+    // Add/remove the 'rtl' class from the body
+    if (isRTL) {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
+    
+    return () => {
+      // Cleanup when component unmounts
+      document.documentElement.dir = 'ltr';
+      document.body.classList.remove('rtl');
+    };
+  }, [isRTL]);
+  
+  return <>{children}</>;
+};
 
 function App() {
   const { i18n } = useTranslation()
@@ -242,43 +270,45 @@ function App() {
 
   return (
     <LanguageProvider>
-      <div className="relative bg-black" style={{ position: 'relative' }}>
-        {/* 3D Background */}
-        <div className="fixed inset-0 -z-10 pointer-events-none bg-black" style={{ position: 'fixed' }}>
-          <Canvas>
-            <Suspense fallback={null}>
-              <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-              <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
-            </Suspense>
-          </Canvas>
-        </div>
+      <RTLWrapper>
+        <div className="relative bg-black" style={{ position: 'relative' }}>
+          {/* 3D Background */}
+          <div className="fixed inset-0 -z-10 pointer-events-none bg-black" style={{ position: 'fixed' }}>
+            <Canvas>
+              <Suspense fallback={null}>
+                <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+                <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
+              </Suspense>
+            </Canvas>
+          </div>
 
-        {/* Parallax Overlay Layers */}
-        <motion.div 
-          className="fixed inset-0 bg-gradient-to-b from-blue-900/10 to-purple-900/10 pointer-events-none z-[-5]"
-          style={{ opacity: opacityLayer1, position: 'fixed' }}
-        />
-        <motion.div 
-          className="fixed inset-0 bg-gradient-to-t from-blue-600/5 to-transparent pointer-events-none z-[-5]"
-          style={{ opacity: opacityLayer2, position: 'fixed' }}
-        />
+          {/* Parallax Overlay Layers */}
+          <motion.div 
+            className="fixed inset-0 bg-gradient-to-b from-blue-900/10 to-purple-900/10 pointer-events-none z-[-5]"
+            style={{ opacity: opacityLayer1, position: 'fixed' }}
+          />
+          <motion.div 
+            className="fixed inset-0 bg-gradient-to-t from-blue-600/5 to-transparent pointer-events-none z-[-5]"
+            style={{ opacity: opacityLayer2, position: 'fixed' }}
+          />
 
-        {/* Content */}
-        <div className="relative z-10" style={{ position: 'relative' }}>
-          <Navbar currentSection={activeSection} />
-          <main style={{ position: 'relative' }} className="space-y-0">
-            <Hero />
-            <About />
-            <Experience />
-            <Skills />
-            <Projects />
-            <Contact />
-          </main>
-          
-          {/* Scroll Progress Indicator */}
-          <ScrollProgressBar />
+          {/* Content */}
+          <div className="relative z-10" style={{ position: 'relative' }}>
+            <Navbar currentSection={activeSection} />
+            <main style={{ position: 'relative' }} className="space-y-0">
+              <Hero />
+              <About />
+              <Experience />
+              <Skills />
+              <Projects />
+              <Contact />
+            </main>
+            
+            {/* Scroll Progress Indicator */}
+            <ScrollProgressBar />
+          </div>
         </div>
-      </div>
+      </RTLWrapper>
     </LanguageProvider>
   )
 }
@@ -289,12 +319,14 @@ const ScrollProgressBar = () => {
     layoutEffect: false // Add this to prevent layout thrashing
   })
   
+  const { isRTL } = useLanguage();
+  
   return (
     <motion.div
-      className="fixed bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 z-50"
+      className="fixed bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 z-50 scroll-progress-bar"
       style={{ 
         scaleX: scrollYProgress,
-        transformOrigin: "0% 50%",
+        transformOrigin: isRTL ? "100% 50%" : "0% 50%",
         backgroundSize: "200% 100%",
         position: "fixed"
       }}

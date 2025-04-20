@@ -1,0 +1,122 @@
+/* Fonts for Arabic */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+
+/* Fonts for Chinese */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+/* Fonts for Russian */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* Fonts for Greek */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;700&display=swap');
+
+/* Add font fallbacks for specific languages */
+:root {
+  --font-family-base: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-family-latin-extended: 'Inter', 'Open Sans', 'Roboto', var(--font-family-base);
+  --font-family-greek: 'Open Sans', var(--font-family-base);
+}
+
+/* Apply RTL styles when body has rtl class */
+body.rtl {
+  direction: rtl;
+  font-family: 'Tajawal', var(--font-family-base);
+  text-align: right;
+}
+
+/* Specify language-specific fonts using :lang() selector */
+:lang(ar) {
+  font-family: 'Tajawal', var(--font-family-base);
+}
+
+:lang(zh) {
+  font-family: 'Noto Sans SC', var(--font-family-base);
+}
+
+:lang(ru) {
+  font-family: 'Roboto', var(--font-family-base);
+}
+
+:lang(el) {
+  font-family: var(--font-family-greek);
+}
+
+/* For Latin-based languages with special characters */
+:lang(pl), :lang(hu), :lang(ro), :lang(et), :lang(mt), :lang(da) {
+  font-family: var(--font-family-latin-extended);
+}
+
+/* RTL-specific layout adjustments */
+.rtl .flex-row {
+  flex-direction: row-reverse;
+}
+
+.rtl .text-left {
+  text-align: right;
+}
+
+.rtl .text-right {
+  text-align: left;
+}
+
+.rtl .space-x-2 > * + * {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-3 > * + * {
+  margin-right: 0.75rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-4 > * + * {
+  margin-right: 1rem;
+  margin-left: 0;
+}
+
+/* Fix list items in RTL */
+.rtl ul, .rtl ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+/* Fix icons in RTL */
+.rtl .heroicon {
+  transform: scaleX(-1);
+}
+
+/* Adjust right/left properties for RTL */
+.rtl .right-0 {
+  right: auto;
+  left: 0;
+}
+
+.rtl .left-0 {
+  left: auto;
+  right: 0;
+}
+
+.rtl .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.rtl .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .ml-4 {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.rtl .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+/* Transform origin for RTL scrollbar */
+.rtl .scroll-progress-bar {
+  transform-origin: 100% 50% !important;
+} 

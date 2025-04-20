@@ -6,6 +6,23 @@ import Backend from 'i18next-http-backend';
 // Import translation files directly
 import enTranslation from './translations/en.json';
 import deTranslation from './translations/de.json';
+import svTranslation from './translations/sv.json';
+import fiTranslation from './translations/fi.json';
+import trTranslation from './translations/tr.json';
+import frTranslation from './translations/fr.json';
+import esTranslation from './translations/es.json';
+import arTranslation from './translations/ar.json';
+import ruTranslation from './translations/ru.json';
+import zhTranslation from './translations/zh.json';
+// Import new translation files
+import itTranslation from './translations/it.json';
+import roTranslation from './translations/ro.json';
+import plTranslation from './translations/pl.json';
+import huTranslation from './translations/hu.json';
+import elTranslation from './translations/el.json';
+import mtTranslation from './translations/mt.json';
+import daTranslation from './translations/da.json';
+import etTranslation from './translations/et.json';
 
 // Initialize i18next
 i18n
@@ -24,9 +41,58 @@ i18n
       },
       de: {
         translation: deTranslation
+      },
+      sv: {
+        translation: svTranslation
+      },
+      fi: {
+        translation: fiTranslation
+      },
+      tr: {
+        translation: trTranslation
+      },
+      fr: {
+        translation: frTranslation
+      },
+      es: {
+        translation: esTranslation
+      },
+      ar: {
+        translation: arTranslation
+      },
+      ru: {
+        translation: ruTranslation
+      },
+      zh: {
+        translation: zhTranslation
+      },
+      // Add new language resources
+      it: {
+        translation: itTranslation
+      },
+      ro: {
+        translation: roTranslation
+      },
+      pl: {
+        translation: plTranslation
+      },
+      hu: {
+        translation: huTranslation
+      },
+      el: {
+        translation: elTranslation
+      },
+      mt: {
+        translation: mtTranslation
+      },
+      da: {
+        translation: daTranslation
+      },
+      et: {
+        translation: etTranslation
       }
     },
-    fallbackLng: 'de',
+    fallbackLng: 'en',
     debug: false,
     
     interpolation: {
@@ -41,7 +107,8 @@ i18n
     },
     
     // Preload languages to prevent flickering
-    preload: ['en', 'de'],
+    preload: ['en', 'de', 'sv', 'fi', 'tr', 'fr', 'es', 'ar', 'ru', 'zh', 
+             'it', 'ro', 'pl', 'hu', 'el', 'mt', 'da', 'et'],
     
     // SSR support
     initImmediate: typeof window !== 'undefined',

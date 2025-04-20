@@ -1,12 +1,14 @@
 import React, { createContext, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
-type Language = 'en' | 'de';
+type Language = 'en' | 'de' | 'sv' | 'fi' | 'tr' | 'fr' | 'es' | 'ar' | 'ru' | 'zh' | 
+               'it' | 'ro' | 'pl' | 'hu' | 'el' | 'mt' | 'da' | 'et';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
+  isRTL: boolean; // Add RTL status indicator
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -14,8 +16,20 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { t, i18n } = useTranslation();
   
-  // Get current language - handle both i18next format and our simplified format
-  const language = (i18n.language?.startsWith('en') ? 'en' : 'de') as Language;
+  // Get current language - handle multiple language formats
+  const getLanguage = (): Language => {
+    const lang = i18n.language?.split('-')[0] || 'en';
+    return ['en', 'de', 'sv', 'fi', 'tr', 'fr', 'es', 'ar', 'ru', 'zh', 
+           'it', 'ro', 'pl', 'hu', 'el', 'mt', 'da', 'et'].includes(lang) 
+      ? lang as Language 
+      : 'en';
+  };
+  
+  const language = getLanguage();
+  
+  // Determine if the current language is RTL
+  // Greek (el) uses LTR despite having some RTL characters
+  const isRTL = language === 'ar';
   
   // Change language function that works with i18next
   const setLanguage = (newLanguage: Language) => {
@@ -25,7 +39,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
       {children}
     </LanguageContext.Provider>
   );
