@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon, HomeIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../context/LanguageContext'
 import LanguageSelector from './LanguageSelector'
@@ -17,6 +17,7 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
   const [isMobile, setIsMobile] = useState(false)
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
+  const isOnHero = currentSection === 'hero'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +45,10 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
     }
   }, [mouseX, mouseY])
 
+  // Dynamically build nav items based on current section
   const navItems = [
+    // Only show Home/Hero item when not on hero section
+    ...(isOnHero ? [] : [{ name: t('nav.home'), href: '#', id: '' }]),
     { name: t('nav.about'), href: '#about', id: 'about' },
     { name: t('nav.experience'), href: '#experience', id: 'experience' },
     { name: t('nav.skills'), href: '#skills', id: 'skills' },
@@ -118,17 +122,38 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
     >
       <div className="container mx-auto px-4" style={{ position: 'relative' }}>
         <div className="flex items-center justify-between h-16">
-          {/* Logo with glow effect */}
+          {/* Logo with enhanced glow effect when on hero section */}
           <motion.a
             href="#"
             onClick={(e) => handleNavigation(e, '')}
-            className="relative px-3 py-2 font-bold text-white ml-2 overflow-hidden group rounded-lg"
+            className={`relative px-3 py-2 font-bold text-white ml-2 overflow-hidden group rounded-lg ${
+              isOnHero ? 'logo-on-hero' : ''
+            }`}
             whileHover={{ scale: 1.05 }}
             whileTap={tapAnimation}
+            animate={isOnHero ? {
+              scale: [1, 1.05, 1],
+              transition: {
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }
+            } : {}}
           >
-            <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 opacity-30 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
-            <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 rounded-lg"></span>
-            <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 text-2xl" style={{ textShadow: '0 0 15px rgba(59,130,246,0.5)' }}>
+            <span className={`absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 ${
+              isOnHero ? 'opacity-50' : 'opacity-30 group-hover:opacity-100'
+            } transition-opacity duration-300 rounded-lg`}></span>
+            <span className={`absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 blur-xl ${
+              isOnHero ? 'opacity-70' : 'opacity-0 group-hover:opacity-70'
+            } transition-opacity duration-300 rounded-lg`}></span>
+            <span 
+              className="relative bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 text-2xl" 
+              style={{ 
+                textShadow: isOnHero 
+                  ? '0 0 20px rgba(59,130,246,0.8)' 
+                  : '0 0 15px rgba(59,130,246,0.5)' 
+              }}
+            >
               AM
             </span>
           </motion.a>
@@ -142,12 +167,15 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                   href={item.href}
                   onClick={(e) => handleNavigation(e, item.id)}
                   className={`text-gray-300 hover:text-white transition-colors relative group px-2 py-1 ${
-                    currentSection === item.id ? 'text-white' : ''
+                    currentSection === item.id ? 'text-white font-medium' : ''
                   }`}
                   whileHover={{ y: -2 }}
                   whileTap={tapAnimation}
                 >
-                  {item.name}
+                  <div className="flex items-center">
+                    {item.id === '' && <HomeIcon className="h-4 w-4 mr-1" />}
+                    {item.name}
+                  </div>
                   <motion.span 
                     className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-300 rounded-full`}
                     animate={{ width: currentSection === item.id ? '100%' : '0%' }}
@@ -155,6 +183,13 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                     style={{ 
                       boxShadow: currentSection === item.id ? '0 0 10px rgba(59,130,246,0.5)' : 'none' 
                     }}
+                  />
+                  {/* Add hover indicator */}
+                  <motion.span 
+                    className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-blue-400/50 to-purple-500/50 rounded-full"
+                    initial={{ width: 0 }}
+                    whileHover={{ width: '100%' }}
+                    transition={{ duration: 0.2 }}
                   />
                 </motion.a>
               ))}
@@ -263,7 +298,10 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className="flex items-center justify-between">
-                          <span>{item.name}</span>
+                          <div className="flex items-center">
+                            {item.id === '' && <HomeIcon className="h-4 w-4 mr-2" />}
+                            <span>{item.name}</span>
+                          </div>
                           {currentSection === item.id && (
                             <motion.span
                               initial={{ scale: 0 }}

@@ -23,6 +23,7 @@ import elTranslation from './translations/el.json';
 import mtTranslation from './translations/mt.json';
 import daTranslation from './translations/da.json';
 import etTranslation from './translations/et.json';
+import ptTranslation from './translations/pt.json';
 
 // Initialize i18next
 i18n
@@ -90,6 +91,9 @@ i18n
       },
       et: {
         translation: etTranslation
+      },
+      pt: {
+        translation: ptTranslation
       }
     },
     fallbackLng: 'en',
@@ -108,7 +112,7 @@ i18n
     
     // Preload languages to prevent flickering
     preload: ['en', 'de', 'sv', 'fi', 'tr', 'fr', 'es', 'ar', 'ru', 'zh', 
-             'it', 'ro', 'pl', 'hu', 'el', 'mt', 'da', 'et'],
+             'it', 'ro', 'pl', 'hu', 'el', 'mt', 'da', 'et', 'pt'],
     
     // SSR support
     initImmediate: typeof window !== 'undefined',

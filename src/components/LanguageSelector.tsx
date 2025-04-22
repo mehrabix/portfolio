@@ -168,6 +168,16 @@ const EstonianFlag = () => (
   </svg>
 );
 
+const PortugueseFlag = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 15 10" className="rounded-sm">
+    <rect width="15" height="10" fill="#006600"/>
+    <rect width="10" height="10" fill="#FF0000"/>
+    <circle cx="5" cy="5" r="2.5" fill="#FFCC00"/>
+    <circle cx="5" cy="5" r="2" fill="#FFFFFF"/>
+    <path d="M 3.25,5 A 1.75,1.75 0 0 1 5,3.25 A 1.75,1.75 0 0 1 6.75,5 A 1.75,1.75 0 0 1 5,6.75 A 1.75,1.75 0 0 1 3.25,5 z" fill="#002868"/>
+  </svg>
+);
+
 const LanguageSelector: React.FC = () => {
   // Use i18next directly alongside the context for compatibility
   const { i18n, t } = useTranslation();
@@ -191,6 +201,7 @@ const LanguageSelector: React.FC = () => {
     { code: 'mt', name: 'Malti', flag: <MalteseFlag /> },
     { code: 'da', name: 'Dansk', flag: <DanishFlag /> },
     { code: 'et', name: 'Eesti', flag: <EstonianFlag /> },
+    { code: 'pt', name: 'Português', flag: <PortugueseFlag /> },
     { code: 'ar', name: 'العربية', flag: <ArabicFlag /> },
     { code: 'ru', name: 'Русский', flag: <RussianFlag /> },
     { code: 'zh', name: '中文', flag: <ChineseFlag /> }

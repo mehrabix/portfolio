@@ -2,7 +2,7 @@ import React, { createContext, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type Language = 'en' | 'de' | 'sv' | 'fi' | 'tr' | 'fr' | 'es' | 'ar' | 'ru' | 'zh' | 
-               'it' | 'ro' | 'pl' | 'hu' | 'el' | 'mt' | 'da' | 'et';
+               'it' | 'ro' | 'pl' | 'hu' | 'el' | 'mt' | 'da' | 'et' | 'pt';
 
 interface LanguageContextType {
   language: Language;
@@ -20,7 +20,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const getLanguage = (): Language => {
     const lang = i18n.language?.split('-')[0] || 'en';
     return ['en', 'de', 'sv', 'fi', 'tr', 'fr', 'es', 'ar', 'ru', 'zh', 
-           'it', 'ro', 'pl', 'hu', 'el', 'mt', 'da', 'et'].includes(lang) 
+           'it', 'ro', 'pl', 'hu', 'el', 'mt', 'da', 'et', 'pt'].includes(lang) 
       ? lang as Language 
       : 'en';
   };
