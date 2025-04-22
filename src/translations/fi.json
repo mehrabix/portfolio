@@ -8,6 +8,7 @@
   "nav.menu": "Valikko",
   "nav.language": "Kieli",
   "nav.resume": "Lataa Ansioluettelo",
+  "nav.home": "Etusivu",
   
   "hero.greeting": "Hei, olen",
   "hero.role": "Full-Stack Kehittäjä",

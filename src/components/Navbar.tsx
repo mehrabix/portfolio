@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
-import { Bars3Icon, XMarkIcon, HomeIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../context/LanguageContext'
 import LanguageSelector from './LanguageSelector'
@@ -173,7 +173,6 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                   whileTap={tapAnimation}
                 >
                   <div className="flex items-center">
-                    {item.id === '' && <HomeIcon className="h-4 w-4 mr-1" />}
                     {item.name}
                   </div>
                   <motion.span 
@@ -299,7 +298,6 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
-                            {item.id === '' && <HomeIcon className="h-4 w-4 mr-2" />}
                             <span>{item.name}</span>
                           </div>
                           {currentSection === item.id && (
