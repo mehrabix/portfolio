@@ -1,5 +1,5 @@
 import { OrbitControls, Stars } from '@react-three/drei'
-import { Canvas, ThreeEvent, extend, useFrame } from '@react-three/fiber'
+import { Canvas, ThreeEvent, extend, useFrame, ReactThreeFiber } from '@react-three/fiber'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -19,6 +19,13 @@ import WormHole from './WormHole'
 // Vite-specific import for texture
 // The path should be relative to this file
 
+// Import texture URLs for preloading
+import marsMapUrl from '../assets/textures/mars_texture.jpg'
+import moonMapUrl from '../assets/textures/moon/moon_map.jpg'
+import skyMapUrl from '../assets/textures/sky/sky_map.jpg'
+// Import any other textures your components might be using
+// For example, if you have textures for SpacePortal or WormHole
+
 // Add global styles
 const globalStyles = `
   .drop-shadow-glow {
@@ -26,7 +33,30 @@ const globalStyles = `
   }
 `;
 
+// Define assets to preload
+const assetsToPreload = [
+  { id: 'mars', url: marsMapUrl },
+  { id: 'moon', url: moonMapUrl },
+  { id: 'sky', url: skyMapUrl },
+  // Add more textures here as needed 
+  // Example: { id: 'portal', url: portalMapUrl },
+  // Uncomment and add any textures used by other components
+];
 
+// Create a context to track preloaded assets
+import { createContext, useContext } from 'react';
+
+type PreloadContextType = {
+  loadedAssets: { [key: string]: boolean };
+  progress: number;
+};
+
+const PreloadContext = createContext<PreloadContextType>({
+  loadedAssets: {},
+  progress: 0
+});
+
+const usePreloadContext = () => useContext(PreloadContext);
 
 // Extend THREE elements to React Three Fiber
 extend({ 
@@ -46,6 +76,85 @@ extend({
   // ambientLight: 'ambientLight',
   // pointLight: 'pointLight'
 })
+
+// Asset Preloader component
+const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: number) => void, onComplete: () => void }) => {
+  useEffect(() => {
+    const textureLoader = new THREE.TextureLoader();
+    console.log(`Starting to preload ${assetsToPreload.length} textures`);
+    const totalAssets = assetsToPreload.length;
+    let loadedCount = 0;
+    const loadedAssets: { [key: string]: boolean } = {};
+
+    // Start loading all textures
+    assetsToPreload.forEach(asset => {
+      console.log(`Loading texture: ${asset.id}`);
+      textureLoader.load(
+        asset.url,
+        () => {
+          loadedCount++;
+          loadedAssets[asset.id] = true;
+          console.log(`Loaded texture: ${asset.id} (${loadedCount}/${totalAssets})`);
+          
+          // Calculate progress
+          const progress = Math.floor((loadedCount / totalAssets) * 100);
+          onProgress(progress);
+          
+          // Check if all assets are loaded
+          if (loadedCount === totalAssets) {
+            console.log('All textures loaded successfully');
+            onComplete();
+          }
+        },
+        undefined,
+        (error) => {
+          console.error(`Error loading asset ${asset.id}:`, error);
+          loadedCount++;
+          loadedAssets[asset.id] = false;
+          
+          // Even on error, update progress
+          const progress = Math.floor((loadedCount / totalAssets) * 100);
+          onProgress(progress);
+          
+          // Continue if all assets are attempted
+          if (loadedCount === totalAssets) {
+            console.log('All texture loading attempts completed (with errors)');
+            onComplete();
+          }
+        }
+      );
+    });
+
+    // In case there are no assets to preload
+    if (totalAssets === 0) {
+      console.log('No textures to preload, completing immediately');
+      onComplete();
+    }
+
+    return () => {
+      // Cleanup if needed
+      console.log('AssetPreloader unmounting');
+    };
+  }, [onProgress, onComplete]);
+
+  return null; // This component doesn't render anything
+};
+
+// Pre-Rendering of 3D components to ensure their availability
+const HiddenComponents = () => {
+  return (
+    <div style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none' }}>
+      <Canvas camera={{ position: [0, 0, 5] }} style={{ width: 1, height: 1 }}>
+        <CelestialObject position={[0, 0, 0]} size={1} color="#ffffff" />
+        <Mars position={[0, 0, 0]} size={1} />
+        <Moon />
+        <SkySphere />
+        <SpacePortal position={[0, 0, 0]} size={1} ringCount={2} />
+        <WormHole position={[0, 0, 0]} size={1} />
+      </Canvas>
+    </div>
+  );
+};
 
 const InteractiveStars = () => {
   const starsRef = useRef<THREE.Points>(null)
@@ -496,8 +605,9 @@ const ParticleTrail = () => {
   )
 }
 
-const LoadingScreen = () => {
+const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void }) => {
   const [progress, setProgress] = useState(0)
+  const [loadingComplete, setLoadingComplete] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -509,19 +619,26 @@ const LoadingScreen = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-        return prev + 1
-      })
-    }, 30)
+  const handleProgress = (newProgress: number) => {
+    setProgress(newProgress);
+  };
 
-    return () => clearInterval(interval)
-  }, [])
+  const handleComplete = () => {
+    // Make sure we show 100% at the end
+    setProgress(100);
+    console.log('Asset loading complete, preparing to dismiss loading screen');
+    // Add a slight delay before setting loading complete
+    setTimeout(() => {
+      setLoadingComplete(true);
+      console.log('Setting loadingComplete to true');
+      
+      // Call the parent's onLoadingComplete after a short delay
+      setTimeout(() => {
+        console.log('Calling onLoadingComplete callback');
+        onLoadingComplete();
+      }, 500);
+    }, 300);
+  };
 
   return (
     <motion.div
@@ -529,9 +646,15 @@ const LoadingScreen = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="absolute inset-0 flex items-center justify-center bg-black z-50"
-      style={{ position: 'absolute' }}
+      className="fixed inset-0 flex items-center justify-center bg-black z-50"
+      style={{ position: 'fixed' }}
     >
+      {/* Load assets during the loading screen */}
+      <AssetPreloader onProgress={handleProgress} onComplete={handleComplete} />
+      
+      {/* Pre-render 3D components */}
+      <HiddenComponents />
+      
       <div className="text-center">
         <motion.div
           className="relative w-64 h-64 mx-auto mb-8"
@@ -556,7 +679,7 @@ const LoadingScreen = () => {
           transition={{ delay: 0.5 }}
           className="text-white text-xl font-medium mb-4"
         >
-          Loading Portfolio
+          {loadingComplete ? 'Ready!' : 'Loading Portfolio'}
         </motion.div>
 
         <motion.div
@@ -626,6 +749,8 @@ const Hero = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isMobile, setIsMobile] = useState(false)
+  const [loadedAssets, setLoadedAssets] = useState<{ [key: string]: boolean }>({})
+  const [preloadProgress, setPreloadProgress] = useState(0)
 
   // Create scene lights
   const ambientLight = useMemo(() => new THREE.AmbientLight(0xffffff, 0.5), []);
@@ -657,15 +782,18 @@ const Hero = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-      setTimeout(() => {
-        setShowContent(true)
-      }, 300)
-    }, 3000)
-    return () => clearTimeout(timer)
-  }, [])
+  const handleLoadingComplete = () => {
+    // Remove the class when loading is done
+    console.log('Hero component: Handling loading complete');
+    document.body.classList.remove('loading-active');
+    setIsLoading(false);
+    
+    // Short delay before showing content
+    setTimeout(() => {
+      console.log('Hero component: Setting showContent to true');
+      setShowContent(true);
+    }, 300);
+  };
 
   useEffect(() => {
     if (isMobile) return
@@ -680,145 +808,159 @@ const Hero = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [isMobile])
 
+  useEffect(() => {
+    // Add a class to the body during loading
+    document.body.classList.add('loading-active');
+    
+    return () => {
+      document.body.classList.remove('loading-active');
+    }
+  }, [])
+
   return (
-    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-black" style={{ position: 'relative' }}>
-      {/* Loading Screen */}
-      <AnimatePresence mode="wait">
-        {isLoading && <LoadingScreen />}
-      </AnimatePresence>
+    <PreloadContext.Provider value={{ loadedAssets, progress: preloadProgress }}>
+      <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-black" style={{ position: 'relative' }}>
+        {/* Loading Screen */}
+        <AnimatePresence mode="wait">
+          {isLoading && (
+            <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+          )}
+        </AnimatePresence>
 
-      {/* Background Canvas */}
-      <div className="absolute inset-0" style={{ position: 'absolute' }}>
-        <Canvas camera={{ position: [0, 0, 5] }}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          
-          {/* Background sky */}
-          <SkySphere />
-          
-          {/* Celestial objects */}
-          <CelestialObject position={[0, 0, -60]} size={15} color="#8860d0" />
-          <WormHole position={[-30, 15, -50]} size={8} />
-          <SpacePortal position={[30, -12, -50]} size={6} ringCount={4} />
-          <Mars position={[20, 5, -40]} size={2} />
-          
-          {/* Main objects */}
-          <Moon />
-          <InteractiveStars />
-          <ParticleField />
-          
-          <OrbitControls enableZoom={false} enablePan={false} />
-        </Canvas>
-      </div>
+        {/* Background Canvas */}
+        <div className="absolute inset-0" style={{ position: 'absolute' }}>
+          <Canvas camera={{ position: [0, 0, 5] }}>
+            {/* Use higher-level drei components instead of the raw THREE.js objects */}
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
+            
+            {/* Background sky */}
+            <SkySphere />
+            
+            {/* Celestial objects */}
+            <CelestialObject position={[0, 0, -60]} size={15} color="#8860d0" />
+            <WormHole position={[-30, 15, -50]} size={8} />
+            <SpacePortal position={[30, -12, -50]} size={6} ringCount={4} />
+            <Mars position={[20, 5, -40]} size={2} />
+            
+            {/* Main objects */}
+            <Moon />
+            <InteractiveStars />
+            <ParticleField />
+            
+            <OrbitControls enableZoom={false} enablePan={false} />
+          </Canvas>
+        </div>
 
-      {/* Music Player */}
-      <MusicPlayer />
+        {/* Music Player */}
+        <MusicPlayer />
 
-      {/* For debugging texture loading */}
-      {/* <TestTexture /> */}
+        {/* For debugging texture loading */}
+        {/* <TestTexture /> */}
 
-      {/* Glowing Orbs */}
-      <GlowingOrb />
-      <motion.div
-        className="absolute w-64 h-64 rounded-full"
-        style={{
-          bottom: '20%', 
-          right: '20%',
-          background: 'radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(59, 130, 246, 0.05) 70%, rgba(0, 0, 0, 0) 100%)',
-          filter: 'blur(40px)',
-        }}
-        animate={{
-          scale: isMobile ? 1 : [1, 1.2, 1],
-          opacity: isMobile ? 0.2 : [0.1, 0.3, 0.1],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          repeatType: "reverse",
-          delay: 1,
-        }}
-      />
+        {/* Glowing Orbs */}
+        <GlowingOrb />
+        <motion.div
+          className="absolute w-64 h-64 rounded-full"
+          style={{
+            bottom: '20%', 
+            right: '20%',
+            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(59, 130, 246, 0.05) 70%, rgba(0, 0, 0, 0) 100%)',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            scale: isMobile ? 1 : [1, 1.2, 1],
+            opacity: isMobile ? 0.2 : [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: 1,
+          }}
+        />
 
-      {/* Particle Trail */}
-      <ParticleTrail />
+        {/* Particle Trail */}
+        <ParticleTrail />
 
-      {/* Floating Text */}
-      <FloatingText />
+        {/* Floating Text */}
+        <FloatingText />
 
-      {/* Content */}
-      <AnimatePresence>
-        {showContent && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ 
-              opacity: 1, 
-              y: 0,
-              x: isMobile ? 0 : mousePosition.x * 10,
-              rotateX: isMobile ? 0 : mousePosition.y * 5,
-            }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{
-              duration: 0.8,
-              x: { duration: 0.2 },
-              rotateX: { duration: 0.2 },
-            }}
-            className="relative z-10 text-center"
-            style={{
-              perspective: isMobile ? 'none' : '1000px',
-              position: 'relative'
-            }}
-          >
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-5xl md:text-7xl font-bold text-white mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
-              style={{
-                textShadow: '0 0 20px rgba(59,130,246,0.5)',
-              }}
-            >
-              Ahmad Mehrabi
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl md:text-2xl text-gray-300 mb-8"
-              style={{
-                textShadow: '0 0 10px rgba(255,255,255,0.3)',
-              }}
-            >
-              {t('hero.role')}
-            </motion.p>
+        {/* Content */}
+        <AnimatePresence>
+          {showContent && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex justify-center gap-4"
+              animate={{ 
+                opacity: 1, 
+                y: 0,
+                x: isMobile ? 0 : mousePosition.x * 10,
+                rotateX: isMobile ? 0 : mousePosition.y * 5,
+              }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{
+                duration: 0.8,
+                x: { duration: 0.2 },
+                rotateX: { duration: 0.2 },
+              }}
+              className="relative z-10 text-center"
+              style={{
+                perspective: isMobile ? 'none' : '1000px',
+                position: 'relative'
+              }}
             >
-              <motion.a
-                whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59,130,246,0.5)' }}
-                whileTap={{ scale: 0.95 }}
-                href="#contact"
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-5xl md:text-7xl font-bold text-white mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+                style={{
+                  textShadow: '0 0 20px rgba(59,130,246,0.5)',
+                }}
               >
-                <span className="relative z-10">{t('nav.contactMe')}</span>
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: '0%' }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.a>
+                Ahmad Mehrabi
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-xl md:text-2xl text-gray-300 mb-8"
+                style={{
+                  textShadow: '0 0 10px rgba(255,255,255,0.3)',
+                }}
+              >
+                {t('hero.role')}
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="flex justify-center gap-4"
+              >
+                <motion.a
+                  whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59,130,246,0.5)' }}
+                  whileTap={{ scale: 0.95 }}
+                  href="#contact"
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
+                >
+                  <span className="relative z-10">{t('nav.contactMe')}</span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '0%' }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </motion.a>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      {/* UI hints - show different components based on device type */}
-      <TouchHint />
-      <ScrollDownButton />
-    </section>
+        {/* UI hints - show different components based on device type */}
+        <TouchHint />
+        <ScrollDownButton />
+      </section>
+    </PreloadContext.Provider>
   )
 }
 
