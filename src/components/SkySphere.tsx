@@ -65,7 +65,7 @@ const SkySphere = () => {
   // Fallback material
   const fallbackMaterial = useMemo(() => {
     return new THREE.MeshBasicMaterial({
-      color: '#1a365d',
+      color: '#000',
       side: THREE.BackSide,
       transparent: true,
       opacity: 0.8,
