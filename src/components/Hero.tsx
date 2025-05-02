@@ -58,6 +58,9 @@ const PreloadContext = createContext<PreloadContextType>({
 
 const usePreloadContext = () => useContext(PreloadContext);
 
+// Add a variable to track if we've loaded assets before - to avoid loading screen on page refreshes
+let assetsAlreadyLoaded = false;
+
 // Extend THREE elements to React Three Fiber
 extend({ 
   PointLight: THREE.PointLight,
@@ -69,22 +72,33 @@ extend({
   PointsMaterial: THREE.PointsMaterial,
   AmbientLight: THREE.AmbientLight,
   Group: THREE.Group,
-  Object3D: THREE.Object3D,
-  // Remove these incorrect mappings
-  // primitive: 'primitive',
-  // group: 'group',
-  // ambientLight: 'ambientLight',
-  // pointLight: 'pointLight'
+  Object3D: THREE.Object3D
 })
 
 // Asset Preloader component
 const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: number) => void, onComplete: () => void }) => {
   useEffect(() => {
+    // If assets were already loaded in a previous session, skip loading
+    if (assetsAlreadyLoaded) {
+      console.log('Assets already loaded in a previous session, skipping preload');
+      onProgress(100);
+      onComplete();
+      return;
+    }
+    
     const textureLoader = new THREE.TextureLoader();
     console.log(`Starting to preload ${assetsToPreload.length} textures`);
     const totalAssets = assetsToPreload.length;
     let loadedCount = 0;
     const loadedAssets: { [key: string]: boolean } = {};
+
+    // Add a timeout to force completion after a maximum time
+    const forceCompleteTimeout = setTimeout(() => {
+      console.log('Forcing completion of asset loading after timeout');
+      assetsAlreadyLoaded = true; // Mark as loaded for future visits
+      onProgress(100);
+      onComplete();
+    }, 10000); // Force complete after 10 seconds max
 
     // Start loading all textures
     assetsToPreload.forEach(asset => {
@@ -103,6 +117,8 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
           // Check if all assets are loaded
           if (loadedCount === totalAssets) {
             console.log('All textures loaded successfully');
+            clearTimeout(forceCompleteTimeout);
+            assetsAlreadyLoaded = true; // Mark as loaded for future visits
             onComplete();
           }
         },
@@ -119,6 +135,8 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
           // Continue if all assets are attempted
           if (loadedCount === totalAssets) {
             console.log('All texture loading attempts completed (with errors)');
+            clearTimeout(forceCompleteTimeout);
+            assetsAlreadyLoaded = true; // Mark as loaded for future visits
             onComplete();
           }
         }
@@ -128,11 +146,14 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
     // In case there are no assets to preload
     if (totalAssets === 0) {
       console.log('No textures to preload, completing immediately');
+      clearTimeout(forceCompleteTimeout);
+      assetsAlreadyLoaded = true; // Mark as loaded for future visits
       onComplete();
     }
 
     return () => {
       // Cleanup if needed
+      clearTimeout(forceCompleteTimeout);
       console.log('AssetPreloader unmounting');
     };
   }, [onProgress, onComplete]);
@@ -619,6 +640,14 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Skip loading screen if assets are already loaded
+  useEffect(() => {
+    if (assetsAlreadyLoaded) {
+      console.log('Assets already loaded, skipping loading screen');
+      handleComplete();
+    }
+  }, []);
+
   const handleProgress = (newProgress: number) => {
     setProgress(newProgress);
   };
@@ -636,8 +665,8 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
       setTimeout(() => {
         console.log('Calling onLoadingComplete callback');
         onLoadingComplete();
-      }, 500);
-    }, 300);
+      }, 300);
+    }, 200);
   };
 
   return (
@@ -706,8 +735,8 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
         </motion.div>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
 const GlowingOrb = () => {
   const [isMobile, setIsMobile] = useState(false)
@@ -746,7 +775,7 @@ const GlowingOrb = () => {
 const Hero = () => {
   const { t } = useLanguage()
   const [showContent, setShowContent] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(!assetsAlreadyLoaded) // Skip loading if assets already loaded
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isMobile, setIsMobile] = useState(false)
   const [loadedAssets, setLoadedAssets] = useState<{ [key: string]: boolean }>({})
@@ -794,6 +823,14 @@ const Hero = () => {
       setShowContent(true);
     }, 300);
   };
+
+  // Show content immediately if assets are already loaded
+  useEffect(() => {
+    if (assetsAlreadyLoaded && !showContent) {
+      setIsLoading(false);
+      setShowContent(true);
+    }
+  }, [showContent]);
 
   useEffect(() => {
     if (isMobile) return

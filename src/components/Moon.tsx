@@ -28,11 +28,22 @@ const Moon = () => {
   const moonTexture = useMemo(() => {
     // Create a simple fallback texture for quicker initial rendering
     const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 128;
+    canvas.width = canvas.height = 256; // Larger for better quality
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.fillStyle = '#e0e0e0';
-      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillRect(0, 0, 256, 256);
+      
+      // Add some basic crater-like details
+      ctx.fillStyle = '#d0d0d0';
+      for (let i = 0; i < 20; i++) {
+        const x = Math.random() * 256;
+        const y = Math.random() * 256;
+        const radius = 5 + Math.random() * 15;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
     const texture = new THREE.CanvasTexture(canvas);
     
@@ -46,6 +57,7 @@ const Moon = () => {
 
   // Handle texture loading in useEffect with improved error handling
   useEffect(() => {
+    console.log('Starting to load moon texture...');
     const loader = new THREE.TextureLoader();
     
     // Add timeout to detect loading issues
@@ -56,15 +68,17 @@ const Moon = () => {
       }
     }, 5000);
     
-    loader.load(
+    // Use direct approach for loading
+    const textureDirectly = new THREE.TextureLoader().load(
       moonMapUrl,
       (loadedTexture) => {
         console.log('Moon texture loaded successfully');
         clearTimeout(timeoutId);
-        if (textureRef.current) {
-          textureRef.current.image = loadedTexture.image;
-          textureRef.current.needsUpdate = true;
-          setTextureLoaded(true);
+        setTextureLoaded(true);
+        // Force update on the material
+        if (moonRef.current && moonRef.current.material) {
+          (moonRef.current.material as THREE.MeshStandardMaterial).map = loadedTexture;
+          (moonRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
         }
       },
       undefined,
@@ -75,7 +89,15 @@ const Moon = () => {
       }
     );
     
-    return () => clearTimeout(timeoutId);
+    // Apply proper texture settings
+    textureDirectly.minFilter = THREE.LinearFilter;
+    textureDirectly.magFilter = THREE.LinearFilter;
+    textureDirectly.wrapS = textureDirectly.wrapT = THREE.RepeatWrapping;
+    
+    return () => {
+      clearTimeout(timeoutId);
+      if (textureDirectly) textureDirectly.dispose();
+    };
   }, []);
 
   // Create a better fallback material
@@ -84,14 +106,15 @@ const Moon = () => {
       color: '#e0e0e0',
       roughness: 0.7,
       metalness: 0.2,
-      // Add some noise to make it look more like a moon
-      bumpScale: 0.02,
+      map: moonTexture, // Use the canvas texture as fallback
     });
-  }, []);
+  }, [moonTexture]);
 
+  // Create the primary moon material
   const moonMaterial = useMemo(() => {
+    // This material will be updated when the texture loads
     return new THREE.MeshStandardMaterial({
-      map: textureError ? null : moonTexture,
+      map: textureError ? moonTexture : moonTexture, // Start with the canvas texture
       color: '#e0e0e0',
       roughness: 0.8,
       metalness: 0.2,
@@ -165,7 +188,7 @@ const Moon = () => {
       <Sphere 
         ref={moonRef} 
         args={[0.5, isMobile ? 32 : 64, isMobile ? 32 : 64]} 
-        material={textureLoaded ? moonMaterial : fallbackMaterial}
+        material={moonMaterial}
         onPointerMove={handleMouseMove}
         position={[0, 0, 0]} // Ensure correct position
         castShadow
