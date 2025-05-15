@@ -91,6 +91,7 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
     const totalAssets = assetsToPreload.length;
     
     let loadedCount = 0;
+    let currentProgress = 0;
     const loadedAssets: { [key: string]: boolean } = {};
     
     // Minimum loading time for better UX (in milliseconds)
@@ -103,15 +104,28 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
     const finalBufferPercentage = 10; // Reserved for final tasks
     const assetLoadingPercentage = 100 - initialBufferPercentage - finalBufferPercentage;
     
+    // Track if we've completed loading
+    let isCompleted = false;
+    
+    // Create a controlled progress updater that ensures progress only goes up
+    const updateProgress = (newValue: number) => {
+      if (isCompleted) return;
+      
+      // Ensure new value is always greater than current
+      if (newValue > currentProgress) {
+        currentProgress = Math.min(90, newValue); // Cap at 90% until fully complete
+        onProgress(Math.round(currentProgress));
+      }
+    };
+    
     // Simulate initial loading immediately
-    onProgress(initialBufferPercentage);
+    updateProgress(initialBufferPercentage);
     
     // Add a timeout to force completion after a maximum time
     const forceCompleteTimeout = setTimeout(() => {
       console.log('Forcing completion of asset loading after timeout');
       assetsAlreadyLoaded = true; // Mark as loaded for future visits
-      onProgress(100);
-      onComplete();
+      completeLoading();
     }, 10000); // Force complete after 10 seconds max
     
     // Helper function to determine if enough time has passed for minimum loading time
@@ -119,57 +133,62 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
       return (Date.now() - startTime) >= minLoadingTime;
     };
     
-    // Helper function to complete loading with delay if needed
-    const completeLoadingWithMinTime = () => {
-      const elapsedTime = Date.now() - startTime;
-      if (elapsedTime < minLoadingTime) {
-        // If we haven't reached minimum loading time, wait until we do
-        // And gradually increase progress to 90% while waiting
-        const updateInterval = setInterval(() => {
-          const currentProgress = initialBufferPercentage + 
-            ((assetLoadingPercentage) * (Date.now() - startTime) / minLoadingTime);
-          
-          onProgress(Math.min(Math.round(currentProgress), 90));
-          
-          if (hasReachedMinLoadingTime()) {
-            clearInterval(updateInterval);
-            finishLoading();
-          }
-        }, 100);
+    // Use a constant, steady progress simulation for smoother appearance
+    const startSteadyProgress = () => {
+      let steadyInterval = setInterval(() => {
+        if (isCompleted) {
+          clearInterval(steadyInterval);
+          return;
+        }
         
-        setTimeout(() => {
-          clearInterval(updateInterval);
-          finishLoading();
-        }, minLoadingTime - elapsedTime);
-      } else {
-        finishLoading();
-      }
+        // Calculate how far we should be in loading based on time elapsed
+        const elapsedTime = Date.now() - startTime;
+        const targetProgress = Math.min(
+          90, // Max before completion
+          initialBufferPercentage + 
+            ((assetLoadingPercentage * 0.8) * // Use 80% of asset percentage for time-based progress
+            Math.min(1, elapsedTime / minLoadingTime))
+        );
+        
+        // Only update if higher than current
+        updateProgress(targetProgress);
+      }, 100);
+      
+      return () => clearInterval(steadyInterval);
     };
     
-    // Final phase of loading
-    const finishLoading = () => {
-      // Simulate the last bit of progress (reserved buffer) with a smooth animation
-      const lastProgressSteps = 5;
-      const progressInterval = finalBufferPercentage / lastProgressSteps;
+    // Start steady progress updates
+    const clearSteadyProgress = startSteadyProgress();
+    
+    // Helper function to complete loading
+    const completeLoading = () => {
+      if (isCompleted) return;
+      isCompleted = true;
       
-      let step = 1;
-      const finishInterval = setInterval(() => {
-        const finalProgress = 100 - finalBufferPercentage + (progressInterval * step);
-        onProgress(Math.round(finalProgress));
-        
-        step++;
-        if (step > lastProgressSteps) {
-          clearInterval(finishInterval);
+      // Clean up timers
+      clearTimeout(forceCompleteTimeout);
+      clearSteadyProgress();
+      
+      // Ensure we show final progress steps smoothly
+      const finalSteps = [92, 95, 98, 100];
+      let stepIndex = 0;
+      
+      const finalInterval = setInterval(() => {
+        if (stepIndex >= finalSteps.length) {
+          clearInterval(finalInterval);
           
-          // Complete loading
-          clearTimeout(forceCompleteTimeout);
-          assetsAlreadyLoaded = true; // Mark as loaded for future visits
+          // Complete the loading
+          assetsAlreadyLoaded = true;
           onProgress(100);
           onComplete();
+          return;
         }
-      }, 100);
+        
+        onProgress(finalSteps[stepIndex]);
+        stepIndex++;
+      }, 150);
     };
-
+    
     // Start loading all textures
     assetsToPreload.forEach(asset => {
       console.log(`Loading texture: ${asset.id}`);
@@ -180,16 +199,25 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
           loadedAssets[asset.id] = true;
           console.log(`Loaded texture: ${asset.id} (${loadedCount}/${totalAssets})`);
           
-          // Calculate progress - map asset loading to the middle percentage range
+          // Calculate progress based on loaded assets
           const assetProgress = initialBufferPercentage + 
             (assetLoadingPercentage * loadedCount / totalAssets);
           
-          onProgress(Math.round(assetProgress));
+          // Update progress (will only increase, never decrease)
+          updateProgress(Math.round(assetProgress));
           
           // Check if all assets are loaded
           if (loadedCount === totalAssets) {
             console.log('All textures loaded successfully');
-            completeLoadingWithMinTime();
+            
+            // Only complete if minimum time has passed
+            if (hasReachedMinLoadingTime()) {
+              completeLoading();
+            } else {
+              // Otherwise wait until minimum time has passed
+              const remainingTime = minLoadingTime - (Date.now() - startTime);
+              setTimeout(completeLoading, remainingTime);
+            }
           }
         },
         // Progress callback - unused by TextureLoader but required by the signature
@@ -203,12 +231,21 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
           const assetProgress = initialBufferPercentage + 
             (assetLoadingPercentage * loadedCount / totalAssets);
           
-          onProgress(Math.round(assetProgress));
+          // Update progress (will only increase, never decrease)
+          updateProgress(Math.round(assetProgress));
           
           // Continue if all assets are attempted
           if (loadedCount === totalAssets) {
             console.log('All texture loading attempts completed (with errors)');
-            completeLoadingWithMinTime();
+            
+            // Only complete if minimum time has passed
+            if (hasReachedMinLoadingTime()) {
+              completeLoading();
+            } else {
+              // Otherwise wait until minimum time has passed
+              const remainingTime = minLoadingTime - (Date.now() - startTime);
+              setTimeout(completeLoading, remainingTime);
+            }
           }
         }
       );
@@ -217,18 +254,17 @@ const AssetPreloader = ({ onProgress, onComplete }: { onProgress: (progress: num
     // In case there are no assets to preload
     if (totalAssets === 0) {
       console.log('No textures to preload, simulating loading for better UX');
+      
       // Simulate loading for better UX
       setTimeout(() => {
-        clearTimeout(forceCompleteTimeout);
-        assetsAlreadyLoaded = true; // Mark as loaded for future visits
-        onProgress(100);
-        onComplete();
+        completeLoading();
       }, minLoadingTime);
     }
 
     return () => {
-      // Cleanup if needed
+      // Cleanup
       clearTimeout(forceCompleteTimeout);
+      clearSteadyProgress();
       console.log('AssetPreloader unmounting');
     };
   }, [onProgress, onComplete]);
@@ -705,7 +741,7 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
   const [progress, setProgress] = useState(0)
   const [loadingComplete, setLoadingComplete] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [loadingPhase, setLoadingPhase] = useState('initializing')
+  const [loadingPhase, setLoadingPhase] = useState('INITIALIZING')
 
   useEffect(() => {
     const checkMobile = () => {
@@ -726,36 +762,44 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
 
   // Update loading phase based on progress
   useEffect(() => {
-    if (progress < 15) {
-      setLoadingPhase('initializing');
+    if (progress < 20) {
+      setLoadingPhase('INITIALIZING');
     } else if (progress < 40) {
-      setLoadingPhase('loading textures');
-    } else if (progress < 70) {
-      setLoadingPhase('preparing 3D objects');
-    } else if (progress < 90) {
-      setLoadingPhase('finalizing');
+      setLoadingPhase('LOADING ASSETS');
+    } else if (progress < 60) {
+      setLoadingPhase('RENDERING');
+    } else if (progress < 80) {
+      setLoadingPhase('OPTIMIZING');
+    } else if (progress < 100) {
+      setLoadingPhase('FINALIZING');
     } else {
-      setLoadingPhase('complete');
+      setLoadingPhase('READY');
     }
   }, [progress]);
 
   const handleProgress = (newProgress: number) => {
-    // Smoothly interpolate progress for better visual appearance
-    const interpolate = () => {
-      setProgress(current => {
-        if (Math.abs(current - newProgress) < 0.5) return newProgress;
-        return current + (newProgress - current) * 0.2;
-      });
-    };
-    
-    // Use requestAnimationFrame for smoother updates
-    requestAnimationFrame(interpolate);
+    // Ensure progress only moves forward, never backward
+    setProgress(current => {
+      // Only update if the new value is higher than current
+      if (newProgress > current) {
+        // For small changes, just set the exact value
+        if (newProgress - current < 3) {
+          return newProgress;
+        }
+        
+        // For larger jumps, smooth the transition (max 2% increase per frame)
+        return current + Math.min(2, (newProgress - current) * 0.1);
+      }
+      
+      // Keep current value if newProgress is lower
+      return current;
+    });
   };
 
   const handleComplete = () => {
     // Make sure we show 100% at the end
     setProgress(100);
-    setLoadingPhase('complete');
+    setLoadingPhase('READY');
     console.log('Asset loading complete, preparing to dismiss loading screen');
     
     // Add a slight delay before setting loading complete
@@ -831,11 +875,56 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="text-gray-400 text-sm mt-2"
+          className="text-gray-400 text-sm mt-4"
         >
-          <div className="flex flex-col items-center">
-            <span className="text-lg mb-1">{Math.round(progress)}%</span>
-            <span className="text-xs opacity-75">{loadingPhase}</span>
+          <div className="flex flex-col items-center space-y-2">
+            <motion.div 
+              animate={{ 
+                color: loadingComplete ? '#a8ff9c' : '#ffffff'
+              }}
+              transition={{ duration: 0.3 }}
+              className="text-lg font-medium"
+            >
+              {Math.round(progress)}%
+            </motion.div>
+            
+            <motion.div className="w-28 flex justify-between items-center mt-1">
+              {[0, 1, 2, 3, 4].map((step) => {
+                const isActive = progress >= (step + 1) * 20;
+                const isCurrentStep = progress >= step * 20 && progress < (step + 1) * 20;
+                
+                return (
+                  <motion.div
+                    key={step}
+                    className="w-1.5 h-1.5 rounded-full"
+                    animate={{
+                      scale: isCurrentStep ? [1, 1.5, 1] : 1,
+                      backgroundColor: isActive 
+                        ? 'rgba(147, 51, 234, 0.9)' 
+                        : isCurrentStep 
+                          ? 'rgba(147, 51, 234, 0.5)' 
+                          : 'rgba(255, 255, 255, 0.3)',
+                    }}
+                    transition={{
+                      scale: {
+                        repeat: Infinity,
+                        duration: 1.5
+                      },
+                      backgroundColor: { duration: 0.3 }
+                    }}
+                  />
+                );
+              })}
+            </motion.div>
+            
+            <motion.div
+              animate={{ 
+                opacity: loadingComplete ? 0 : 1
+              }}
+              className="text-xs tracking-wider uppercase opacity-75 mt-1"
+            >
+              {loadingPhase}
+            </motion.div>
           </div>
         </motion.div>
       </div>
