@@ -236,13 +236,23 @@ const MusicPlayer = () => {
   }, [isPlaying]);
 
   // Go to next track
-  const nextTrack = useCallback(() => {
+  const nextTrack = useCallback((e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.nativeEvent.stopImmediatePropagation();
+    }
     const nextIndex = (currentTrackIndex + 1) % PLAYLIST.length;
     loadTrack(nextIndex);
   }, [currentTrackIndex, loadTrack]);
 
   // Go to previous track
-  const prevTrack = useCallback(() => {
+  const prevTrack = useCallback((e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.nativeEvent.stopImmediatePropagation();
+    }
     const prevIndex = (currentTrackIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
     loadTrack(prevIndex);
   }, [currentTrackIndex, loadTrack]);
@@ -316,11 +326,25 @@ const MusicPlayer = () => {
       }}
       transition={{ duration: 0.3 }}
       id="music-player" 
-      style={{ position: 'fixed' }}
+      style={{ 
+        position: 'fixed',
+        pointerEvents: 'auto',
+        isolation: 'isolate'
+      }}
       whileHover={{
         y: isCollapsed ? 'calc(100% - 45px)' : 0,
         opacity: 1,
         x: 0
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
       }}
     >
       {/* Removed tooltip message */}
@@ -331,6 +355,17 @@ const MusicPlayer = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-black/50 backdrop-blur-lg rounded-lg p-4 shadow-lg relative hover:shadow-[0_0_15px_rgba(80,194,255,0.5)] transition-all duration-300"
+        style={{ pointerEvents: 'auto' }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
       >
         {/* Collapse/Expand button */}
         <motion.button
@@ -398,7 +433,13 @@ const MusicPlayer = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  prevTrack();
+                  e.nativeEvent.stopImmediatePropagation();
+                  prevTrack(e);
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
                 }}
                 className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
                 title="Previous track"
@@ -406,9 +447,10 @@ const MusicPlayer = () => {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-white"
+                  className="h-4 w-4 text-white pointer-events-none"
                   viewBox="0 0 20 20"
                   fill="currentColor"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
                 </svg>
@@ -421,7 +463,13 @@ const MusicPlayer = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
                   togglePlay();
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
                 }}
                 className="cursor-pointer w-10 h-10 rounded-full bg-white/10 flex items-center justify-center relative hover:bg-white/20 transition-all duration-200"
                 type="button"
@@ -482,7 +530,13 @@ const MusicPlayer = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  nextTrack();
+                  e.nativeEvent.stopImmediatePropagation();
+                  nextTrack(e);
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
                 }}
                 className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
                 title="Next track"
@@ -490,9 +544,10 @@ const MusicPlayer = () => {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-white"
+                  className="h-4 w-4 text-white pointer-events-none"
                   viewBox="0 0 20 20"
                   fill="currentColor"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0011 6v2.798l-5.445-3.63z" />
                 </svg>
