@@ -1,6 +1,24 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ShantiPeople from '../assets/music/Shanti_People.mp3';
+import Time from '../assets/music/Time.mp3';
+import DarudeSandstrom from '../assets/music/Darude-Sandstrom.mp3';
+
+// Playlist configuration
+const PLAYLIST = [
+  {
+    src: ShantiPeople,
+    title: 'Asato (Mark Dekoda) - Shanti People'
+  },
+  {
+    src: Time,
+    title: 'Time'
+  },
+  {
+    src: DarudeSandstrom,
+    title: 'Darude - Sandstorm'
+  }
+];
 
 const Visualizer = ({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement> }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,8 +124,11 @@ const MusicPlayer = () => {
   const [isOnContactSection, setIsOnContactSection] = useState(false);
   // Track if the collapse was automatic or manual
   const [isAutoCollapsed, setIsAutoCollapsed] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const songTitle = "Asato (Mark Dekoda)-24070-DNC Shanti People";
+  
+  const currentTrack = PLAYLIST[currentTrackIndex];
+  const songTitle = currentTrack.title;
 
   // Check if user is viewing the contact section
   useEffect(() => {
@@ -185,6 +206,47 @@ const MusicPlayer = () => {
     }
   }, [volume]);
 
+  // Load a specific track
+  const loadTrack = useCallback((index: number) => {
+    if (audioRef.current) {
+      const wasPlaying = isPlaying;
+      audioRef.current.pause();
+      setIsPlaying(false);
+      setIsLoading(true);
+      
+      audioRef.current.src = PLAYLIST[index].src;
+      setCurrentTrackIndex(index);
+      setHasInteracted(true);
+      
+      // Auto-play if it was playing before
+      if (wasPlaying) {
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch(error => {
+              console.log('Play failed:', error);
+              setIsLoading(false);
+            });
+        }
+      }
+    }
+  }, [isPlaying]);
+
+  // Go to next track
+  const nextTrack = useCallback(() => {
+    const nextIndex = (currentTrackIndex + 1) % PLAYLIST.length;
+    loadTrack(nextIndex);
+  }, [currentTrackIndex, loadTrack]);
+
+  // Go to previous track
+  const prevTrack = useCallback(() => {
+    const prevIndex = (currentTrackIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
+    loadTrack(prevIndex);
+  }, [currentTrackIndex, loadTrack]);
+
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -193,7 +255,7 @@ const MusicPlayer = () => {
       } else {
         if (!hasInteracted) {
           // Only set the source when user first interacts
-          audioRef.current.src = ShantiPeople;
+          audioRef.current.src = currentTrack.src;
           setHasInteracted(true);
           setIsLoading(true);
         }
@@ -213,6 +275,21 @@ const MusicPlayer = () => {
       }
     }
   };
+
+  // Handle track end - auto-play next track
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleEnded = () => {
+      nextTrack();
+    };
+
+    audio.addEventListener('ended', handleEnded);
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [nextTrack]);
 
   const toggleMute = () => {
     if (audioRef.current) {
@@ -307,8 +384,27 @@ const MusicPlayer = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-4 relative z-10"
+              className="flex items-center gap-2 relative z-10"
             >
+              {/* Previous Track Button */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={prevTrack}
+                className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+                title="Previous track"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-white"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
+                </svg>
+              </motion.button>
+
+              {/* Play/Pause Button */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -364,13 +460,36 @@ const MusicPlayer = () => {
                 </AnimatePresence>
               </motion.button>
 
+              {/* Next Track Button */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={nextTrack}
+                className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+                title="Next track"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-white"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0011 6v2.798l-5.445-3.63z" />
+                </svg>
+              </motion.button>
+
               {!isCollapsed && (
                 <div className="flex flex-col gap-1">
-                  <div className="overflow-hidden w-[120px] relative">
+                  <div className="overflow-hidden w-[140px] relative">
                     <div className="flex animate-marquee whitespace-nowrap">
                       <span className="text-white/80 text-xs">{songTitle}</span>
                       <span className="text-white/80 text-xs ml-4">{songTitle}</span>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-white/60 text-[10px]">
+                    <span>{currentTrackIndex + 1}</span>
+                    <span>/</span>
+                    <span>{PLAYLIST.length}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <motion.button
