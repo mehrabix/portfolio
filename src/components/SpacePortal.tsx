@@ -179,41 +179,51 @@ const SpacePortal = ({ position = [30, 10, -50], size = 6, ringCount = 3 }) => {
     return new THREE.Points(particleGeometry, particleMaterial);
   }, [size, isMobile]);
 
-  // Animation
+  // Animation - heavily throttled for performance
+  let lastUpdate = 0;
   useFrame((state) => {
     if (!portalRef.current || !ringsRef.current || !energyStreamRef.current) return;
     
-    // Update shader time
+    // Throttle to ~20fps for complex animations
+    const now = performance.now();
+    if (now - lastUpdate < 50) return; // ~20fps for complex animations
+    lastUpdate = now;
+    
+    // Update shader time - slower
     if (portalMaterial instanceof THREE.ShaderMaterial) {
-      portalMaterial.uniforms.time.value = state.clock.elapsedTime;
+      portalMaterial.uniforms.time.value = state.clock.elapsedTime * 0.7; // Slower
     }
     
-    // Slow rotation for the entire portal
-    portalRef.current.rotation.z += 0.001;
+    // Slow rotation - reduced
+    portalRef.current.rotation.z += 0.0005; // Reduced from 0.001
     
-    // Rotate each ring at different speeds
+    // Rotate each ring - reduced
     if (ringsRef.current.children.length > 0) {
       ringsRef.current.children.forEach((ring, i) => {
-        ring.rotation.z += 0.003 * (i % 2 === 0 ? 1 : -1);
+        ring.rotation.z += 0.002 * (i % 2 === 0 ? 1 : -1); // Reduced from 0.003
       });
     }
     
-    // Animate energy stream
-    energyStreamRef.current.rotation.z += 0.02;
-    energyStreamRef.current.position.z = Math.sin(state.clock.elapsedTime * 0.5) * 0.5;
+    // Animate energy stream - reduced
+    energyStreamRef.current.rotation.z += 0.01; // Reduced from 0.02
+    energyStreamRef.current.position.z = Math.sin(state.clock.elapsedTime * 0.3) * 0.3; // Reduced
     
-    // Update particle positions
-    if (particles.geometry instanceof THREE.BufferGeometry) {
+    // Skip particle updates on low-end devices or reduce frequency
+    if (isMobile) return; // Skip particles on mobile
+    
+    // Update particle positions - only every other frame
+    if (particles.geometry instanceof THREE.BufferGeometry && now % 100 < 50) {
       const positions = particles.geometry.attributes.position.array;
       const velocities = particles.geometry.attributes.velocity.array;
       
-      for (let i = 0; i < positions.length; i += 3) {
-        // Update position based on velocity
-        positions[i] += velocities[i];
-        positions[i + 1] += velocities[i + 1];
-        positions[i + 2] += velocities[i + 2];
+      // Update fewer particles per frame
+      const step = 2; // Update every other particle
+      for (let i = 0; i < positions.length; i += 3 * step) {
+        positions[i] += velocities[i] * 0.5; // Slower movement
+        positions[i + 1] += velocities[i + 1] * 0.5;
+        positions[i + 2] += velocities[i + 2] * 0.5;
         
-        // Keep particles within bounds
+        // Simplified bounds check
         const dist = Math.sqrt(positions[i] * positions[i] + positions[i + 1] * positions[i + 1]);
         if (dist > size * 2) {
           const angle = Math.atan2(positions[i + 1], positions[i]);

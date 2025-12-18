@@ -1,99 +1,60 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import Backend from 'i18next-http-backend';
 
-// Import translation files directly
+// Only import fallback language (English) upfront
 import enTranslation from './translations/en.json';
-import deTranslation from './translations/de.json';
-import svTranslation from './translations/sv.json';
-import fiTranslation from './translations/fi.json';
-import trTranslation from './translations/tr.json';
-import frTranslation from './translations/fr.json';
-import esTranslation from './translations/es.json';
-import arTranslation from './translations/ar.json';
-import ruTranslation from './translations/ru.json';
-import zhTranslation from './translations/zh.json';
-// Import new translation files
-import itTranslation from './translations/it.json';
-import roTranslation from './translations/ro.json';
-import plTranslation from './translations/pl.json';
-import huTranslation from './translations/hu.json';
-import elTranslation from './translations/el.json';
-import mtTranslation from './translations/mt.json';
-import daTranslation from './translations/da.json';
-import etTranslation from './translations/et.json';
-import ptTranslation from './translations/pt.json';
 
-// Initialize i18next
+// Language mapping for dynamic imports
+const languageMap: Record<string, () => Promise<any>> = {
+  en: () => Promise.resolve({ default: enTranslation }),
+  de: () => import('./translations/de.json'),
+  sv: () => import('./translations/sv.json'),
+  fi: () => import('./translations/fi.json'),
+  tr: () => import('./translations/tr.json'),
+  fr: () => import('./translations/fr.json'),
+  es: () => import('./translations/es.json'),
+  ar: () => import('./translations/ar.json'),
+  ru: () => import('./translations/ru.json'),
+  zh: () => import('./translations/zh.json'),
+  it: () => import('./translations/it.json'),
+  ro: () => import('./translations/ro.json'),
+  pl: () => import('./translations/pl.json'),
+  hu: () => import('./translations/hu.json'),
+  el: () => import('./translations/el.json'),
+  mt: () => import('./translations/mt.json'),
+  da: () => import('./translations/da.json'),
+  et: () => import('./translations/et.json'),
+  pt: () => import('./translations/pt.json'),
+};
+
+// Function to dynamically load a language
+export const loadLanguage = async (lng: string): Promise<void> => {
+  if (!i18n.hasResourceBundle(lng, 'translation')) {
+    try {
+      const loader = languageMap[lng];
+      if (loader) {
+        const translation = await loader();
+        i18n.addResourceBundle(lng, 'translation', translation.default || translation);
+      }
+    } catch (error) {
+      console.error(`Failed to load language ${lng}:`, error);
+    }
+  }
+};
+
+// Initialize i18next with only English loaded
 i18n
-  // Load translation using http backend
-  .use(Backend)
   // Detect user language
   .use(LanguageDetector)
   // Pass the i18n instance to react-i18next
   .use(initReactI18next)
   // Initialize configuration
   .init({
-    // Resources contain translations
+    // Only load English initially
     resources: {
       en: {
         translation: enTranslation
-      },
-      de: {
-        translation: deTranslation
-      },
-      sv: {
-        translation: svTranslation
-      },
-      fi: {
-        translation: fiTranslation
-      },
-      tr: {
-        translation: trTranslation
-      },
-      fr: {
-        translation: frTranslation
-      },
-      es: {
-        translation: esTranslation
-      },
-      ar: {
-        translation: arTranslation
-      },
-      ru: {
-        translation: ruTranslation
-      },
-      zh: {
-        translation: zhTranslation
-      },
-      // Add new language resources
-      it: {
-        translation: itTranslation
-      },
-      ro: {
-        translation: roTranslation
-      },
-      pl: {
-        translation: plTranslation
-      },
-      hu: {
-        translation: huTranslation
-      },
-      el: {
-        translation: elTranslation
-      },
-      mt: {
-        translation: mtTranslation
-      },
-      da: {
-        translation: daTranslation
-      },
-      et: {
-        translation: etTranslation
-      },
-      pt: {
-        translation: ptTranslation
       }
     },
     fallbackLng: 'en',
@@ -110,12 +71,19 @@ i18n
       caches: ['localStorage'],
     },
     
-    // Preload languages to prevent flickering
-    preload: ['en', 'de', 'sv', 'fi', 'tr', 'fr', 'es', 'ar', 'ru', 'zh', 
-             'it', 'ro', 'pl', 'hu', 'el', 'mt', 'da', 'et', 'pt'],
-    
     // SSR support
     initImmediate: typeof window !== 'undefined',
   });
+
+// Load the detected language after initialization
+i18n.on('languageChanged', (lng) => {
+  loadLanguage(lng).catch(console.error);
+});
+
+// Load initial language if not English
+const initialLanguage = i18n.language || 'en';
+if (initialLanguage !== 'en') {
+  loadLanguage(initialLanguage).catch(console.error);
+}
 
 export default i18n; 

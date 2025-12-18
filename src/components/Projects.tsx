@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FaGithub, FaExternalLinkAlt, FaNpm, FaChevronRight, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { Canvas } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import { useLanguage } from '../context/LanguageContext';
+import { useWindowSize } from '../hooks/useWindowSize';
 import OrbitalSystem from './ProjectOrbits';
 
 interface Project {
@@ -18,10 +19,10 @@ interface Project {
   npm?: string[];
 }
 
-const ProjectCard = ({ project, index, isCurrent, direction, total }: 
+const ProjectCard = memo(({ project, index, isCurrent, direction, total }: 
   { project: Project; index: number; isCurrent: boolean; direction: number; total: number }) => {
   const { t } = useLanguage();
-  const [isMobile, setIsMobile] = useState(false);
+  const { isMobile } = useWindowSize();
   const [isHovered, setIsHovered] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
   
@@ -31,29 +32,20 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
   const rotateX = useTransform(y, [-100, 100], [5, -5]);
   const rotateY = useTransform(x, [-100, 100], [-5, 5]);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (isMobile) return;
     const rect = event.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     x.set(event.clientX - centerX);
     y.set(event.clientY - centerY);
-  };
+  }, [isMobile, x, y]);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     x.set(0);
     y.set(0);
     setIsHovered(false);
-  };
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', checkMobile);
-    checkMobile();
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [x]);
 
   // Calculate position based on current index for the carousel
   const variants = {
@@ -298,10 +290,11 @@ const ProjectCard = ({ project, index, isCurrent, direction, total }:
       </motion.div>
     </motion.div>
   );
-};
+});
 
-const Projects: React.FC = () => {
+const Projects: React.FC = memo(() => {
   const { t } = useLanguage();
+  const { isMobile } = useWindowSize();
   const [ref, inView] = useInView({
     triggerOnce: false,
     threshold: 0.1,
@@ -314,8 +307,9 @@ const Projects: React.FC = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isTouching, setIsTouching] = useState(false);
 
-  // Projects data
-  const projects: Project[] = [
+  // Projects data - memoized
+  const projects: Project[] = useMemo(() => {
+    return [
     {
       title: t('projects.datepicker.title'),
       description: t('projects.datepicker.description'),
@@ -381,18 +375,19 @@ const Projects: React.FC = () => {
       ],
       demo: "https://darmanmobile.iraninsurance.ir/"
     }
-  ];
+    ];
+  }, [t]);
 
-  // Navigation functions
-  const nextProject = () => {
+  // Navigation functions - memoized
+  const nextProject = useCallback(() => {
     setDirection(currentIndex);
     setCurrentIndex((prev) => (prev + 1) % projects.length);
-  };
+  }, [currentIndex, projects.length]);
 
-  const prevProject = () => {
+  const prevProject = useCallback(() => {
     setDirection(currentIndex);
     setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
-  };
+  }, [currentIndex, projects.length]);
 
   // Auto-scroll functionality with pause on hover/touch
   useEffect(() => {
@@ -467,7 +462,7 @@ const Projects: React.FC = () => {
         <div className="absolute top-2/3 right-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-blue-500/5 to-purple-500/5 blur-3xl"></div>
         
         <Canvas className="absolute inset-0">
-          <Stars radius={300} depth={100} count={1000} factor={4} saturation={0} fade speed={0.5} />
+          <Stars radius={300} depth={100} count={isMobile ? 500 : 1000} factor={4} saturation={0} fade speed={0.5} />
           <OrbitalSystem />
         </Canvas>
       </div>
@@ -585,6 +580,8 @@ const Projects: React.FC = () => {
       </div>
     </section>
   );
-};
+});
+
+Projects.displayName = 'Projects';
 
 export default Projects;

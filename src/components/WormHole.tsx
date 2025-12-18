@@ -93,18 +93,24 @@ const WormHole = ({ position = [0, 0, -40], size = 8 }) => {
     });
   }, []);
 
-  // Animation
+  // Animation - throttled
+  let lastUpdate = 0;
   useFrame((state) => {
     if (!meshRef.current || !wormholeMaterial) return;
+    
+    // Throttle to ~30fps
+    const now = performance.now();
+    if (now - lastUpdate < 33) return;
+    lastUpdate = now;
 
-    // Update time uniform for the shader
-    wormholeMaterial.uniforms.time.value = state.clock.elapsedTime;
+    // Update time uniform for the shader - slower
+    wormholeMaterial.uniforms.time.value = state.clock.elapsedTime * 0.8; // Slower animation
     
-    // Rotation animation
-    meshRef.current.rotation.z += 0.001;
+    // Rotation animation - reduced
+    meshRef.current.rotation.z += 0.0005; // Reduced from 0.001
     
-    // Subtle pulse effect
-    const scale = 1 + Math.sin(state.clock.elapsedTime * 0.2) * 0.05;
+    // Subtle pulse effect - reduced
+    const scale = 1 + Math.sin(state.clock.elapsedTime * 0.15) * 0.03; // Reduced
     meshRef.current.scale.set(scale, scale, 1);
   });
 

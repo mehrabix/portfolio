@@ -89,18 +89,24 @@ const CelestialObject = ({ position = [0, 0, -60], size = 15, color = '#8860d0' 
     });
   }, [galaxyTexture]);
 
-  // Animation
+  // Animation - throttled and simplified
+  let lastUpdate = 0;
   useFrame((state) => {
     if (!meshRef.current) return;
+    
+    // Throttle to ~30fps
+    const now = performance.now();
+    if (now - lastUpdate < 33) return;
+    lastUpdate = now;
 
-    // Slow rotation
-    meshRef.current.rotation.z += 0.0005;
+    // Slow rotation - reduced
+    meshRef.current.rotation.z += 0.0003; // Reduced from 0.0005
     
-    // Subtle floating
-    meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.2;
+    // Subtle floating - reduced
+    meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.15) * 0.15; // Reduced
     
-    // Breathe effect
-    const scale = 1 + Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
+    // Breathe effect - reduced
+    const scale = 1 + Math.sin(state.clock.elapsedTime * 0.2) * 0.03; // Reduced
     meshRef.current.scale.set(scale, scale, scale);
   });
 

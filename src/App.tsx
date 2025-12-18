@@ -1,17 +1,18 @@
-import { OrbitControls, Stars } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState, lazy } from 'react'
 import { useTranslation } from 'react-i18next'
-import About from './components/About'
-import Contact from './components/Contact'
-import Experience from './components/Experience'
 import Hero from './components/Hero'
 import Navbar from './components/Navbar'
-import Projects from './components/Projects'
-import Skills from './components/Skills'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
+import { useThrottledScroll } from './hooks/useThrottledScroll'
 import './i18n'; // Import i18n initialization
+
+// Lazy load components for code splitting
+const About = lazy(() => import('./components/About'))
+const Contact = lazy(() => import('./components/Contact'))
+const Experience = lazy(() => import('./components/Experience'))
+const Projects = lazy(() => import('./components/Projects'))
+const Skills = lazy(() => import('./components/Skills'))
 
 // Add global styles for section spacing
 import './index.css'
@@ -130,7 +131,7 @@ function App() {
     const observerOptions = {
       root: null, // use viewport
       rootMargin: "0px",
-      threshold: buildThresholdList(20) // create multiple thresholds for accuracy
+      threshold: [0, 0.25, 0.5, 0.75, 1] // Optimized: 5 thresholds instead of 20
     }
     
     const observer = new IntersectionObserver((entries) => {
@@ -156,37 +157,47 @@ function App() {
       }
     })
     
-    // Handle scroll events for edge cases
-    const handleScroll = () => {
-      if (isManualNavigation.current) {
-        isManualNavigation.current = false
-        return
-      }
-      updateActiveSection()
-    }
-    
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    
     return () => {
-      // Clean up observer and event listener
+      // Clean up observer
       sections.forEach(sectionId => {
         const element = document.getElementById(sectionId)
         if (element) {
           observer.unobserve(element)
         }
       })
-      window.removeEventListener('scroll', handleScroll)
     }
   }, [activeSection, loading])
 
-  // Helper function to build multiple threshold steps for more precision
-  function buildThresholdList(numSteps: number): number[] {
-    const thresholds: number[] = []
-    for (let i = 0; i <= numSteps; i++) {
-      thresholds.push(i / numSteps)
+  // Use throttled scroll for edge cases
+  useThrottledScroll(() => {
+    if (isManualNavigation.current) {
+      isManualNavigation.current = false
+      return
     }
-    return thresholds
-  }
+    // Calculate which section is most visible
+    let maxVisibleSection: string | null = null
+    let maxVisibleRatio = 0
+    
+    // Special case for very bottom of page
+    const isAtBottom = window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight - 10
+    
+    if (isAtBottom) {
+      maxVisibleSection = 'contact'
+    } else {
+      for (const [section, data] of Object.entries(sectionVisibility.current)) {
+        if (data.ratio > maxVisibleRatio) {
+          maxVisibleRatio = data.ratio
+          maxVisibleSection = section
+        }
+      }
+    }
+    
+    if (maxVisibleSection && maxVisibleSection !== activeSection) {
+      setActiveSection(maxVisibleSection)
+      const newUrl = maxVisibleSection === 'hero' ? window.location.pathname : `#${maxVisibleSection}`
+      window.history.replaceState(null, '', newUrl)
+    }
+  }, 16)
 
   // Handle hash changes in URL (when user clicks nav links)
   useEffect(() => {
@@ -272,16 +283,6 @@ function App() {
     <LanguageProvider>
       <RTLWrapper>
         <div className="relative bg-black" style={{ position: 'relative' }}>
-          {/* 3D Background */}
-          <div className="fixed inset-0 -z-10 pointer-events-none bg-black" style={{ position: 'fixed' }}>
-            <Canvas>
-              <Suspense fallback={null}>
-                <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-                <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
-              </Suspense>
-            </Canvas>
-          </div>
-
           {/* Parallax Overlay Layers */}
           <motion.div 
             className="fixed inset-0 bg-gradient-to-b from-blue-900/10 to-purple-900/10 pointer-events-none z-[-5]"
@@ -297,11 +298,21 @@ function App() {
             <Navbar currentSection={activeSection} />
             <main style={{ position: 'relative' }} className="space-y-0">
               <Hero />
-              <About />
-              <Experience />
-              <Skills />
-              <Projects />
-              <Contact />
+              <Suspense fallback={<div className="h-screen" />}>
+                <About />
+              </Suspense>
+              <Suspense fallback={<div className="h-screen" />}>
+                <Experience />
+              </Suspense>
+              <Suspense fallback={<div className="h-screen" />}>
+                <Skills />
+              </Suspense>
+              <Suspense fallback={<div className="h-screen" />}>
+                <Projects />
+              </Suspense>
+              <Suspense fallback={<div className="h-screen" />}>
+                <Contact />
+              </Suspense>
             </main>
             
             {/* Scroll Progress Indicator */}

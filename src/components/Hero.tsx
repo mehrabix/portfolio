@@ -1,9 +1,12 @@
 import { OrbitControls, Stars } from '@react-three/drei'
 import { Canvas, ThreeEvent, extend, useFrame, ReactThreeFiber } from '@react-three/fiber'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback, memo } from 'react'
 import * as THREE from 'three'
 import { useLanguage } from '../context/LanguageContext'
+import { useWindowSize } from '../hooks/useWindowSize'
+import { useThrottledMouseMove } from '../hooks/useThrottledMouseMove'
+import { usePerformanceMode } from '../hooks/usePerformanceMode'
 
 // Import our standalone components
 import CelestialObject from './CelestialObject'
@@ -291,40 +294,39 @@ const HiddenComponents = () => {
 const InteractiveStars = () => {
   const starsRef = useRef<THREE.Points>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [isMobile, setIsMobile] = useState(false)
+  const { isMobile } = useWindowSize()
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
+  const handleMouseMove = useCallback((x: number, y: number) => {
+    if (!isMobile) {
+      setMousePosition({ x, y })
     }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }, [isMobile])
 
+  useThrottledMouseMove(handleMouseMove, 16)
+
+  // Throttle useFrame updates for better performance
+  let lastUpdate = 0
   useFrame(() => {
-    if (!starsRef.current) return
+    if (!starsRef.current || isMobile) return
+    
+    // Only update every 2 frames (30fps instead of 60fps)
+    const now = performance.now()
+    if (now - lastUpdate < 33) return // ~30fps
+    lastUpdate = now
 
-    // Reduced animation intensity on mobile
-    const intensity = isMobile ? 0.00002 : 0.00005
-    starsRef.current.rotation.x += (mousePosition.y * intensity - starsRef.current.rotation.x) * 0.1
-    starsRef.current.rotation.y += (mousePosition.x * intensity - starsRef.current.rotation.y) * 0.1
+    // Reduced animation intensity
+    const intensity = 0.00003 // Further reduced
+    starsRef.current.rotation.x += (mousePosition.y * intensity - starsRef.current.rotation.x) * 0.08
+    starsRef.current.rotation.y += (mousePosition.x * intensity - starsRef.current.rotation.y) * 0.08
   })
 
   return (
-    <group onPointerMove={(e: ThreeEvent<PointerEvent>) => {
-      if (isMobile) return
-      const { clientX, clientY } = e
-      setMousePosition({
-        x: (clientX / window.innerWidth) * 2 - 1,
-        y: -(clientY / window.innerHeight) * 2 + 1
-      })
-    }}>
+    <group>
       <Stars
         ref={starsRef}
         radius={100}
         depth={50}
-        count={isMobile ? 2500 : 5000}
+        count={isMobile ? 1000 : 2000}
         factor={4}
         saturation={0}
         fade
@@ -335,51 +337,27 @@ const InteractiveStars = () => {
 }
 
 const FloatingText = () => {
-  const { t } = useLanguage()
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  useEffect(() => {
-    if (isMobile) return
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1
-      })
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [isMobile])
+  const { reduceAnimations } = usePerformanceMode()
+  const { isMobile } = useWindowSize()
+  
+  // Disable complex animations on low-end devices
+  if (reduceAnimations || isMobile) return null
 
   return (
     <motion.div
       className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-4xl font-bold pointer-events-none"
       animate={{
-        y: [0, -20, 0],
-        opacity: [0.5, 1, 0.5],
-        x: isMobile ? 0 : mousePosition.x * 20,
-        rotateX: isMobile ? 0 : mousePosition.y * 10,
+        y: [0, -10, 0], // Reduced movement
+        opacity: [0.5, 0.8, 0.5], // Reduced opacity change
       }}
       transition={{
-        duration: 3,
+        duration: 4, // Slower, less frequent updates
         repeat: Infinity,
         repeatType: "reverse",
-        x: { duration: 0.2 },
-        rotateX: { duration: 0.2 },
+        ease: "easeInOut",
       }}
       style={{
         textShadow: '0 0 10px rgba(255,255,255,0.5)',
-        perspective: isMobile ? 'none' : '1000px',
       }}
     >
     </motion.div>
@@ -388,11 +366,11 @@ const FloatingText = () => {
 
 const ParticleField = () => {
   const particlesRef = useRef<THREE.Points>(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const { isMobile } = useWindowSize()
   
   // Create particles using useMemo
   const particleSystem = useMemo(() => {
-    const count = window.innerWidth < 768 ? 500 : 1000
+    const count = isMobile ? 500 : 1000
     const positions = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 10
@@ -411,16 +389,7 @@ const ParticleField = () => {
     })
     
     return new THREE.Points(geometry, material)
-  }, [])
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }, [isMobile])
 
   useEffect(() => {
     // Store reference to the particle system
@@ -448,16 +417,7 @@ const ParticleField = () => {
 
 const TouchHint = () => {
   const [show, setShow] = useState(true)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  const { isMobile } = useWindowSize()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -509,21 +469,12 @@ const TouchHint = () => {
 }
 
 const ScrollDownButton = () => {
-  const [isMobile, setIsMobile] = useState(false)
+  const { isMobile } = useWindowSize()
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
   const [isScrolling, setIsScrolling] = useState(false)
 
   // Define the order of sections
   const sectionOrder = ['hero', 'about', 'experience', 'skills', 'projects', 'contact']
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -740,17 +691,8 @@ const ParticleTrail = () => {
 const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void }) => {
   const [progress, setProgress] = useState(0)
   const [loadingComplete, setLoadingComplete] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const { isMobile } = useWindowSize()
   const [loadingPhase, setLoadingPhase] = useState('INITIALIZING')
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile()
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
 
   // Skip loading screen if assets are already loaded
   useEffect(() => {
@@ -933,16 +875,7 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
 };
 
 const GlowingOrb = () => {
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  const { isMobile } = useWindowSize()
 
   return (
     <motion.div
@@ -971,11 +904,11 @@ const Hero = () => {
   const [showContent, setShowContent] = useState(false)
   const [isLoading, setIsLoading] = useState(!assetsAlreadyLoaded) // Skip loading if assets already loaded
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [isMobile, setIsMobile] = useState(false)
+  const { isMobile } = useWindowSize()
   const [loadedAssets, setLoadedAssets] = useState<{ [key: string]: boolean }>({})
   const [preloadProgress, setPreloadProgress] = useState(0)
 
-  // Create scene lights
+  // Create scene lights - memoized
   const ambientLight = useMemo(() => new THREE.AmbientLight(0xffffff, 0.5), []);
   const pointLight = useMemo(() => {
     const light = new THREE.PointLight(0xffffff, 1, 100);
@@ -996,16 +929,7 @@ const Hero = () => {
     }
   }, [])
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', checkMobile)
-    checkMobile() // Initial check
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  const handleLoadingComplete = () => {
+  const handleLoadingComplete = useCallback(() => {
     // Remove the class when loading is done
     console.log('Hero component: Handling loading complete');
     document.body.classList.remove('loading-active');
@@ -1016,7 +940,7 @@ const Hero = () => {
       console.log('Hero component: Setting showContent to true');
       setShowContent(true);
     }, 300);
-  };
+  }, []);
 
   // Show content immediately if assets are already loaded
   useEffect(() => {
@@ -1026,18 +950,13 @@ const Hero = () => {
     }
   }, [showContent]);
 
-  useEffect(() => {
-    if (isMobile) return
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1
-      })
+  const handleMouseMove = useCallback((x: number, y: number) => {
+    if (!isMobile) {
+      setMousePosition({ x, y })
     }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [isMobile])
+
+  useThrottledMouseMove(handleMouseMove, 16)
 
   useEffect(() => {
     // Add a class to the body during loading
@@ -1125,14 +1044,11 @@ const Hero = () => {
               animate={{ 
                 opacity: 1, 
                 y: 0,
-                x: isMobile ? 0 : mousePosition.x * 10,
-                rotateX: isMobile ? 0 : mousePosition.y * 5,
               }}
               exit={{ opacity: 0, y: 20 }}
               transition={{
-                duration: 0.8,
-                x: { duration: 0.2 },
-                rotateX: { duration: 0.2 },
+                duration: 0.6, // Faster, simpler
+                ease: "easeOut",
               }}
               className="relative z-10 text-center"
               style={{
@@ -1169,18 +1085,14 @@ const Hero = () => {
                 className="flex justify-center gap-4"
               >
                 <motion.a
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59,130,246,0.5)' }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={!isMobile ? { scale: 1.03 } : {}}
+                  whileTap={{ scale: 0.98 }}
                   href="#contact"
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl relative overflow-hidden group"
                 >
                   <span className="relative z-10">{t('nav.contactMe')}</span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    initial={{ x: '-100%' }}
-                    whileHover={{ x: '0%' }}
-                    transition={{ duration: 0.3 }}
-                  />
+                  {/* Simplified - use CSS instead of motion for hover effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 </motion.a>
               </motion.div>
             </motion.div>
@@ -1195,4 +1107,4 @@ const Hero = () => {
   )
 }
 
-export default Hero 
+export default memo(Hero) 

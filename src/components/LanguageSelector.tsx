@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../context/LanguageContext';
+import { loadLanguage } from '../i18n';
 
 // SVG flags as components
 const UKFlag = () => (
@@ -252,7 +253,9 @@ const LanguageSelector: React.FC = () => {
               {languages.map((lang) => (
                 <motion.button
                   key={lang.code}
-                  onClick={() => {
+                  onClick={async () => {
+                    // Load language dynamically before switching
+                    await loadLanguage(lang.code);
                     setLanguage(lang.code as any);
                     setIsOpen(false);
                   }}

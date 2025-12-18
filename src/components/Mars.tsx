@@ -1,14 +1,26 @@
 import { useFrame, useLoader } from '@react-three/fiber'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
 
-// Import texture using Vite's asset imports
+// Import texture - supports WebP if available (add mars_texture.webp alongside .jpg)
+// Vite will automatically handle the import, and you can add .webp version for optimization
 import marsMapUrl from '../assets/textures/mars_texture.jpg';
 
 const Mars = ({ position = [0, 0, 0], size = 1 }) => {
   const meshRef = useRef<THREE.Mesh>(null!)
   // Use the imported URL
   const texture = useLoader(THREE.TextureLoader, marsMapUrl)
+  
+  // Optimize texture settings for better performance
+  useMemo(() => {
+    if (texture) {
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
+      // Enable texture compression if supported
+      texture.format = THREE.RGBAFormat;
+    }
+  }, [texture])
 
   useFrame((state, delta) => {
     if (meshRef.current) {

@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../context/LanguageContext'
 import LanguageSelector from './LanguageSelector'
+import { useWindowSize } from '../hooks/useWindowSize'
+import { useThrottledScroll } from '../hooks/useThrottledScroll'
+import { useThrottledMouseMove } from '../hooks/useThrottledMouseMove'
 
 interface NavbarProps {
   currentSection?: string;
@@ -14,36 +17,19 @@ const Navbar = ({ currentSection = 'hero' }: NavbarProps) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const { isMobile } = useWindowSize()
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const isOnHero = currentSection === 'hero'
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX)
-      mouseY.set(e.clientY)
-    }
-    
-    window.addEventListener('scroll', handleScroll)
-    window.addEventListener('resize', checkMobile)
-    window.addEventListener('mousemove', handleMouseMove)
-    checkMobile() // Initial check
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', checkMobile)
-      window.removeEventListener('mousemove', handleMouseMove)
-    }
-  }, [mouseX, mouseY])
+  useThrottledScroll(() => {
+    setScrolled(window.scrollY > 50)
+  }, 16)
+
+  useThrottledMouseMove((x, y) => {
+    mouseX.set((x + 1) * window.innerWidth / 2)
+    mouseY.set((1 - y) * window.innerHeight / 2)
+  }, 16)
 
   // Dynamically build nav items based on current section
   const navItems = [

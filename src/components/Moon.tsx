@@ -2,6 +2,8 @@ import { useRef, useState, useMemo, useEffect } from 'react';
 import { Sphere, Float } from '@react-three/drei';
 import { useFrame, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useWindowSize } from '../hooks/useWindowSize';
+import { usePerformanceMode } from '../hooks/usePerformanceMode';
 
 // Import textures using Vite's asset imports
 import moonMapUrl from '../assets/textures/moon/moon_map.jpg';
@@ -10,19 +12,12 @@ const Moon = () => {
   const moonRef = useRef<THREE.Mesh>(null);
   const craterRef = useRef<THREE.Mesh>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isMobile, setIsMobile] = useState(false);
+  const { isMobile } = useWindowSize();
+  const { reduceAnimations } = usePerformanceMode();
   const [textureError, setTextureError] = useState(false);
   const [textureLoaded, setTextureLoaded] = useState(false);
   const textureRef = useRef<THREE.Texture | null>(null);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', checkMobile);
-    checkMobile(); // Initial check
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const lastUpdateRef = useRef(0);
 
   // Create empty texture in useMemo with better settings
   const moonTexture = useMemo(() => {
@@ -142,29 +137,41 @@ const Moon = () => {
     };
   }, [moonLight]);
 
-  // Moon animation
+  // Moon animation - throttled for performance
   useFrame((state, delta) => {
     if (!moonRef.current) return;
+    
+    // Throttle updates to ~30fps for better performance
+    const now = performance.now();
+    if (now - lastUpdateRef.current < 33) return; // ~30fps
+    lastUpdateRef.current = now;
 
-    // Rotation based on mouse position
-    const intensity = isMobile ? 0.00005 : 0.0001;
-    moonRef.current.rotation.x += (mousePosition.y * intensity - moonRef.current.rotation.x) * 0.1;
-    moonRef.current.rotation.y += (mousePosition.x * intensity - moonRef.current.rotation.y) * 0.1;
+    // Simplified animations on low-end devices
+    if (reduceAnimations || isMobile) {
+      // Only basic rotation
+      moonRef.current.rotation.y += delta * 0.03;
+      return;
+    }
+
+    // Reduced intensity for smoother performance
+    const intensity = 0.00005; // Reduced from 0.0001
+    moonRef.current.rotation.x += (mousePosition.y * intensity - moonRef.current.rotation.x) * 0.08;
+    moonRef.current.rotation.y += (mousePosition.x * intensity - moonRef.current.rotation.y) * 0.08;
     
-    // Natural rotation
-    moonRef.current.rotation.y += delta * 0.05;
+    // Natural rotation - slower
+    moonRef.current.rotation.y += delta * 0.03; // Reduced from 0.05
     
-    // Gentle floating
-    moonRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+    // Gentle floating - slower frequency
+    moonRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08; // Reduced
     
     // Sync crater rotation
     if (craterRef.current) {
       craterRef.current.rotation.copy(moonRef.current.rotation);
     }
     
-    // Animate light intensity
+    // Animate light intensity - less frequent
     if (moonLight) {
-      moonLight.intensity = 1.8 + Math.sin(state.clock.elapsedTime * 0.3) * 0.2;
+      moonLight.intensity = 1.8 + Math.sin(state.clock.elapsedTime * 0.2) * 0.15; // Reduced
     }
   });
 
@@ -187,7 +194,7 @@ const Moon = () => {
       {/* Main moon with improved visibility */}
       <Sphere 
         ref={moonRef} 
-        args={[0.5, isMobile ? 32 : 64, isMobile ? 32 : 64]} 
+        args={[0.5, isMobile ? 16 : 32, isMobile ? 16 : 32]} 
         material={moonMaterial}
         onPointerMove={handleMouseMove}
         position={[0, 0, 0]} // Ensure correct position

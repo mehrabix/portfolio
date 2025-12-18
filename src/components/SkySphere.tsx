@@ -2,6 +2,8 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { Sphere } from '@react-three/drei';
 import { useFrame, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useWindowSize } from '../hooks/useWindowSize';
+import { usePerformanceMode } from '../hooks/usePerformanceMode';
 
 // Import sky texture using Vite's asset imports
 import skyMapUrl from '../assets/textures/sky/sky_map.jpg';
@@ -9,18 +11,11 @@ import skyMapUrl from '../assets/textures/sky/sky_map.jpg';
 const SkySphere = () => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const { isMobile } = useWindowSize();
+  const { reduceAnimations } = usePerformanceMode();
   const [textureLoaded, setTextureLoaded] = useState(false);
   const textureRef = useRef<THREE.Texture | null>(null);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', checkMobile);
-    checkMobile(); // Initial check
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const lastUpdateRef = useRef(0);
 
   // Create texture instance without loading in useMemo
   const skyTexture = useMemo(() => {
@@ -82,15 +77,26 @@ const SkySphere = () => {
     });
   }, []);
 
-  // Gentle animation
+  // Gentle animation - throttled
   useFrame((state) => {
     if (!meshRef.current) return;
-
-    // Subtle rotation
-    meshRef.current.rotation.y += 0.0005;
     
-    // Gentle floating animation
-    meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
+    // Throttle to ~30fps
+    const now = performance.now();
+    if (now - lastUpdateRef.current < 33) return;
+    lastUpdateRef.current = now;
+
+    // Disable animations on low-end devices
+    if (reduceAnimations || isMobile) {
+      // Minimal or no animation
+      return;
+    }
+
+    // Reduced rotation speed
+    meshRef.current.rotation.y += 0.0003; // Reduced from 0.0005
+    
+    // Reduced floating
+    meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.03; // Reduced
   });
 
   const handleInteraction = () => {
@@ -103,7 +109,7 @@ const SkySphere = () => {
       {/* Main sky sphere */}
       <Sphere 
         ref={meshRef} 
-        args={[90, isMobile ? 32 : 64, isMobile ? 32 : 64]}
+        args={[90, isMobile ? 16 : 32, isMobile ? 16 : 32]}
         material={textureLoaded ? skyMaterial : fallbackMaterial}
       />
       
