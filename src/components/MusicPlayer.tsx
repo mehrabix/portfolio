@@ -335,9 +335,14 @@ const MusicPlayer = () => {
         {/* Collapse/Expand button */}
         <motion.button
           className="absolute -top-3 right-2 w-7 h-7 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer border border-blue-500/30 hover:border-blue-500/70 transition-all duration-300 z-20"
-          onClick={toggleCollapse}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleCollapse();
+          }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          type="button"
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -390,9 +395,14 @@ const MusicPlayer = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={prevTrack}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  prevTrack();
+                }}
                 className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
                 title="Previous track"
+                type="button"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -408,8 +418,13 @@ const MusicPlayer = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={togglePlay}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  togglePlay();
+                }}
                 className="cursor-pointer w-10 h-10 rounded-full bg-white/10 flex items-center justify-center relative hover:bg-white/20 transition-all duration-200"
+                type="button"
               >
                 <AnimatePresence mode="wait">
                   {isPlaying ? (
@@ -464,9 +479,14 @@ const MusicPlayer = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={nextTrack}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  nextTrack();
+                }}
                 className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
                 title="Next track"
+                type="button"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -495,8 +515,13 @@ const MusicPlayer = () => {
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      onClick={toggleMute}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleMute();
+                      }}
                       className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+                      type="button"
                     >
                       <AnimatePresence mode="wait">
                         {isMuted ? (
