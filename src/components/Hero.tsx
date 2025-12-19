@@ -996,7 +996,7 @@ const Hero = () => {
             {/* Main objects */}
             <Moon />
             <InteractiveStars />
-            <ParticleField />
+            {/* ParticleField removed - can cause pixel artifacts */}
             
             <OrbitControls enableZoom={false} enablePan={false} />
           </Canvas>

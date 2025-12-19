@@ -1,6 +1,7 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { Sphere } from '@react-three/drei';
-import { useFrame, ThreeEvent } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
+import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { usePerformanceMode } from '../hooks/usePerformanceMode';
@@ -10,75 +11,40 @@ import skyMapUrl from '../assets/textures/sky/sky_map.jpg';
 
 const SkySphere = () => {
   const meshRef = useRef<THREE.Mesh>(null);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const { isMobile } = useWindowSize();
   const { reduceAnimations } = usePerformanceMode();
-  const [textureLoaded, setTextureLoaded] = useState(false);
-  const textureRef = useRef<THREE.Texture | null>(null);
   const lastUpdateRef = useRef(0);
 
-  // Create texture instance without loading in useMemo
-  const skyTexture = useMemo(() => {
-    const texture = new THREE.Texture();
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
+  // Load texture with proper filtering to prevent pixelation
+  const texture = useLoader(THREE.TextureLoader, skyMapUrl);
+  
+  // Configure texture to prevent pixelation - use proper filters
+  useMemo(() => {
+    if (!texture) return;
+    // Use high-quality filtering to prevent pixelation
+    texture.minFilter = THREE.LinearMipmapLinearFilter; // Best quality for minification
+    texture.magFilter = THREE.LinearFilter; // Smooth scaling
     texture.mapping = THREE.EquirectangularReflectionMapping;
-    textureRef.current = texture;
-    return texture;
-  }, []);
+    texture.generateMipmaps = true;
+    texture.anisotropy = 16; // High anisotropy for better quality at angles
+    texture.wrapS = THREE.ClampToEdgeWrapping; // Prevent edge artifacts
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.flipY = false; // Important for equirectangular
+  }, [texture]);
 
-  // Handle texture loading in useEffect
-  useEffect(() => {
-    const loader = new THREE.TextureLoader();
-    loader.load(
-      skyMapUrl,
-      (loadedTexture) => {
-        console.log('Sky texture loaded successfully');
-        if (textureRef.current) {
-          textureRef.current.image = loadedTexture.image;
-          textureRef.current.needsUpdate = true;
-          setTextureLoaded(true);
-        }
-      },
-      undefined,
-      (error) => {
-        console.error('Error loading sky texture:', error);
-      }
-    );
-  }, []);
-
-  // Create materials
+  // Create material with better settings to prevent pixelation
   const skyMaterial = useMemo(() => {
     return new THREE.MeshBasicMaterial({
-      map: skyTexture,
-      side: THREE.BackSide, // Important: render on inside of sphere
-      transparent: true,
-      opacity: 0.8
+      map: texture,
+      side: THREE.BackSide, // Render on inside of sphere
+      fog: false, // Disable fog for sky
+      depthWrite: false, // Prevent depth issues
+      depthTest: false, // Sky should always render
     });
-  }, [skyTexture]);
-
-  // Fallback material
-  const fallbackMaterial = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: '#000',
-      side: THREE.BackSide,
-      transparent: true,
-      opacity: 0.8,
-    });
-  }, []);
-
-  // Interactive glow effect
-  const glowMaterial = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: '#ffffff',
-      transparent: true,
-      opacity: 0.1,
-      side: THREE.BackSide
-    });
-  }, []);
+  }, [texture]);
 
   // Gentle animation - throttled
-  useFrame((state) => {
+  useFrame(() => {
     if (!meshRef.current) return;
     
     // Throttle to ~30fps
@@ -88,39 +54,23 @@ const SkySphere = () => {
 
     // Disable animations on low-end devices
     if (reduceAnimations || isMobile) {
-      // Minimal or no animation
       return;
     }
 
-    // Reduced rotation speed
-    meshRef.current.rotation.y += 0.0003; // Reduced from 0.0005
-    
-    // Reduced floating
-    meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.03; // Reduced
+    // Minimal rotation
+    meshRef.current.rotation.y += 0.0002;
   });
 
-  const handleInteraction = () => {
-    if (isMobile) return;
-    setHasInteracted(true);
-  };
-
+  // Use higher resolution sphere to prevent pixelation
+  // Increase segments for smoother appearance
+  const segments = isMobile ? 48 : 64;
+  
   return (
-    <group onPointerMove={handleInteraction}>
-      {/* Main sky sphere */}
-      <Sphere 
-        ref={meshRef} 
-        args={[90, isMobile ? 16 : 32, isMobile ? 16 : 32]}
-        material={textureLoaded ? skyMaterial : fallbackMaterial}
-      />
-      
-      {/* Interactive glow effect - only show before interaction */}
-      {!hasInteracted && !isMobile && (
-        <Sphere 
-          args={[91, 32, 32]} 
-          material={glowMaterial}
-        />
-      )}
-    </group>
+    <Sphere 
+      ref={meshRef} 
+      args={[90, segments, segments]}
+      material={skyMaterial}
+    />
   );
 };
 

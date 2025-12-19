@@ -1,24 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ShantiPeople from '../assets/music/Shanti_People.mp3';
-import Time from '../assets/music/Time.mp3';
-import DarudeSandstrom from '../assets/music/Darude-Sandstrom.mp3';
-
-// Playlist configuration
-const PLAYLIST = [
-  {
-    src: ShantiPeople,
-    title: 'Asato (Mark Dekoda) - Shanti People'
-  },
-  {
-    src: Time,
-    title: 'Time'
-  },
-  {
-    src: DarudeSandstrom,
-    title: 'Darude - Sandstorm'
-  }
-];
 
 const Visualizer = ({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement> }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -124,11 +106,8 @@ const MusicPlayer = () => {
   const [isOnContactSection, setIsOnContactSection] = useState(false);
   // Track if the collapse was automatic or manual
   const [isAutoCollapsed, setIsAutoCollapsed] = useState(false);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  
-  const currentTrack = PLAYLIST[currentTrackIndex];
-  const songTitle = currentTrack.title;
+  const songTitle = "Asato (Mark Dekoda)-24070-DNC Shanti People";
 
   // Check if user is viewing the contact section
   useEffect(() => {
@@ -206,57 +185,6 @@ const MusicPlayer = () => {
     }
   }, [volume]);
 
-  // Load a specific track
-  const loadTrack = useCallback((index: number) => {
-    if (audioRef.current) {
-      const wasPlaying = isPlaying;
-      audioRef.current.pause();
-      setIsPlaying(false);
-      setIsLoading(true);
-      
-      audioRef.current.src = PLAYLIST[index].src;
-      setCurrentTrackIndex(index);
-      setHasInteracted(true);
-      
-      // Auto-play if it was playing before
-      if (wasPlaying) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true);
-            })
-            .catch(error => {
-              console.log('Play failed:', error);
-              setIsLoading(false);
-            });
-        }
-      }
-    }
-  }, [isPlaying]);
-
-  // Go to next track
-  const nextTrack = useCallback((e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.nativeEvent.stopImmediatePropagation();
-    }
-    const nextIndex = (currentTrackIndex + 1) % PLAYLIST.length;
-    loadTrack(nextIndex);
-  }, [currentTrackIndex, loadTrack]);
-
-  // Go to previous track
-  const prevTrack = useCallback((e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.nativeEvent.stopImmediatePropagation();
-    }
-    const prevIndex = (currentTrackIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
-    loadTrack(prevIndex);
-  }, [currentTrackIndex, loadTrack]);
-
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -265,7 +193,7 @@ const MusicPlayer = () => {
       } else {
         if (!hasInteracted) {
           // Only set the source when user first interacts
-          audioRef.current.src = currentTrack.src;
+          audioRef.current.src = ShantiPeople;
           setHasInteracted(true);
           setIsLoading(true);
         }
@@ -285,21 +213,6 @@ const MusicPlayer = () => {
       }
     }
   };
-
-  // Handle track end - auto-play next track
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleEnded = () => {
-      nextTrack();
-    };
-
-    audio.addEventListener('ended', handleEnded);
-    return () => {
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, [nextTrack]);
 
   const toggleMute = () => {
     if (audioRef.current) {
@@ -326,25 +239,11 @@ const MusicPlayer = () => {
       }}
       transition={{ duration: 0.3 }}
       id="music-player" 
-      style={{ 
-        position: 'fixed',
-        pointerEvents: 'auto',
-        isolation: 'isolate'
-      }}
+      style={{ position: 'fixed' }}
       whileHover={{
         y: isCollapsed ? 'calc(100% - 45px)' : 0,
         opacity: 1,
         x: 0
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
       }}
     >
       {/* Removed tooltip message */}
@@ -355,29 +254,13 @@ const MusicPlayer = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-black/50 backdrop-blur-lg rounded-lg p-4 shadow-lg relative hover:shadow-[0_0_15px_rgba(80,194,255,0.5)] transition-all duration-300"
-        style={{ pointerEvents: 'auto' }}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          e.nativeEvent.stopImmediatePropagation();
-        }}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          e.nativeEvent.stopImmediatePropagation();
-        }}
       >
         {/* Collapse/Expand button */}
         <motion.button
           className="absolute -top-3 right-2 w-7 h-7 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer border border-blue-500/30 hover:border-blue-500/70 transition-all duration-300 z-20"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleCollapse();
-          }}
+          onClick={toggleCollapse}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          type="button"
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -424,55 +307,13 @@ const MusicPlayer = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-2 relative z-10"
+              className="flex items-center gap-4 relative z-10"
             >
-              {/* Previous Track Button */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  prevTrack(e);
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                }}
-                className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
-                title="Previous track"
-                type="button"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-white pointer-events-none"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
-                </svg>
-              </motion.button>
-
-              {/* Play/Pause Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  togglePlay();
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                }}
+                onClick={togglePlay}
                 className="cursor-pointer w-10 h-10 rounded-full bg-white/10 flex items-center justify-center relative hover:bg-white/20 transition-all duration-200"
-                type="button"
               >
                 <AnimatePresence mode="wait">
                   {isPlaying ? (
@@ -523,60 +364,20 @@ const MusicPlayer = () => {
                 </AnimatePresence>
               </motion.button>
 
-              {/* Next Track Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  nextTrack(e);
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                }}
-                className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
-                title="Next track"
-                type="button"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-white pointer-events-none"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0011 6v2.798l-5.445-3.63z" />
-                </svg>
-              </motion.button>
-
               {!isCollapsed && (
                 <div className="flex flex-col gap-1">
-                  <div className="overflow-hidden w-[140px] relative">
+                  <div className="overflow-hidden w-[120px] relative">
                     <div className="flex animate-marquee whitespace-nowrap">
                       <span className="text-white/80 text-xs">{songTitle}</span>
                       <span className="text-white/80 text-xs ml-4">{songTitle}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-white/60 text-[10px]">
-                    <span>{currentTrackIndex + 1}</span>
-                    <span>/</span>
-                    <span>{PLAYLIST.length}</span>
-                  </div>
                   <div className="flex items-center gap-2">
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleMute();
-                      }}
+                      onClick={toggleMute}
                       className="cursor-pointer w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
-                      type="button"
                     >
                       <AnimatePresence mode="wait">
                         {isMuted ? (
